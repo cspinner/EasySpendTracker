@@ -22,6 +22,18 @@
 		3B61713417EDED6800FBF39F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711817EDED6800FBF39F /* CoreData.framework */; };
 		3B61713C17EDED6800FBF39F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B61713A17EDED6800FBF39F /* InfoPlist.strings */; };
 		3B61713E17EDED6800FBF39F /* EasySpendTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61713D17EDED6800FBF39F /* EasySpendTrackerTests.m */; };
+		3B61714B17EE226900FBF39F /* spnViewController_Home.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61714A17EE226900FBF39F /* spnViewController_Home.m */; };
+		3B61714E17EFC76800FBF39F /* spnViewController_Add.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61714D17EFC76800FBF39F /* spnViewController_Add.m */; };
+		3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */; };
+		3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61716017F518C300FBF39F /* UIViewController+addTransactionHandles.m */; };
+		3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61716717F621D200FBF39F /* spnSpendTracker.m */; };
+		3B61716E17F761D600FBF39F /* UIView+spnViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61716D17F761D600FBF39F /* UIView+spnViewCategory.m */; };
+		3B61720617F8C20300FBF39F /* spnCategoryCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720517F8C20300FBF39F /* spnCategoryCellView.m */; };
+		3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */; };
+		3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720E17F916A100FBF39F /* spnTransactionCellView.m */; };
+		3B61721217FCD3BD00FBF39F /* spnTableViewController_Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61721117FCD3BD00FBF39F /* spnTableViewController_Transaction.m */; };
+		3BDBFFE01802451700876590 /* SpendCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDBFFDF1802451700876590 /* SpendCategory.m */; };
+		3BDBFFE318077EC000876590 /* Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDBFFE218077EC000876590 /* Transaction.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +65,31 @@
 		3B61713917EDED6800FBF39F /* EasySpendTrackerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "EasySpendTrackerTests-Info.plist"; sourceTree = "<group>"; };
 		3B61713B17EDED6800FBF39F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3B61713D17EDED6800FBF39F /* EasySpendTrackerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EasySpendTrackerTests.m; sourceTree = "<group>"; };
+		3B61714917EE226900FBF39F /* spnViewController_Home.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Home.h; sourceTree = "<group>"; };
+		3B61714A17EE226900FBF39F /* spnViewController_Home.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_Home.m; sourceTree = "<group>"; };
+		3B61714C17EFC76800FBF39F /* spnViewController_Add.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Add.h; sourceTree = "<group>"; };
+		3B61714D17EFC76800FBF39F /* spnViewController_Add.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_Add.m; sourceTree = "<group>"; };
+		3B61715717F3D9D700FBF39F /* spnTableViewController_Categories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Categories.h; sourceTree = "<group>"; };
+		3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Categories.m; sourceTree = "<group>"; };
+		3B61715F17F518C300FBF39F /* UIViewController+addTransactionHandles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+addTransactionHandles.h"; sourceTree = "<group>"; };
+		3B61716017F518C300FBF39F /* UIViewController+addTransactionHandles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+addTransactionHandles.m"; sourceTree = "<group>"; };
+		3B61716617F621D200FBF39F /* spnSpendTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnSpendTracker.h; sourceTree = "<group>"; };
+		3B61716717F621D200FBF39F /* spnSpendTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnSpendTracker.m; sourceTree = "<group>"; };
+		3B61716C17F761D600FBF39F /* UIView+spnViewCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+spnViewCategory.h"; sourceTree = "<group>"; };
+		3B61716D17F761D600FBF39F /* UIView+spnViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+spnViewCategory.m"; sourceTree = "<group>"; };
+		3B61720417F8C20300FBF39F /* spnCategoryCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnCategoryCellView.h; sourceTree = "<group>"; };
+		3B61720517F8C20300FBF39F /* spnCategoryCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnCategoryCellView.m; sourceTree = "<group>"; };
+		3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Transactions.h; sourceTree = "<group>"; };
+		3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Transactions.m; sourceTree = "<group>"; };
+		3B61720D17F916A100FBF39F /* spnTransactionCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTransactionCellView.h; sourceTree = "<group>"; };
+		3B61720E17F916A100FBF39F /* spnTransactionCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTransactionCellView.m; sourceTree = "<group>"; };
+		3B61721017FCD3BD00FBF39F /* spnTableViewController_Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Transaction.h; sourceTree = "<group>"; };
+		3B61721117FCD3BD00FBF39F /* spnTableViewController_Transaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Transaction.m; sourceTree = "<group>"; };
+		3B61721317FE5D2800FBF39F /* spnAddTransactionDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spnAddTransactionDelegate.h; sourceTree = "<group>"; };
+		3BDBFFDE1802451700876590 /* SpendCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpendCategory.h; sourceTree = "<group>"; };
+		3BDBFFDF1802451700876590 /* SpendCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpendCategory.m; sourceTree = "<group>"; };
+		3BDBFFE118077EC000876590 /* Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Transaction.h; sourceTree = "<group>"; };
+		3BDBFFE218077EC000876590 /* Transaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Transaction.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,10 +152,14 @@
 		3B61711A17EDED6800FBF39F /* EasySpendTracker */ = {
 			isa = PBXGroup;
 			children = (
+				3B61721A17FEF27F00FBF39F /* CoreData */,
+				3B61720317F8C1E200FBF39F /* Views */,
+				3B61716217F60D3700FBF39F /* Controls */,
+				3B61715E17F5186800FBF39F /* Categories/Protocols */,
 				3B61712317EDED6800FBF39F /* spnAppDelegate.h */,
 				3B61712417EDED6800FBF39F /* spnAppDelegate.m */,
+				3B61715A17F44AC200FBF39F /* ViewContollers */,
 				3B61712917EDED6800FBF39F /* Images.xcassets */,
-				3B61712617EDED6800FBF39F /* EasySpendTracker.xcdatamodeld */,
 				3B61711B17EDED6800FBF39F /* Supporting Files */,
 			);
 			path = EasySpendTracker;
@@ -151,6 +192,67 @@
 				3B61713A17EDED6800FBF39F /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3B61715A17F44AC200FBF39F /* ViewContollers */ = {
+			isa = PBXGroup;
+			children = (
+				3B61715717F3D9D700FBF39F /* spnTableViewController_Categories.h */,
+				3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */,
+				3B61714C17EFC76800FBF39F /* spnViewController_Add.h */,
+				3B61714D17EFC76800FBF39F /* spnViewController_Add.m */,
+				3B61714917EE226900FBF39F /* spnViewController_Home.h */,
+				3B61714A17EE226900FBF39F /* spnViewController_Home.m */,
+				3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */,
+				3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */,
+				3B61721017FCD3BD00FBF39F /* spnTableViewController_Transaction.h */,
+				3B61721117FCD3BD00FBF39F /* spnTableViewController_Transaction.m */,
+			);
+			name = ViewContollers;
+			sourceTree = "<group>";
+		};
+		3B61715E17F5186800FBF39F /* Categories/Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				3B61715F17F518C300FBF39F /* UIViewController+addTransactionHandles.h */,
+				3B61716017F518C300FBF39F /* UIViewController+addTransactionHandles.m */,
+				3B61716C17F761D600FBF39F /* UIView+spnViewCategory.h */,
+				3B61716D17F761D600FBF39F /* UIView+spnViewCategory.m */,
+				3B61721317FE5D2800FBF39F /* spnAddTransactionDelegate.h */,
+			);
+			name = Categories/Protocols;
+			sourceTree = "<group>";
+		};
+		3B61716217F60D3700FBF39F /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				3B61716617F621D200FBF39F /* spnSpendTracker.h */,
+				3B61716717F621D200FBF39F /* spnSpendTracker.m */,
+			);
+			name = Controls;
+			sourceTree = "<group>";
+		};
+		3B61720317F8C1E200FBF39F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3B61720417F8C20300FBF39F /* spnCategoryCellView.h */,
+				3B61720517F8C20300FBF39F /* spnCategoryCellView.m */,
+				3B61720D17F916A100FBF39F /* spnTransactionCellView.h */,
+				3B61720E17F916A100FBF39F /* spnTransactionCellView.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		3B61721A17FEF27F00FBF39F /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				3B61712617EDED6800FBF39F /* EasySpendTracker.xcdatamodeld */,
+				3BDBFFDE1802451700876590 /* SpendCategory.h */,
+				3BDBFFDF1802451700876590 /* SpendCategory.m */,
+				3BDBFFE118077EC000876590 /* Transaction.h */,
+				3BDBFFE218077EC000876590 /* Transaction.m */,
+			);
+			name = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -249,9 +351,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BDBFFE01802451700876590 /* SpendCategory.m in Sources */,
+				3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */,
 				3B61712517EDED6800FBF39F /* spnAppDelegate.m in Sources */,
+				3B61716E17F761D600FBF39F /* UIView+spnViewCategory.m in Sources */,
 				3B61712117EDED6800FBF39F /* main.m in Sources */,
+				3B61714E17EFC76800FBF39F /* spnViewController_Add.m in Sources */,
+				3B61720617F8C20300FBF39F /* spnCategoryCellView.m in Sources */,
 				3B61712817EDED6800FBF39F /* EasySpendTracker.xcdatamodeld in Sources */,
+				3BDBFFE318077EC000876590 /* Transaction.m in Sources */,
+				3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */,
+				3B61714B17EE226900FBF39F /* spnViewController_Home.m in Sources */,
+				3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */,
+				3B61721217FCD3BD00FBF39F /* spnTableViewController_Transaction.m in Sources */,
+				3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */,
+				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +566,7 @@
 				3B61714317EDED6800FBF39F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3B61714417EDED6800FBF39F /* Build configuration list for PBXNativeTarget "EasySpendTrackerTests" */ = {
 			isa = XCConfigurationList;
@@ -460,6 +575,7 @@
 				3B61714617EDED6800FBF39F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

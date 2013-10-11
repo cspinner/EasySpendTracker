@@ -7,6 +7,13 @@
 //
 
 #import "spnAppDelegate.h"
+#import "spnSpendTracker.h"
+#import <UIKit/UIKit.h>
+
+@interface spnAppDelegate ()
+
+
+@end
 
 @implementation spnAppDelegate
 
@@ -18,8 +25,20 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    if (!context) {
+        // Handle the error.
+    }
+    
+    // main data object (singleton)
+    spnSpendTracker* spendTracker = [spnSpendTracker sharedManager];
+    spendTracker.managedObjectContext = context;
+    [spendTracker initViews];
+    
+    self.window.rootViewController = spendTracker.rootViewController;
     [self.window makeKeyAndVisible];
+
     return YES;
 }
 
