@@ -1,23 +1,23 @@
 //
-//  Transaction.m
+//  SpnTransaction.m
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 10/10/13.
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "Transaction.h"
-#import "SpendCategory.h"
+#import "SpnTransaction.h"
+#import "SpnSpendCategory.h"
 
 
-@implementation Transaction
+@implementation SpnTransaction
 
 @dynamic date;
 @dynamic merchant;
 @dynamic notes;
+@dynamic sectionName;
 @dynamic uniqueId;
 @dynamic value;
-@dynamic sectionName;
 @dynamic category;
 
 @end

@@ -9,7 +9,7 @@
 #import "spnViewController_Home.h"
 #import "spnViewController_Add.h"
 #import "UIViewController+addTransactionHandles.h"
-#import "Transaction.h"
+#import "SpnTransaction.h"
 #import "spnSpendTracker.h"
 
 @interface spnViewController_Home ()
@@ -58,8 +58,8 @@
 
 - (void)buttonPressed:(id)sender
 {
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Transaction"];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Transaction"
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransaction"];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnTransaction"
                                               inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
     
     [fetchRequest setEntity:entity];
@@ -75,8 +75,8 @@
     {
         if(mutableFetchResults.count == 0)
         {
-            Transaction* transaction = (Transaction*)[NSEntityDescription
-                                                      insertNewObjectForEntityForName:@"Transaction"
+            SpnTransaction* transaction = (SpnTransaction*)[NSEntityDescription
+                                                      insertNewObjectForEntityForName:@"SpnTransaction"
                                                       inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
             transaction.merchant = @"Wegmans";
             
@@ -86,7 +86,7 @@
         }
         else
         {
-            [self.label setText:[((Transaction*)[mutableFetchResults objectAtIndex:0]) merchant]];
+            [self.label setText:[((SpnTransaction*)[mutableFetchResults objectAtIndex:0]) merchant]];
         }
     }
     

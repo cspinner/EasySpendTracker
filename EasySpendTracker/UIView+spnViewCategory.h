@@ -11,7 +11,5 @@
 @interface UIView (spnViewCategory)
 
 - (UIView*)spnFirstResponder;
-- (NSDateFormatter*)dateFormatterMonthDayYear; // i.e. in US locale "4/12/84" (april 12, 1984)
-- (NSDateFormatter*)dateFormatterMonth; // i.e. "September"
 
 @end

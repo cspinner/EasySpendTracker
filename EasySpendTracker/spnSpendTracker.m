@@ -10,8 +10,8 @@
 #import "spnViewController_Home.h"
 #import "spnTableViewController_Categories.h"
 #import "spnAddController.h"
-#import "Transaction.h"
-#import "SpendCategory.h"
+#import "SpnTransaction.h"
+#import "SpnSpendCategory.h"
 
 @interface spnSpendTracker ()
 
@@ -20,6 +20,9 @@
 @implementation spnSpendTracker
 
 static spnSpendTracker *sharedSpendTracker = nil;
+static NSDateFormatter* sharedDateFormatterMonthDayYear;
+static NSDateFormatter* sharedDateFormatterMonthYear;
+static NSDateFormatter* sharedDateFormatterMonth;
 
 + (spnSpendTracker*)sharedManager
 {
@@ -38,7 +41,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     spnViewController_Home* homeViewController = [[spnViewController_Home alloc] init];
     [homeViewController setTitle:@"Summary"];
     spnTableViewController_Categories* categoryTableViewController = [[spnTableViewController_Categories alloc] initWithStyle:UITableViewStyleGrouped];
-    [categoryTableViewController setTitle:@"Categories"];
+    [categoryTableViewController setMonth:[self fetchMonth:[NSDate date]]];
     [categoryTableViewController setManagedObjectContext:self.managedObjectContext];
     
     // Navigation Controllers
@@ -62,15 +65,44 @@ static spnSpendTracker *sharedSpendTracker = nil;
     self.categories = [[NSMutableDictionary alloc] init];
 }
 
-
-- (SpendCategory*)fetchCategory:(NSString*)categoryName
+- (SpnMonth*)fetchMonth:(NSDate*)date
 {
     NSError *error = nil;
-    SpendCategory* category = nil;
+    SpnMonth* month = nil;
     
-    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpendCategory"];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpendCategory"inManagedObjectContext:self.managedObjectContext];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"title == %@", categoryName];
+    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnMonth"];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnMonth"inManagedObjectContext:self.managedObjectContext];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"sectionName == %@", [self.dateFormatterMonthYear stringFromDate:date]];
+    [fetchRequest setEntity:entity];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
+    
+    if (mutableFetchResults == nil)
+    {
+        // Error
+    }
+    else
+    {
+        // Target month was found
+        if([mutableFetchResults count] != 0)
+        {
+            // set the return value
+            month = [mutableFetchResults objectAtIndex:0];
+        }
+    }
+    
+    return month;
+}
+
+- (SpnSpendCategory*)fetchCategory:(NSString*)categoryName inMonth:(SpnMonth*)month
+{
+    NSError *error = nil;
+    SpnSpendCategory* category = nil;
+    
+    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnSpendCategory"];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnSpendCategory"inManagedObjectContext:self.managedObjectContext];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(title == %@) AND (month == %@)", categoryName, month];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
     
@@ -85,7 +117,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
         // Target category was found
         if([mutableFetchResults count] != 0)
         {
-            // add the entry
+            // set the return value
             category = [mutableFetchResults objectAtIndex:0];
         }
     }
@@ -107,26 +139,77 @@ static spnSpendTracker *sharedSpendTracker = nil;
     }
 }
 
-- (void)addTransaction:(Transaction*)entry forCategory:(NSString*)targetCategory
+- (NSDateFormatter*)dateFormatterMonthDayYear
+{
+    if (sharedDateFormatterMonthDayYear == nil)
+    {
+        sharedDateFormatterMonthDayYear = [[NSDateFormatter alloc] init];
+        [sharedDateFormatterMonthDayYear setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"yyyyMd" options:0 locale:[NSLocale currentLocale]]];
+    }
+    
+    return sharedDateFormatterMonthDayYear;
+}
+
+- (NSDateFormatter*)dateFormatterMonth
+{
+    if (sharedDateFormatterMonth == nil)
+    {
+        sharedDateFormatterMonth = [[NSDateFormatter alloc] init];
+        [sharedDateFormatterMonth setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMM" options:0 locale:[NSLocale currentLocale]]];
+    }
+    
+    return sharedDateFormatterMonth;
+}
+
+- (NSDateFormatter*)dateFormatterMonthYear
+{
+    if (sharedDateFormatterMonthYear == nil)
+    {
+        sharedDateFormatterMonthYear = [[NSDateFormatter alloc] init];
+        [sharedDateFormatterMonthYear setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMyyyy" options:0 locale:[NSLocale currentLocale]]];
+    }
+    
+    return sharedDateFormatterMonthYear;
+}
+
+- (void)addTransaction:(SpnTransaction*)entry forCategory:(NSString*)targetCategory
 {
     // If an entry was specified
     if(entry)
     {
-        SpendCategory* category = [self fetchCategory:targetCategory];
+        SpnMonth* month = [self fetchMonth:entry.date];
+        
+        // Month not found - add a new one
+        if(!month)
+        {
+            // Create new month
+            month = (SpnMonth*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnMonth"                                                  inManagedObjectContext:self.managedObjectContext];
+            [month setDate:entry.date];
+            [month setSectionName:[self.dateFormatterMonthYear stringFromDate:entry.date]];
+            [month setTotalExpenses:[NSNumber numberWithFloat:0.00]];
+            [month setTotalIncome:[NSNumber numberWithFloat:0.00]];
+        }
+        
+        SpnSpendCategory* category = [self fetchCategory:targetCategory inMonth:month];
         
         // Category not found - add a new one
         if(!category)
         {
             // Create new category then add the entry
-            category = (SpendCategory*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpendCategory"                                                  inManagedObjectContext:self.managedObjectContext];
+            category = (SpnSpendCategory*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnSpendCategory"                                                  inManagedObjectContext:self.managedObjectContext];
             [category setTitle:targetCategory];
             [category setTotal:entry.value];
+            
+            // add the new category to the month
+            [month addCategoriesObject:category];
         }
         else // Target category was found
         {
             // add the entry value to the total
             [category setTotal:[NSNumber numberWithFloat:(category.total.floatValue + entry.value.floatValue)]];
         }
+        
+        [month setTotalExpenses:[NSNumber numberWithFloat:(month.totalExpenses.floatValue + entry.value.floatValue)]];
         
         [category addTransactionsObject:entry];
         [category setLastModifiedDate:[NSDate date]];
@@ -138,13 +221,13 @@ static spnSpendTracker *sharedSpendTracker = nil;
     }
 }
 
-- (void)deleteTransaction:(Transaction*)entry fromCategory:(NSString*)targetCategory
+- (void)deleteTransaction:(SpnTransaction*)entry fromCategory:(NSString*)targetCategory
 {
     // If an entry was specified
     if(entry)
     {
         // Find target category
-        SpendCategory* category = [self fetchCategory:targetCategory];
+        SpnSpendCategory* category = [self fetchCategory:targetCategory inMonth:[self fetchMonth:entry.date]];
         
         // If a category was found
         if(category)

@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Transaction.h"
+#import "SpnTransaction.h"
 
 @protocol spnAddTransactionDelegate <NSObject>
 
 @optional
-- (Transaction*)transactionForEdit;
+- (SpnTransaction*)transactionForEdit;
 - (NSString*)activeCategory;
 @end

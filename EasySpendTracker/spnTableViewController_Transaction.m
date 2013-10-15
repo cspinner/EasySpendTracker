@@ -9,6 +9,7 @@
 #import "spnTableViewController_Transaction.h"
 #import "UIView+spnViewCategory.h"
 #import "UIViewController+addTransactionHandles.h"
+#import "spnSpendTracker.h"
 
 @interface spnTableViewController_Transaction ()
 
@@ -16,10 +17,10 @@
 
 @implementation spnTableViewController_Transaction
 
-#define MERCHANT_ROW_IDX 0
-#define VALUE_ROW_IDX 1
-#define DATE_ROW_IDX 2
-#define DESCRIPTION_ROW_IDX 3
+#define MERCHANT_SECTION_IDX 0
+#define VALUE_SECTION_IDX 1
+#define DATE_SECTION_IDX 2
+#define DESCRIPTION_SECTION_IDX 3
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -54,45 +55,42 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 1;
+    return 4;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // Return the number of rows in the section.
-    return 4;
+    // One row per section
+    return 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell* cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
+    UITextView* textView;
+    UITableViewCell* cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     [cell.detailTextLabel setTextColor:[UIColor blueColor]];
     
     // Configure the cell...
-    switch (indexPath.row)
+    switch(indexPath.section)
     {
-        case MERCHANT_ROW_IDX:
-            [cell.textLabel setText:@"Merchant"];
-            [cell.detailTextLabel setText:[self.transaction merchant]];
+        case MERCHANT_SECTION_IDX:
+            [cell.textLabel setText:[self.transaction merchant]];
             break;
             
-        case VALUE_ROW_IDX:
-            [cell.textLabel setText:@"Amount"];
-            [cell.detailTextLabel setText:[NSString stringWithFormat:@"$%.2f", [self.transaction.value floatValue]]];
+        case VALUE_SECTION_IDX:
+            [cell.textLabel setText:[NSString stringWithFormat:@"$%.2f", [self.transaction.value floatValue]]];
             break;
             
-        case DATE_ROW_IDX:
-            [cell.textLabel setText:@"Date"];
-            [cell.detailTextLabel setText:[[self.view dateFormatterMonthDayYear] stringFromDate:[self.transaction date]]];
+        case DATE_SECTION_IDX:
+            [cell.textLabel setText:[[[spnSpendTracker sharedManager] dateFormatterMonthDayYear] stringFromDate:[self.transaction date]]];
             break;
             
-        case DESCRIPTION_ROW_IDX:
-            cell = [cell initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-            [cell.textLabel setText:@"Description"];
-            [cell.detailTextLabel setText:[self.transaction notes]];
-            [cell.detailTextLabel setNumberOfLines:15];
-            [cell.detailTextLabel setFont:[UIFont systemFontOfSize:12]];
-            [cell.detailTextLabel setTextAlignment:NSTextAlignmentLeft];
+        case DESCRIPTION_SECTION_IDX:
+            //cell = [cell initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
+            textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+            [textView setText:[self.transaction notes]];
+            [textView sizeToFit];
+            [cell addSubview:textView];
             break;
             
         default:
@@ -102,19 +100,64 @@
     return cell;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    NSString* title = nil;
+    
+    switch (section)
+    {
+        case MERCHANT_SECTION_IDX:
+            title = @"Merchant";
+            break;
+            
+        case VALUE_SECTION_IDX:
+            title = @"Amount";
+            break;
+            
+        case DATE_SECTION_IDX:
+            title = @"Date";
+            break;
+            
+        case DESCRIPTION_SECTION_IDX:
+            title = @"Description";
+            break;
+            
+        default:
+            break;
+    }
+
+    return title;
+}
+
 // <UITableViewDelegate> methods
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
  //   [self.tableView cellForRowAtIndexPath:indexPath] detailTextLabel
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    NSInteger height;
+    
+    if(section == 0)
+    {
+        height = 35;
+    }
+    else
+    {
+        height = 20;
+    }
+    
+    return height;
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     CGFloat height;
     
-    if (indexPath.row == DESCRIPTION_ROW_IDX)
+    if (indexPath.section == DESCRIPTION_SECTION_IDX)
     {
-        height = 250;
+        height = 170;
     }
     else
     {
@@ -125,7 +168,7 @@
 }
 
 // <spnAddTransactionDelegate> methods
-- (Transaction*)transactionForEdit
+- (SpnTransaction*)transactionForEdit
 {
     return self.transaction;
 }

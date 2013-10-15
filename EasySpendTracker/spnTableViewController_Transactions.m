@@ -11,7 +11,7 @@
 #import "UIView+spnViewCategory.h"
 #import "spnTransactionCellView.h"
 #import "spnTableViewController_Transaction.h"
-#import "Transaction.h"
+#import "SpnTransaction.h"
 #import "spnSpendTracker.h"
 
 @interface spnTableViewController_Transactions ()
@@ -74,7 +74,7 @@
     }
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Transaction" inManagedObjectContext:self.managedObjectContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnTransaction" inManagedObjectContext:self.managedObjectContext];
     [fetchRequest setEntity:entity];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
@@ -95,7 +95,7 @@
 
 - (void)configureCell:(spnTransactionCellView*)cell atIndexPath:(NSIndexPath*)indexPath
 {
-    Transaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnTransaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Write cell contents
     [cell setValue:transaction.value.floatValue withMerchant:[transaction merchant] onDate:[transaction date] withDescription:[transaction notes]];
@@ -137,10 +137,7 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
     id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
-    
-    //Transaction* aTransaction = (Transaction*)[[sectionInfo objects] objectAtIndex:0];
-    
-    //return [[self.view dateFormatterMonthDayYear] stringFromDate:aTransaction.date];
+   
     return [sectionInfo name];
 }
 
@@ -154,7 +151,7 @@
         // Delete parent category too if this was the last transaction to be deleted
         if([self.tableView numberOfRowsInSection:indexPath.section] == 1)
         {
-            [self.managedObjectContext deleteObject:[((Transaction*)[self.fetchedResultsController objectAtIndexPath:indexPath]) category]];
+            [self.managedObjectContext deleteObject:[((SpnTransaction*)[self.fetchedResultsController objectAtIndexPath:indexPath]) category]];
         }
     }
     
@@ -165,7 +162,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get transaction corresponding to selected cell
-    Transaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnTransaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
 
     // Create and Push transaction detail view controller
     spnTableViewController_Transaction* transactionTableViewController = [[spnTableViewController_Transaction alloc] initWithStyle:UITableViewStyleGrouped];

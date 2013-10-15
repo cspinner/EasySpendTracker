@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Transaction.h"
+#import "SpnTransaction.h"
 
 @interface spnSpendTracker : NSObject 
 
@@ -17,8 +17,12 @@
 
 + (spnSpendTracker*)sharedManager;
 - (void)initViews;
-- (void)addTransaction:(Transaction*)entry forCategory:(NSString*)targetCategory;
-- (void)deleteTransaction:(Transaction*)entry fromCategory:(NSString*)targetCategory;
+- (void)addTransaction:(SpnTransaction*)entry forCategory:(NSString*)targetCategory;
+- (void)deleteTransaction:(SpnTransaction*)entry fromCategory:(NSString*)targetCategory;
 - (void)saveContext;
+
+- (NSDateFormatter*)dateFormatterMonthDayYear; // i.e. in US locale "4/12/84" (april 12, 1984)
+- (NSDateFormatter*)dateFormatterMonthYear; // i.e. "Sept 2013"
+- (NSDateFormatter*)dateFormatterMonth; // i.e. "September"
 
 @end

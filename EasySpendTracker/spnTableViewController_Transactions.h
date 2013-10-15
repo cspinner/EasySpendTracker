@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SpendCategory.h"
+#import "SpnSpendCategory.h"
 
 @interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
 
-@property (nonatomic) SpendCategory* category;
+@property (nonatomic) SpnSpendCategory* category;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
 
 @end

@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "spnAddController.h"
+#import "SpnMonth.h"
 
 @interface spnTableViewController_Categories : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
+@property SpnMonth* month;
 
 @end

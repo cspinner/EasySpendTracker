@@ -10,9 +10,6 @@
 
 @implementation UIView (spnViewCategory)
 
-static NSDateFormatter* sharedDateFormatterMonthDayYear;
-static NSDateFormatter* sharedDateFormatterMonth;
-
 // Returns the first responder subview of the view
 - (UIView*)spnFirstResponder
 {
@@ -32,28 +29,6 @@ static NSDateFormatter* sharedDateFormatterMonth;
     }
     
     return nil;
-}
-
-- (NSDateFormatter*)dateFormatterMonthDayYear
-{
-    if (sharedDateFormatterMonthDayYear == nil)
-    {
-        sharedDateFormatterMonthDayYear = [[NSDateFormatter alloc] init];
-        [sharedDateFormatterMonthDayYear setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"yyyyMd" options:0 locale:[NSLocale currentLocale]]];
-    }
-    
-    return sharedDateFormatterMonthDayYear;
-}
-
-- (NSDateFormatter*)dateFormatterMonth
-{
-    if (sharedDateFormatterMonth == nil)
-    {
-        sharedDateFormatterMonth = [[NSDateFormatter alloc] init];
-        [sharedDateFormatterMonth setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMM" options:0 locale:[NSLocale currentLocale]]];
-    }
-    
-    return sharedDateFormatterMonth;
 }
 
 @end

@@ -1,27 +1,26 @@
 //
-//  spnTableViewController_Categories.m
+//  spnViewController_Months.m
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 9/25/13.
+//  Created by Christopher Spinner on 10/11/13.
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "spnTableViewController_Categories.h"
-#import "spnTableViewController_Transactions.h"
-#import "UIViewController+addTransactionHandles.h"
-#import "UIView+spnViewCategory.h"
-#import "spnSpendTracker.h"
-#import "spnCategoryCellView.h"
-#import "SpnSpendCategory.h"
 #import "spnViewController_Months.h"
+#import "UIView+spnViewCategory.h"
+#import "SpnMonth.h"
+#import "spnSpendTracker.h"
 
-@interface spnTableViewController_Categories ()
+@interface spnViewController_Months ()
 
 @property (nonatomic) NSFetchedResultsController* fetchedResultsController;
 
 @end
 
-@implementation spnTableViewController_Categories
+@implementation spnViewController_Months
+
+SEL changeMonthSelector;
+SEL closeMonthViewCntrlSelector;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -40,63 +39,30 @@
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    //self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    changeMonthSelector = sel_registerName("changeMonth:");
+    closeMonthViewCntrlSelector = sel_registerName("closeMonthViewCntrl");
+    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
-    //self.navigationItem.leftBarButtonItem = self.editButtonItem;
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self action:@selector(selectMonth)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
+    //self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:[self parentViewController] action:changeMonthSelector];
     
-    // If the month property is not set
-    if(!self.month)
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelButtonClicked:)];
+    
+    NSError *error;
+	if (![[self fetchedResultsController] performFetch:&error])
     {
-        self.month = [self fetchInitialMonth];
-    }
-    
-    [self changeMonth:self.month];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    [self.tableView reloadData];
+		// Update to handle the error appropriately.
+		NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
+		exit(-1);
+	}
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-- (SpnMonth*)fetchInitialMonth
-{
-    SpnMonth* month = nil;
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription
-                                   entityForName:@"SpnMonth" inManagedObjectContext:self.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc]
-                              initWithKey:@"date" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    [fetchRequest setFetchBatchSize:1];
-    
-    NSError* error;
-    NSArray *fetchResults = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-    
-    if(fetchResults != nil)
-    {
-        // Target category was found
-        if([fetchResults count] != 0)
-        {
-            // set the return value
-            month = [fetchResults objectAtIndex:0];
-        }
-    }
-
-    return month;
 }
 
 - (NSFetchedResultsController *)fetchedResultsController
@@ -109,51 +75,52 @@
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription
-        entityForName:@"SpnSpendCategory" inManagedObjectContext:self.managedObjectContext];
+                                   entityForName:@"SpnMonth" inManagedObjectContext:self.managedObjectContext];
     [fetchRequest setEntity:entity];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc]
-        initWithKey:@"lastModifiedDate" ascending:NO];
+                              initWithKey:@"date" ascending:NO];
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-
+    
     [fetchRequest setFetchBatchSize:20];
     
-    //[NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Categories", self.month]];
+    //tbd
+    [NSFetchedResultsController deleteCacheWithName:@"CacheMonths"];
+    
     self.fetchedResultsController =
     [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-        managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:[NSString stringWithFormat:@"Cache%@Categories", self.month]];
+                                        managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheMonths"];
     self.fetchedResultsController.delegate = self;
     
     return self.fetchedResultsController;
 }
 
-- (void)configureCell:(spnCategoryCellView*)cell atIndexPath:(NSIndexPath*)indexPath
+- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath
 {
-    SpnSpendCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnMonth* month = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Write cell contents
-    [cell setName:category.title withTotal:category.total.floatValue forMonth:[[[spnSpendTracker sharedManager] dateFormatterMonth] stringFromDate:[NSDate date]] withBudget:0.00];
-    
-    
+    [cell.textLabel setText:[[[spnSpendTracker sharedManager] dateFormatterMonthYear] stringFromDate:month.date]];
+    [cell.detailTextLabel setText:[NSString stringWithFormat:@"Expenses: $%.2f",[month.totalExpenses floatValue]]];
 }
 
 // <UITableViewDataSource> methods
-- (spnCategoryCellView *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString* CellIdentifier = @"CategoryCell";
-    spnCategoryCellView* cell = nil;
-
+    static NSString* CellIdentifier = @"MonthCell";
+    UITableViewCell* cell = nil;
+    
     // Acquire reuse cell object from the table view
     cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-
+    
     if (!cell)
     {
         // Create cell if reuse cell doesn't exist.
-        cell = [[spnCategoryCellView alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:CellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:CellIdentifier];
     }
     
     [self configureCell:cell atIndexPath:indexPath];
-
+    
     return cell;
 }
 
@@ -186,19 +153,36 @@
     [[spnSpendTracker sharedManager] saveContext];
 }
 
+- (void)cancelButtonClicked: (id)sender
+{
+    // Return to presenting view
+    if([self.delegate respondsToSelector:changeMonthSelector])
+    {
+        [self.delegate performSelector:changeMonthSelector withObject:nil];
+    }
+    
+    if([self.delegate respondsToSelector:closeMonthViewCntrlSelector])
+    {
+        [self.delegate performSelector:closeMonthViewCntrlSelector];
+    }
+}
+
 // <UITableViewDelegate> methods
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get reference to selected item from the fetch controller
-    SpnSpendCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnMonth* selectedMonth = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
-    // Create and Push transaction detail view controller
-    spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
-    [transactionsTableViewController setTitle:[category title]];
-    [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-    [transactionsTableViewController setCategory:category];
+    // Return to presenting view
+    if([self.delegate respondsToSelector:changeMonthSelector])
+    {
+        [self.delegate performSelector:changeMonthSelector withObject:selectedMonth];
+    }
     
-    [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
+    if([self.delegate respondsToSelector:closeMonthViewCntrlSelector])
+    {
+        [self.delegate performSelector:closeMonthViewCntrlSelector];
+    }
 }
 
 // <NSFetchedResultsControllerDelegate> methods
@@ -223,14 +207,14 @@
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnCategoryCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
+            [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
             break;
             
         case NSFetchedResultsChangeMove:
             [tableView deleteRowsAtIndexPaths:[NSArray
-                arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                                               arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [tableView insertRowsAtIndexPaths:[NSArray
-                arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+                                               arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
             break;
     }
 }
@@ -255,58 +239,9 @@
     [self.tableView endUpdates];
 }
 
-- (void)selectMonth
-{
-    // Create and Push month selector view controller
-    spnViewController_Months* monthsTableViewController = [[spnViewController_Months alloc] initWithStyle:UITableViewStyleGrouped];
-    [monthsTableViewController setTitle:@"Select Month"];
-    [monthsTableViewController setManagedObjectContext:self.managedObjectContext];
-    [monthsTableViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
-    
-    UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:monthsTableViewController];
-    
-    monthsTableViewController.delegate = self;
-    [self presentViewController:navController animated:YES completion:nil];
-}
 
-- (void)closeMonthViewCntrl
-{
-    [[self navigationController] dismissViewControllerAnimated:YES completion:nil];
-}
 
-- (void)changeMonth:(SpnMonth*)newMonth
-{
-    if(newMonth)
-    {
-        // Delete results controller cache file before modifying the predicate
-        [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Categories", self.month]];
-        
-        // Set new month and update predicate
-        self.month = newMonth;
-        
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"month == %@", self.month];
-        [[[self fetchedResultsController] fetchRequest] setPredicate:predicate];
-        
-        NSError *error;
-        if (![[self fetchedResultsController] performFetch:&error])
-        {
-            // Update to handle the error appropriately.
-            NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
-            exit(-1);
-        }
-        
-        self.title = [[[spnSpendTracker sharedManager] dateFormatterMonthYear] stringFromDate:self.month.date];
-    }
-}
 
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-//{
-//    UILabel* sectionHeader = [[UILabel alloc] init];
-//    [sectionHeader setText:[NSString stringWithFormat:@"Section %ld:", (long)section]];
-//    [sectionHeader sizeToFit];
-//    
-//    return sectionHeader;
-//}
 
 /*
 // Override to support conditional editing of the table view.
@@ -317,6 +252,19 @@
 }
 */
 
+/*
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        // Delete the row from the data source
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    }   
+    else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+    }   
+}
+*/
 
 /*
 // Override to support rearranging the table view.

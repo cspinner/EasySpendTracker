@@ -9,13 +9,13 @@
 #import "spnViewController_Add.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "UIView+spnViewCategory.h"
-#import "Transaction.h"
-#import "SpendCategory.h"
+#import "SpnTransaction.h"
+#import "SpnSpendCategory.h"
 #import "spnSpendTracker.h"
 
 @interface spnViewController_Add ()
 
-@property Transaction* fillTransaction;
+@property SpnTransaction* fillTransaction;
 @property UITextField* valueField;
 @property UITextField* categoryField;
 @property UITextField* merchantField;
@@ -114,7 +114,7 @@
     self.dateField.backgroundColor = [UIColor whiteColor];
     self.dateField.delegate = self;
     self.dateField.inputView = datePickerView;
-    self.dateField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:[[self.view dateFormatterMonthDayYear] stringFromDate:[NSDate date]]];
+    self.dateField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:[[[spnSpendTracker sharedManager] dateFormatterMonthDayYear] stringFromDate:[NSDate date]]];
 
     [descriptionLabel setText:@"Description"];
     [descriptionLabel setFont:[UIFont systemFontOfSize:10]];
@@ -148,7 +148,7 @@
     if([sender isKindOfClass:[UIBarButtonItem class]])
     {
         // Collect data and provide to delegate
-        Transaction* transaction = (Transaction*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"Transaction"                                                  inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+        SpnTransaction* transaction = (SpnTransaction*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnTransaction"                                                  inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
         
         NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];
         [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
@@ -161,7 +161,7 @@
         transaction.notes = self.descriptionView.text;
         //transaction.targetAccount = nil;
         transaction.date = self.date;
-        transaction.sectionName = [[self.view dateFormatterMonthDayYear] stringFromDate:self.date];
+        transaction.sectionName = [[[spnSpendTracker sharedManager] dateFormatterMonthDayYear] stringFromDate:self.date];
         NSString* category = (self.categoryField.text.length > 0) ? self.categoryField.text : DEFAULT_CATEGORY_TITLE;
  
         [self.delegate spnAddViewControllerDidFinish:self withNewEntry:transaction fromOldEntry:self.fillTransaction withCategory:category fromOldCategory:[self.fillTransaction.category title]];
@@ -181,7 +181,7 @@
     if ([sender isKindOfClass:[UIBarButtonItem class]])
     {
         self.date = [self.datePicker date];
-        [self.dateField setText:[[self.view dateFormatterMonthDayYear] stringFromDate:self.date]];
+        [self.dateField setText:[[[spnSpendTracker sharedManager] dateFormatterMonthDayYear] stringFromDate:self.date]];
         [self.dateField resignFirstResponder];
     }
 }
@@ -208,7 +208,7 @@
             [self.valueField setText:[NSString stringWithFormat:@"$%.2f", [self.fillTransaction.value floatValue]]];
             [self.categoryField setText:[self.fillTransaction.category title]];
             [self.merchantField setText:[self.fillTransaction merchant]];
-            [self.dateField setText:[[self.view dateFormatterMonthDayYear] stringFromDate:[self.fillTransaction date]]];
+            [self.dateField setText:[[[spnSpendTracker sharedManager] dateFormatterMonthDayYear] stringFromDate:[self.fillTransaction date]]];
             [self.descriptionView setText:[self.fillTransaction notes]];
             self.date = [self.fillTransaction date];
         }

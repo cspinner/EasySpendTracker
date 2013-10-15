@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Transaction.h"
+#import "SpnTransaction.h"
 #import "spnAddTransactionDelegate.h"
 
 @interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, spnAddTransactionDelegate>
 
-@property Transaction* transaction;
+@property SpnTransaction* transaction;
 
 @end

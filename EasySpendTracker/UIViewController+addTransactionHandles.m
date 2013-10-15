@@ -27,7 +27,7 @@ addTransaction_mode_t mode;
     spnViewController_Add* addViewController = [[spnViewController_Add alloc] init];
     [addViewController setTitle:@"Add Transaction"];
     
-    addViewController.modalPresentationStyle = UIModalTransitionStyleCoverVertical;
+    addViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     
     UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
     
