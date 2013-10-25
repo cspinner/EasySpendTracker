@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "SpnTransaction.h"
-#import "spnAddTransactionDelegate.h"
 
-@interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, spnAddTransactionDelegate>
+@interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
 
 @property SpnTransaction* transaction;
+@property (nonatomic) NSManagedObjectContext* managedObjectContext;
 
 @end

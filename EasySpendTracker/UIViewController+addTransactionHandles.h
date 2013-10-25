@@ -11,7 +11,6 @@
 @interface UIViewController (addTransactionHandles)
 
 - (void)spnAddButtonClicked: (id)sender;
-- (void)spnEditButtonClicked: (id)sender;
-- (void)spnAddViewControllerDidFinish:(id)sender withNewEntry:(id)newEntry fromOldEntry:(id)oldEntry withCategory:(NSString*)category fromOldCategory:(NSString*)oldCategory;
+- (void)saveContext:(NSManagedObjectContext*)managedObjectContext;
 
 @end

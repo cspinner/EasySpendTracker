@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "spnAddController.h"
 
 @interface spnViewController_Home : UIViewController
 
+@property NSManagedObjectContext* managedObjectContext;
 
 @end

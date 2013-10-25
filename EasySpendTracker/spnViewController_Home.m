@@ -7,13 +7,13 @@
 //
 
 #import "spnViewController_Home.h"
-#import "spnViewController_Add.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnTransaction.h"
-#import "spnSpendTracker.h"
+#import "SpnMonth.h"
+#import "SpnSpendCategory.h"
 
 @interface spnViewController_Home ()
-@property UILabel* label;
+@property UITextView* textView;
 
 @end
 
@@ -41,61 +41,37 @@
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
     // Create subviews next - i.e. labels, buttons, text fields...
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 0, 300, 548)];
     
     // Create button object, set text, display frame, and action
-    UIButton* button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [button setFrame:CGRectMake(200, 300, 75, 44)];
-    [button setTitle:@"Press" forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.label = [[UILabel alloc] initWithFrame:CGRectMake(200, 364, 75, 44)];
-    [self.label setText:@"None"];
-    
-    [self.view addSubview:button];
-    [self.view addSubview:self.label];
-    
+    [self.textView setFont:[UIFont systemFontOfSize:10.0]];
+    [self.view addSubview:self.textView];
 }
 
-- (void)buttonPressed:(id)sender
+- (void)viewDidAppear:(BOOL)animated
 {
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransaction"];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnTransaction"
-                                              inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+    NSError* error;
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnMonthMO"];
+    NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
     
-    [fetchRequest setEntity:entity];
+    NSMutableString* text = [[NSMutableString alloc] init];
     
-    NSError *error = nil;
-    NSMutableArray *mutableFetchResults = [[[[spnSpendTracker sharedManager] managedObjectContext]
-                                            executeFetchRequest:fetchRequest error:&error] mutableCopy];
-    if (mutableFetchResults == nil)
+    for(SpnMonth* month in mutableFetchResults)
     {
+        [text appendFormat:@"%@ - %lu categories:\n", month.sectionName, (unsigned long)month.categories.count];
         
-    }
-    else
-    {
-        if(mutableFetchResults.count == 0)
+        for(SpnSpendCategory* category in month.categories)
         {
-            SpnTransaction* transaction = (SpnTransaction*)[NSEntityDescription
-                                                      insertNewObjectForEntityForName:@"SpnTransaction"
-                                                      inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            transaction.merchant = @"Wegmans";
+            [text appendFormat:@"   %@ - %@ - $%.2f - %lu transactions:\n", category.title, category.month.sectionName, category.total.floatValue, (unsigned long)category.transactions.count];
             
-            if (![[[spnSpendTracker sharedManager] managedObjectContext] save:&error]) {
-                // Handle the error.
+            for(SpnTransaction* transaction in category.transactions)
+            {
+                [text appendFormat:@"       %@ - %@ - $%.2f - %@/%@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, category.title, category.month.sectionName];
             }
         }
-        else
-        {
-            [self.label setText:[((SpnTransaction*)[mutableFetchResults objectAtIndex:0]) merchant]];
-        }
     }
     
-    
-    
-    
-    
-    
-   
+    [self.textView setText:text];
 }
 
 - (void)didReceiveMemoryWarning

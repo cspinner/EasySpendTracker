@@ -2,29 +2,17 @@
 //  SpnMonth.h
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 10/10/13.
+//  Created by Christopher Spinner on 10/24/13.
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreData/CoreData.h>
+#import "SpnMonthMO.h"
 
 @class SpnSpendCategory;
 
-@interface SpnMonth : NSManagedObject
+@interface SpnMonth : SpnMonthMO
 
-@property (nonatomic, retain) NSDate * date;
-@property (nonatomic, retain) NSString * sectionName;
-@property (nonatomic, retain) NSNumber * totalIncome;
-@property (nonatomic, retain) NSNumber * totalExpenses;
-@property (nonatomic, retain) NSSet *categories;
-@end
-
-@interface SpnMonth (CoreDataGeneratedAccessors)
-
-- (void)addCategoriesObject:(SpnSpendCategory *)value;
-- (void)removeCategoriesObject:(SpnSpendCategory *)value;
-- (void)addCategories:(NSSet *)values;
-- (void)removeCategories:(NSSet *)values;
++ (SpnMonth*)fetchMonthWithDate:(NSDate*)date inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext;
+- (SpnSpendCategory*)fetchCategoryWithName:(NSString*)categoryName;
 
 @end

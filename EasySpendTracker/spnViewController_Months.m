@@ -7,9 +7,10 @@
 //
 
 #import "spnViewController_Months.h"
-#import "UIView+spnViewCategory.h"
+#import "UIView+spnViewCtgy.h"
+#import "UIViewController+addTransactionHandles.h"
 #import "SpnMonth.h"
-#import "spnSpendTracker.h"
+#import "spnUtils.h"
 
 @interface spnViewController_Months ()
 
@@ -40,7 +41,7 @@ SEL closeMonthViewCntrlSelector;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    changeMonthSelector = sel_registerName("changeMonth:");
+    changeMonthSelector = sel_registerName("monthChange:");
     closeMonthViewCntrlSelector = sel_registerName("closeMonthViewCntrl");
     
     self.tableView.delegate = self;
@@ -51,7 +52,7 @@ SEL closeMonthViewCntrlSelector;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelButtonClicked:)];
     
     NSError *error;
-	if (![[self fetchedResultsController] performFetch:&error])
+	if (![self.fetchedResultsController performFetch:&error])
     {
 		// Update to handle the error appropriately.
 		NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
@@ -75,7 +76,7 @@ SEL closeMonthViewCntrlSelector;
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription
-                                   entityForName:@"SpnMonth" inManagedObjectContext:self.managedObjectContext];
+                                   entityForName:@"SpnMonthMO" inManagedObjectContext:self.managedObjectContext];
     [fetchRequest setEntity:entity];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc]
@@ -84,11 +85,9 @@ SEL closeMonthViewCntrlSelector;
     
     [fetchRequest setFetchBatchSize:20];
     
-    //tbd
     [NSFetchedResultsController deleteCacheWithName:@"CacheMonths"];
-    
     self.fetchedResultsController =
-    [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+        [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                         managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheMonths"];
     self.fetchedResultsController.delegate = self;
     
@@ -100,7 +99,7 @@ SEL closeMonthViewCntrlSelector;
     SpnMonth* month = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Write cell contents
-    [cell.textLabel setText:[[[spnSpendTracker sharedManager] dateFormatterMonthYear] stringFromDate:month.date]];
+    [cell.textLabel setText:[[[spnUtils sharedUtils] dateFormatterMonthYear] stringFromDate:month.date]];
     [cell.detailTextLabel setText:[NSString stringWithFormat:@"Expenses: $%.2f",[month.totalExpenses floatValue]]];
 }
 
@@ -150,7 +149,7 @@ SEL closeMonthViewCntrlSelector;
         [self.managedObjectContext deleteObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
     }
     
-    [[spnSpendTracker sharedManager] saveContext];
+    [self saveContext:self.managedObjectContext];
 }
 
 - (void)cancelButtonClicked: (id)sender
@@ -234,12 +233,11 @@ SEL closeMonthViewCntrlSelector;
 }
 
 
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
     // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
     [self.tableView endUpdates];
 }
-
-
 
 
 

@@ -9,27 +9,27 @@
 #import "spnSpendTracker.h"
 #import "spnViewController_Home.h"
 #import "spnTableViewController_Categories.h"
-#import "spnAddController.h"
-#import "SpnTransaction.h"
 #import "SpnSpendCategory.h"
+#import "SpnMonth.h"
+#import "spnUtils.h"
+#import "spnViewController_Months.h"
 
 @interface spnSpendTracker ()
+
+@property UITabBarController* mainTabBarController;
+@property spnViewController_Home* homeViewController;
+@property spnTableViewController_Categories* categoryTableViewController;
 
 @end
 
 @implementation spnSpendTracker
 
 static spnSpendTracker *sharedSpendTracker = nil;
-static NSDateFormatter* sharedDateFormatterMonthDayYear;
-static NSDateFormatter* sharedDateFormatterMonthYear;
-static NSDateFormatter* sharedDateFormatterMonth;
 
 + (spnSpendTracker*)sharedManager
 {
     if (sharedSpendTracker == nil) {
         sharedSpendTracker = [[super alloc] init];
-        
-        sharedSpendTracker.categories = [[NSMutableDictionary alloc] init];
     }
     return sharedSpendTracker;
 }
@@ -37,16 +37,17 @@ static NSDateFormatter* sharedDateFormatterMonth;
 - (void)initViews
 {
     // View Controllers
-    UITabBarController* mainTabBarController = [[UITabBarController alloc] init];
-    spnViewController_Home* homeViewController = [[spnViewController_Home alloc] init];
-    [homeViewController setTitle:@"Summary"];
-    spnTableViewController_Categories* categoryTableViewController = [[spnTableViewController_Categories alloc] initWithStyle:UITableViewStyleGrouped];
-    [categoryTableViewController setMonth:[self fetchMonth:[NSDate date]]];
-    [categoryTableViewController setManagedObjectContext:self.managedObjectContext];
+    self.mainTabBarController = [[UITabBarController alloc] init];
+    
+    self.homeViewController = [[spnViewController_Home alloc] init];
+    [self initHomeViewCntrl];
+    
+    self.categoryTableViewController = [[spnTableViewController_Categories alloc] initWithStyle:UITableViewStyleGrouped];
+    [self initCategoriesViewCntrl];
     
     // Navigation Controllers
-    UINavigationController* homeNavController = [[UINavigationController alloc] initWithRootViewController:homeViewController];
-    UINavigationController* tableNavController = [[UINavigationController alloc] initWithRootViewController:categoryTableViewController];
+    UINavigationController* homeNavController = [[UINavigationController alloc] initWithRootViewController:self.homeViewController];
+    UINavigationController* tableNavController = [[UINavigationController alloc] initWithRootViewController:self.categoryTableViewController];
     NSArray* navControllerArray = [NSArray arrayWithObjects:homeNavController, tableNavController, nil];
     
     // Setup Home Tab
@@ -58,186 +59,77 @@ static NSDateFormatter* sharedDateFormatterMonth;
     tableNavController.tabBarItem = catTabBarItem;
     
     // Setup Tab Bar Control - set as root view controller
-    mainTabBarController.viewControllers = navControllerArray;
-    self.rootViewController = mainTabBarController;
-    
-    // Setup Data
-    self.categories = [[NSMutableDictionary alloc] init];
+    self.mainTabBarController.viewControllers = navControllerArray;
+    self.rootViewController = self.mainTabBarController;
 }
 
-- (SpnMonth*)fetchMonth:(NSDate*)date
+- (void)initHomeViewCntrl
 {
-    NSError *error = nil;
-    SpnMonth* month = nil;
+    [self.homeViewController setTitle:@"Summary"];
+    [self.homeViewController setManagedObjectContext:self.managedObjectContext];
+}
+
+- (void)initCategoriesViewCntrl
+{
+    //SpnMonth* month = [self fetchMonth:[NSDate date]];
+    SpnMonth* month = [SpnMonth fetchMonthWithDate:[NSDate date] inManagedObjectContext:self.managedObjectContext];
+
+    [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
+    [self.categoryTableViewController setDelegate:self];
     
-    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnMonth"];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnMonth"inManagedObjectContext:self.managedObjectContext];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"sectionName == %@", [self.dateFormatterMonthYear stringFromDate:date]];
-    [fetchRequest setEntity:entity];
-    [fetchRequest setPredicate:predicate];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnSpendCategoryMO"];
     
-    NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
+    NSSortDescriptor *sort = [[NSSortDescriptor alloc]
+                              initWithKey:@"lastModifiedDate" ascending:NO];
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+    [fetchRequest setFetchBatchSize:20];
     
-    if (mutableFetchResults == nil)
+    [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
+    [self.categoryTableViewController setFetchedResultsController:[[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.categoryTableViewController.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheCategories"]];
+    
+    [self.categoryTableViewController.fetchedResultsController setDelegate:self.categoryTableViewController];
+    [self monthChange:month];
+}
+
+- (void)monthSelect
+{
+    // Create and Push month selector view controller
+    spnViewController_Months* monthsTableViewController = [[spnViewController_Months alloc] initWithStyle:UITableViewStyleGrouped];
+    [monthsTableViewController setTitle:@"Select Month"];
+    [monthsTableViewController setManagedObjectContext:self.managedObjectContext];
+    [monthsTableViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
+    
+    UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:monthsTableViewController];
+    
+    monthsTableViewController.delegate = self;
+    
+    [self.categoryTableViewController presentViewController:navController animated:YES completion:nil];
+}
+
+- (void)closeMonthViewCntrl
+{
+    [[self.categoryTableViewController navigationController] dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)monthChange:(SpnMonth*)newMonth
+{
+    if(newMonth)
     {
-        // Error
-    }
-    else
-    {
-        // Target month was found
-        if([mutableFetchResults count] != 0)
+        // Delete results controller cache file before modifying the predicate
+        [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
+        
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"month == %@", newMonth];
+        [[self.categoryTableViewController.fetchedResultsController fetchRequest] setPredicate:predicate];
+        
+        NSError *error;
+        if (![self.categoryTableViewController.fetchedResultsController performFetch:&error])
         {
-            // set the return value
-            month = [mutableFetchResults objectAtIndex:0];
-        }
-    }
-    
-    return month;
-}
-
-- (SpnSpendCategory*)fetchCategory:(NSString*)categoryName inMonth:(SpnMonth*)month
-{
-    NSError *error = nil;
-    SpnSpendCategory* category = nil;
-    
-    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnSpendCategory"];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnSpendCategory"inManagedObjectContext:self.managedObjectContext];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(title == %@) AND (month == %@)", categoryName, month];
-    [fetchRequest setEntity:entity];
-    [fetchRequest setPredicate:predicate];
-    
-    NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
-    
-    if (mutableFetchResults == nil)
-    {
-        // Error
-    }
-    else
-    {
-        // Target category was found
-        if([mutableFetchResults count] != 0)
-        {
-            // set the return value
-            category = [mutableFetchResults objectAtIndex:0];
-        }
-    }
-    
-    return category;
-}
-
-- (void)saveContext
-{
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = self.managedObjectContext;
-    if (managedObjectContext != nil) {
-        if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
-            // Replace this implementation with code to handle the error appropriately.
-            // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-            abort();
-        }
-    }
-}
-
-- (NSDateFormatter*)dateFormatterMonthDayYear
-{
-    if (sharedDateFormatterMonthDayYear == nil)
-    {
-        sharedDateFormatterMonthDayYear = [[NSDateFormatter alloc] init];
-        [sharedDateFormatterMonthDayYear setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"yyyyMd" options:0 locale:[NSLocale currentLocale]]];
-    }
-    
-    return sharedDateFormatterMonthDayYear;
-}
-
-- (NSDateFormatter*)dateFormatterMonth
-{
-    if (sharedDateFormatterMonth == nil)
-    {
-        sharedDateFormatterMonth = [[NSDateFormatter alloc] init];
-        [sharedDateFormatterMonth setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMM" options:0 locale:[NSLocale currentLocale]]];
-    }
-    
-    return sharedDateFormatterMonth;
-}
-
-- (NSDateFormatter*)dateFormatterMonthYear
-{
-    if (sharedDateFormatterMonthYear == nil)
-    {
-        sharedDateFormatterMonthYear = [[NSDateFormatter alloc] init];
-        [sharedDateFormatterMonthYear setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMyyyy" options:0 locale:[NSLocale currentLocale]]];
-    }
-    
-    return sharedDateFormatterMonthYear;
-}
-
-- (void)addTransaction:(SpnTransaction*)entry forCategory:(NSString*)targetCategory
-{
-    // If an entry was specified
-    if(entry)
-    {
-        SpnMonth* month = [self fetchMonth:entry.date];
-        
-        // Month not found - add a new one
-        if(!month)
-        {
-            // Create new month
-            month = (SpnMonth*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnMonth"                                                  inManagedObjectContext:self.managedObjectContext];
-            [month setDate:entry.date];
-            [month setSectionName:[self.dateFormatterMonthYear stringFromDate:entry.date]];
-            [month setTotalExpenses:[NSNumber numberWithFloat:0.00]];
-            [month setTotalIncome:[NSNumber numberWithFloat:0.00]];
+            // Update to handle the error appropriately.
+            NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
+            exit(-1);
         }
         
-        SpnSpendCategory* category = [self fetchCategory:targetCategory inMonth:month];
-        
-        // Category not found - add a new one
-        if(!category)
-        {
-            // Create new category then add the entry
-            category = (SpnSpendCategory*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnSpendCategory"                                                  inManagedObjectContext:self.managedObjectContext];
-            [category setTitle:targetCategory];
-            [category setTotal:entry.value];
-            
-            // add the new category to the month
-            [month addCategoriesObject:category];
-        }
-        else // Target category was found
-        {
-            // add the entry value to the total
-            [category setTotal:[NSNumber numberWithFloat:(category.total.floatValue + entry.value.floatValue)]];
-        }
-        
-        [month setTotalExpenses:[NSNumber numberWithFloat:(month.totalExpenses.floatValue + entry.value.floatValue)]];
-        
-        [category addTransactionsObject:entry];
-        [category setLastModifiedDate:[NSDate date]];
-        
-        //NSLog(@"Category count after: %lu", (unsigned long)[mutableFetchResults count]);
-        //NSLog(@"Transaction count after: %lu", (unsigned long)category.transactions.count);
-        
-        [self saveContext];
-    }
-}
-
-- (void)deleteTransaction:(SpnTransaction*)entry fromCategory:(NSString*)targetCategory
-{
-    // If an entry was specified
-    if(entry)
-    {
-        // Find target category
-        SpnSpendCategory* category = [self fetchCategory:targetCategory inMonth:[self fetchMonth:entry.date]];
-        
-        // If a category was found
-        if(category)
-        {
-            [category setTotal:[NSNumber numberWithFloat:(category.total.floatValue - entry.value.floatValue)]];
-            [category removeTransactionsObject:entry];
-            [category setLastModifiedDate:[NSDate date]];
-        }
-        
-        [self saveContext];
+        [self.categoryTableViewController setTitle:[[[spnUtils sharedUtils] dateFormatterMonthYear] stringFromDate:newMonth.date]];
     }
 }
 

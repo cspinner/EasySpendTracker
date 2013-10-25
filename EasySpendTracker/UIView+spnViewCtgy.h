@@ -1,5 +1,5 @@
 //
-//  UIView+spnViewCategory.h
+//  UIView+spnViewCtgy.h
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 9/28/13.
@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIView (spnViewCategory)
+@interface UIView (spnViewCtgy)
+
+@property UIDatePicker* datePicker;
 
 - (UIView*)spnFirstResponder;
+- (UIView*)datePickerView;
 
 @end

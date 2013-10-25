@@ -8,15 +8,12 @@
 
 #import "spnTableViewController_Transactions.h"
 #import "UIViewController+addTransactionHandles.h"
-#import "UIView+spnViewCategory.h"
+#import "UIView+spnViewCtgy.h"
 #import "spnTransactionCellView.h"
 #import "spnTableViewController_Transaction.h"
 #import "SpnTransaction.h"
-#import "spnSpendTracker.h"
 
 @interface spnTableViewController_Transactions ()
-
-@property (nonatomic) NSFetchedResultsController* fetchedResultsController;
 
 @end
 
@@ -46,7 +43,7 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
     
     NSError *error;
-    if (![[self fetchedResultsController] performFetch:&error])
+    if (![self.fetchedResultsController performFetch:&error])
     {
         // Update to handle the error appropriately.
         NSLog(@"Transaction Fetch Error: %@, %@", error, [error userInfo]);
@@ -64,33 +61,6 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-- (NSFetchedResultsController *)fetchedResultsController
-{
-    if (_fetchedResultsController != nil)
-    {
-        return _fetchedResultsController;
-    }
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"SpnTransaction" inManagedObjectContext:self.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"category == %@", self.category];
-    [fetchRequest setPredicate:predicate];
-    
-    [fetchRequest setFetchBatchSize:20];
-
-    //[NSFetchedResultsController deleteCacheWithName:@"CacheTransactions"]; //tbd
-    self.fetchedResultsController =
-        [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"sectionName" cacheName:[NSString stringWithFormat:@"Cache%@Transactions", self.category.title]];
-    self.fetchedResultsController.delegate = self;
-    
-    return self.fetchedResultsController;
 }
 
 - (void)configureCell:(spnTransactionCellView*)cell atIndexPath:(NSIndexPath*)indexPath
@@ -155,7 +125,7 @@
         }
     }
     
-    [[spnSpendTracker sharedManager] saveContext];
+    [self saveContext:self.managedObjectContext];
 }
 
 // <UITableViewDelegate> methods
@@ -167,7 +137,7 @@
     // Create and Push transaction detail view controller
     spnTableViewController_Transaction* transactionTableViewController = [[spnTableViewController_Transaction alloc] initWithStyle:UITableViewStyleGrouped];
     transactionTableViewController.title = @"Transaction";
-    
+    transactionTableViewController.managedObjectContext = self.managedObjectContext;
     transactionTableViewController.transaction = transaction;
     [[self navigationController] pushViewController:transactionTableViewController animated:YES];
     
@@ -176,17 +146,12 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    CGFloat height;
-    
-    if(section == 0)
-    {
-        height = 32.0;
-    }
-    else
-    {
-        height = 12.0;
-    }
-    return height;
+    return 30;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 0.001;
 }
 
 // <NSFetchedResultsControllerDelegate> methods
@@ -238,10 +203,12 @@
 }
 
 
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
     // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
     [self.tableView endUpdates];
 }
+
 
 /*
 // Override to support conditional editing of the table view.

@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SpnMonth.h"
 
 @interface spnViewController_Months : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
 

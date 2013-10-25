@@ -1,5 +1,5 @@
 //
-//  SpnSpendCategory.h
+//  SpnSpendCategoryMO.m
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 10/24/13.
@@ -8,6 +8,13 @@
 
 #import "SpnSpendCategoryMO.h"
 
-@interface SpnSpendCategory : SpnSpendCategoryMO
+
+@implementation SpnSpendCategoryMO
+
+@dynamic lastModifiedDate;
+@dynamic title;
+@dynamic total;
+@dynamic month;
+@dynamic transactions;
 
 @end
