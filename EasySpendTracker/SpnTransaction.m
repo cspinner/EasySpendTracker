@@ -10,4 +10,16 @@
 
 @implementation SpnTransaction
 
+//- (id)initWithEntity:(NSEntityDescription*)entity insertIntoManagedObjectContext:(NSManagedObjectContext*)context
+//{
+//    self = [super initWithEntity:entity insertIntoManagedObjectContext:context];
+//    if (self != nil) {
+//        // Perform additional initialization.
+//        [self setMerchant:@""];
+//        [self setNotes:@""];
+//        [self setValue:[NSNumber numberWithFloat:0.00]];
+//    }
+//    return self;
+//}
+
 @end

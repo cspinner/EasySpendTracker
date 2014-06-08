@@ -30,6 +30,8 @@
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
 }
 
@@ -50,6 +52,8 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+    
     NSError* error;
     NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnMonthMO"];
     NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];

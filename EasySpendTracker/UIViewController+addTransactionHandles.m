@@ -17,11 +17,12 @@
 
 - (void)spnAddButtonClicked: (id)sender
 {
-    SpnTransaction* newTransaction = (SpnTransaction*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnTransactionMO"                                                  inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+    SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+    // Perform additional initialization.
     [newTransaction setMerchant:@""];
     [newTransaction setNotes:@""];
     [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
-    
+
     spnTableViewController_Transaction* addViewController = [[spnTableViewController_Transaction alloc] initWithStyle:UITableViewStyleGrouped];
     [addViewController setTitle:@"Add Transaction"];
     [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];

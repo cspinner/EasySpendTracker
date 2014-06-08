@@ -78,11 +78,14 @@ enum
         
         // Assign new category to transaction
         [self.transaction setCategory:newCategory];
+        [self.transaction addObserver:newCategory forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:nil];
     }
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+- (void)viewDidDisappear:(BOOL)animated
 {
+    [super viewDidDisappear:animated];
+    
     [self saveContext:self.managedObjectContext];
 }
 
@@ -250,13 +253,13 @@ enum
             newValue = ((!newValue.floatValue) ? [NSNumber numberWithFloat:0.0] : newValue);
             
             // Subtract old value from category and month
-            [self.transaction.category setTotal:[NSNumber numberWithFloat:[[self.transaction.category total] floatValue] - [[self.transaction value] floatValue]]];
+            //[self.transaction.category setTotal:[NSNumber numberWithFloat:[[self.transaction.category total] floatValue] - [[self.transaction value] floatValue]]];
             
             // Assign new value to transaction
             [self.transaction setValue:newValue];
             
             // Add new value to category and month
-            [self.transaction.category setTotal:[NSNumber numberWithFloat:[[self.transaction.category total] floatValue] + [[self.transaction value] floatValue]]];
+            //[self.transaction.category setTotal:[NSNumber numberWithFloat:[[self.transaction.category total] floatValue] + [[self.transaction value] floatValue]]];
         }
             break;
             
@@ -314,9 +317,10 @@ enum
     {
         // Assign new category to transaction
         [self.transaction setCategory:category];
+        [self.transaction addObserver:category forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:nil];
         
         // Add the transaction to the new category
-        [category setTotal:[NSNumber numberWithFloat:[[category total] floatValue] + [[self.transaction value] floatValue]]];
+        //[category setTotal:[NSNumber numberWithFloat:[[category total] floatValue] + [[self.transaction value] floatValue]]];
         
         // Add to the total expenses of the month
         //[category.month setTotalExpenses:[NSNumber numberWithFloat:[[category.month totalExpenses] floatValue] + [[self.transaction value] floatValue]]];
@@ -342,7 +346,7 @@ enum
         else
         {
             // Subtract transaction from original category
-            [originalCategory setTotal:[NSNumber numberWithFloat:[[originalCategory total] floatValue] - [[self.transaction value] floatValue]]];
+            //[originalCategory setTotal:[NSNumber numberWithFloat:[[originalCategory total] floatValue] - [[self.transaction value] floatValue]]];
             
             // Subtract transaction value from month
             //[originalCategory.month setTotalExpenses:[NSNumber numberWithFloat:[[originalCategory.month totalExpenses] floatValue] + [[self.transaction value] floatValue]]];

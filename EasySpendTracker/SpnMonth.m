@@ -40,7 +40,9 @@
             // Month not found - add a new one
             month = [[SpnMonth alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnMonthMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
             
-            //month = (SpnMonth*)[NSEntityDescription                                                  insertNewObjectForEntityForName:@"SpnMonthMO"                                                  inManagedObjectContext:managedObjectContext];
+            // Perform additional initialization.
+            [month setTotalExpenses:[NSNumber numberWithFloat:0.00]];
+            [month setTotalIncome:[NSNumber numberWithFloat:0.00]];
             [month setDate:date];
             [month setSectionName:[[[spnUtils sharedUtils] dateFormatterMonthYear] stringFromDate:date]];
         }
@@ -48,17 +50,17 @@
     
     return month;
 }
-
-- (id)initWithEntity:(NSEntityDescription*)entity insertIntoManagedObjectContext:(NSManagedObjectContext*)context
-{
-    self = [super initWithEntity:entity insertIntoManagedObjectContext:context];
-    if (self != nil) {
-        // Perform additional initialization.
-        [self setTotalExpenses:[NSNumber numberWithFloat:0.00]];
-        [self setTotalIncome:[NSNumber numberWithFloat:0.00]];
-    }
-    return self;
-}
+//
+//- (id)initWithEntity:(NSEntityDescription*)entity insertIntoManagedObjectContext:(NSManagedObjectContext*)context
+//{
+//    self = [super initWithEntity:entity insertIntoManagedObjectContext:context];
+//    if (self != nil) {
+//        // Perform additional initialization.
+//        [self setTotalExpenses:[NSNumber numberWithFloat:0.00]];
+//        [self setTotalIncome:[NSNumber numberWithFloat:0.00]];
+//    }
+//    return self;
+//}
 
 - (SpnSpendCategory*)fetchCategoryWithName:(NSString*)categoryName
 {
@@ -87,7 +89,10 @@
         {
             // Category not found - add a new one
             category = [[SpnSpendCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnSpendCategoryMO" inManagedObjectContext:self.managedObjectContext] insertIntoManagedObjectContext:self.managedObjectContext];
-
+            
+            // Perform additional initialization.
+            [category setTotal:[NSNumber numberWithFloat:0.00]];
+            [category setLastModifiedDate:[NSDate date]];
             [category setTitle:categoryName];        
             [category setMonth:self];
         }
