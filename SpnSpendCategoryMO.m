@@ -14,7 +14,6 @@
 @dynamic lastModifiedDate;
 @dynamic title;
 @dynamic total;
-@dynamic month;
 @dynamic transactions;
 
 @end

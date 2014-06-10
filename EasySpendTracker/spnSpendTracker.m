@@ -10,9 +10,9 @@
 #import "spnViewController_Home.h"
 #import "spnTableViewController_Categories.h"
 #import "SpnSpendCategory.h"
-#import "SpnMonth.h"
+//#import "SpnMonth.h"
 #import "spnUtils.h"
-#import "spnViewController_Months.h"
+//#import "spnViewController_Months.h"
 
 @interface spnSpendTracker ()
 
@@ -71,9 +71,9 @@ static spnSpendTracker *sharedSpendTracker = nil;
 
 - (void)initCategoriesViewCntrl
 {
-    //SpnMonth* month = [self fetchMonth:[NSDate date]];
-    SpnMonth* month = [SpnMonth fetchMonthWithDate:[NSDate date] inManagedObjectContext:self.managedObjectContext];
-
+//    SpnMonth* month = [SpnMonth fetchMonthWithDate:[NSDate date] inManagedObjectContext:self.managedObjectContext];
+    NSError *error;
+    
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
     [self.categoryTableViewController setDelegate:self];
     
@@ -88,50 +88,60 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.categoryTableViewController setFetchedResultsController:[[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.categoryTableViewController.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheCategories"]];
     
     [self.categoryTableViewController.fetchedResultsController setDelegate:self.categoryTableViewController];
-    [self monthChange:month];
-}
-
-- (void)monthSelect
-{
-    // Create and Push month selector view controller
-    spnViewController_Months* monthsTableViewController = [[spnViewController_Months alloc] initWithStyle:UITableViewStyleGrouped];
-    [monthsTableViewController setTitle:@"Select Month"];
-    [monthsTableViewController setManagedObjectContext:self.managedObjectContext];
-    [monthsTableViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
+//    [self monthChange:month];
     
-    UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:monthsTableViewController];
-    
-    monthsTableViewController.delegate = self;
-    
-    [self.categoryTableViewController presentViewController:navController animated:YES completion:nil];
-}
 
-- (void)closeMonthViewCntrl
-{
-    [[self.categoryTableViewController navigationController] dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)monthChange:(SpnMonth*)newMonth
-{
-    if(newMonth)
+    if (![self.categoryTableViewController.fetchedResultsController performFetch:&error])
     {
-        // Delete results controller cache file before modifying the predicate
-        [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
-        
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"month == %@", newMonth];
-        [[self.categoryTableViewController.fetchedResultsController fetchRequest] setPredicate:predicate];
-        
-        NSError *error;
-        if (![self.categoryTableViewController.fetchedResultsController performFetch:&error])
-        {
-            // Update to handle the error appropriately.
-            NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
-            exit(-1);
-        }
-        
-        [self.categoryTableViewController setTitle:[[[spnUtils sharedUtils] dateFormatterMonthYear] stringFromDate:newMonth.date]];
+        // Update to handle the error appropriately.
+        NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
+        exit(-1);
     }
+    
+    [self.categoryTableViewController setTitle:@"Categories"];
 }
+//
+//- (void)monthSelect
+//{
+//    // Create and Push month selector view controller
+//    spnViewController_Months* monthsTableViewController = [[spnViewController_Months alloc] initWithStyle:UITableViewStyleGrouped];
+//    [monthsTableViewController setTitle:@"Select Month"];
+//    [monthsTableViewController setManagedObjectContext:self.managedObjectContext];
+//    [monthsTableViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
+//    
+//    UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:monthsTableViewController];
+//    
+//    monthsTableViewController.delegate = self;
+//    
+//    [self.categoryTableViewController presentViewController:navController animated:YES completion:nil];
+//}
+//
+//- (void)closeMonthViewCntrl
+//{
+//    [[self.categoryTableViewController navigationController] dismissViewControllerAnimated:YES completion:nil];
+//}
+//
+//- (void)monthChange:(SpnMonth*)newMonth
+//{
+//    if(newMonth)
+//    {
+//        // Delete results controller cache file before modifying the predicate
+//        [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
+//        
+//        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"month == %@", newMonth];
+//        [[self.categoryTableViewController.fetchedResultsController fetchRequest] setPredicate:predicate];
+//        
+//        NSError *error;
+//        if (![self.categoryTableViewController.fetchedResultsController performFetch:&error])
+//        {
+//            // Update to handle the error appropriately.
+//            NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
+//            exit(-1);
+//        }
+//        
+//        [self.categoryTableViewController setTitle:[[[spnUtils sharedUtils] dateFormatterMonthYear] stringFromDate:newMonth.date]];
+//    }
+//}
 
 
 @end

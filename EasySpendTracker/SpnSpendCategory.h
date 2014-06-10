@@ -10,4 +10,6 @@
 
 @interface SpnSpendCategory : SpnSpendCategoryMO
 
++ (SpnSpendCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext;
+
 @end

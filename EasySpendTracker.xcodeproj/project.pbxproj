@@ -34,10 +34,7 @@
 		3BDB00051819D69900876590 /* SpnSpendCategoryMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00041819D69900876590 /* SpnSpendCategoryMO.m */; };
 		3BDB000B1819D70100876590 /* SpnSpendCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB000A1819D70100876590 /* SpnSpendCategory.m */; };
 		3BDB000E1819D99E00876590 /* SpnTransactionMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB000D1819D99E00876590 /* SpnTransactionMO.m */; };
-		3BDB00111819D99E00876590 /* SpnMonthMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00101819D99E00876590 /* SpnMonthMO.m */; };
-		3BDB00161819DA1F00876590 /* SpnMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00151819DA1F00876590 /* SpnMonth.m */; };
 		3BDB00191819DA5F00876590 /* SpnTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00181819DA5F00876590 /* SpnTransaction.m */; };
-		3BDBFFF8180823FF00876590 /* spnViewController_Months.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDBFFF7180823FF00876590 /* spnViewController_Months.m */; };
 		3BDBFFFF1818AD4D00876590 /* spnUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDBFFFE1818AD4D00876590 /* spnUtils.m */; };
 /* End PBXBuildFile section */
 
@@ -94,14 +91,8 @@
 		3BDB000A1819D70100876590 /* SpnSpendCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnSpendCategory.m; sourceTree = "<group>"; };
 		3BDB000C1819D99E00876590 /* SpnTransactionMO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnTransactionMO.h; sourceTree = "<group>"; };
 		3BDB000D1819D99E00876590 /* SpnTransactionMO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnTransactionMO.m; sourceTree = "<group>"; };
-		3BDB000F1819D99E00876590 /* SpnMonthMO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnMonthMO.h; sourceTree = "<group>"; };
-		3BDB00101819D99E00876590 /* SpnMonthMO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnMonthMO.m; sourceTree = "<group>"; };
-		3BDB00141819DA1F00876590 /* SpnMonth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnMonth.h; sourceTree = "<group>"; };
-		3BDB00151819DA1F00876590 /* SpnMonth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnMonth.m; sourceTree = "<group>"; };
 		3BDB00171819DA5F00876590 /* SpnTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnTransaction.h; sourceTree = "<group>"; };
 		3BDB00181819DA5F00876590 /* SpnTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnTransaction.m; sourceTree = "<group>"; };
-		3BDBFFF6180823FF00876590 /* spnViewController_Months.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Months.h; sourceTree = "<group>"; };
-		3BDBFFF7180823FF00876590 /* spnViewController_Months.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_Months.m; sourceTree = "<group>"; };
 		3BDBFFFD1818AD4D00876590 /* spnUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnUtils.h; sourceTree = "<group>"; };
 		3BDBFFFE1818AD4D00876590 /* spnUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnUtils.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -214,8 +205,6 @@
 			children = (
 				3B61714917EE226900FBF39F /* spnViewController_Home.h */,
 				3B61714A17EE226900FBF39F /* spnViewController_Home.m */,
-				3BDBFFF6180823FF00876590 /* spnViewController_Months.h */,
-				3BDBFFF7180823FF00876590 /* spnViewController_Months.m */,
 				3B61715717F3D9D700FBF39F /* spnTableViewController_Categories.h */,
 				3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */,
 				3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */,
@@ -270,8 +259,6 @@
 		3BDB00121819D9B100876590 /* ManagedObjects */ = {
 			isa = PBXGroup;
 			children = (
-				3BDB000F1819D99E00876590 /* SpnMonthMO.h */,
-				3BDB00101819D99E00876590 /* SpnMonthMO.m */,
 				3BDB00031819D69900876590 /* SpnSpendCategoryMO.h */,
 				3BDB00041819D69900876590 /* SpnSpendCategoryMO.m */,
 				3BDB000C1819D99E00876590 /* SpnTransactionMO.h */,
@@ -283,8 +270,6 @@
 		3BDB00131819D9C400876590 /* Subclasses */ = {
 			isa = PBXGroup;
 			children = (
-				3BDB00141819DA1F00876590 /* SpnMonth.h */,
-				3BDB00151819DA1F00876590 /* SpnMonth.m */,
 				3BDB00091819D70100876590 /* SpnSpendCategory.h */,
 				3BDB000A1819D70100876590 /* SpnSpendCategory.m */,
 				3BDB00171819DA5F00876590 /* SpnTransaction.h */,
@@ -402,20 +387,17 @@
 				3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */,
 				3B61712517EDED6800FBF39F /* spnAppDelegate.m in Sources */,
 				3B61716E17F761D600FBF39F /* UIView+spnViewCtgy.m in Sources */,
-				3BDB00111819D99E00876590 /* SpnMonthMO.m in Sources */,
 				3BDB000E1819D99E00876590 /* SpnTransactionMO.m in Sources */,
 				3BDB00191819DA5F00876590 /* SpnTransaction.m in Sources */,
 				3BDB00051819D69900876590 /* SpnSpendCategoryMO.m in Sources */,
 				3B61712117EDED6800FBF39F /* main.m in Sources */,
 				3B61720617F8C20300FBF39F /* spnCategoryCellView.m in Sources */,
 				3BDBFFFF1818AD4D00876590 /* spnUtils.m in Sources */,
-				3BDBFFF8180823FF00876590 /* spnViewController_Months.m in Sources */,
 				3B61712817EDED6800FBF39F /* EasySpendTracker.xcdatamodeld in Sources */,
 				3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */,
 				3B61714B17EE226900FBF39F /* spnViewController_Home.m in Sources */,
 				3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */,
 				3B61721217FCD3BD00FBF39F /* spnTableViewController_Transaction.m in Sources */,
-				3BDB00161819DA1F00876590 /* SpnMonth.m in Sources */,
 				3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */,
 				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
 			);

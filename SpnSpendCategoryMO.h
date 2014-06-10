@@ -9,14 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class SpnMonth, SpnTransaction;
+@class SpnTransaction;
 
 @interface SpnSpendCategoryMO : NSManagedObject
 
 @property (nonatomic, retain) NSDate * lastModifiedDate;
 @property (nonatomic, retain) NSString * title;
 @property (nonatomic, retain) NSNumber * total;
-@property (nonatomic, retain) SpnMonth *month;
 @property (nonatomic, retain) NSSet *transactions;
 @end
 

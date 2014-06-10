@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3396" systemVersion="13A603" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="SpnMonthMO" representedClassName="SpnMonth" syncable="YES">
-        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="sectionName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="totalExpenses" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <attribute name="totalIncome" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <relationship name="categories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SpnSpendCategoryMO" inverseName="month" inverseEntity="SpnSpendCategoryMO" syncable="YES"/>
-    </entity>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13D65" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="SpnSpendCategoryMO" representedClassName="SpnSpendCategory" syncable="YES">
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" defaultValueString="Uncategorized" syncable="YES"/>
         <attribute name="total" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <relationship name="month" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnMonthMO" inverseName="categories" inverseEntity="SpnMonthMO" syncable="YES"/>
-        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SpnTransactionMO" inverseName="category" inverseEntity="SpnTransactionMO" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="category" inverseEntity="SpnTransactionMO" syncable="YES"/>
     </entity>
     <entity name="SpnTransactionMO" representedClassName="SpnTransaction" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
@@ -21,11 +13,10 @@
         <attribute name="sectionName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uniqueId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="value" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnSpendCategoryMO" inverseName="transactions" inverseEntity="SpnSpendCategoryMO" syncable="YES"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="SpnSpendCategoryMO" inverseName="transactions" inverseEntity="SpnSpendCategoryMO" syncable="YES"/>
     </entity>
     <elements>
-        <element name="SpnMonthMO" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SpnSpendCategoryMO" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="SpnTransactionMO" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SpnSpendCategoryMO" positionX="0" positionY="0" width="128" height="103"/>
+        <element name="SpnTransactionMO" positionX="0" positionY="0" width="128" height="148"/>
     </elements>
 </model>

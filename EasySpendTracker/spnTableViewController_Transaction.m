@@ -12,7 +12,7 @@
 #import "SpnTransaction.h"
 #import "SpnSpendCategory.h"
 #import "spnUtils.h" 
-#import "SpnMonth.h"
+//#import "SpnMonth.h"
 
 @interface spnTableViewController_Transaction ()
 
@@ -73,12 +73,12 @@ enum
     // Category is required
     if(!self.transaction.category)
     {
-        SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-        SpnSpendCategory* newCategory = [month fetchCategoryWithName:DEFAULT_CATEGORY_TITLE];
+//        SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
+        SpnSpendCategory* newCategory = [SpnSpendCategory fetchCategoryWithName:DEFAULT_CATEGORY_TITLE inManagedObjectContext:self.managedObjectContext];
         
         // Assign new category to transaction
-        [self.transaction setCategory:newCategory];
-        [self.transaction addObserver:newCategory forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:nil];
+//        [self.transaction setCategory:newCategory];
+        [newCategory addTransactionsObject:self.transaction];
     }
 }
 
@@ -251,15 +251,9 @@ enum
             [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
             NSNumber* newValue = [formatter numberFromString:textField.text];
             newValue = ((!newValue.floatValue) ? [NSNumber numberWithFloat:0.0] : newValue);
-            
-            // Subtract old value from category and month
-            //[self.transaction.category setTotal:[NSNumber numberWithFloat:[[self.transaction.category total] floatValue] - [[self.transaction value] floatValue]]];
-            
+
             // Assign new value to transaction
             [self.transaction setValue:newValue];
-            
-            // Add new value to category and month
-            //[self.transaction.category setTotal:[NSNumber numberWithFloat:[[self.transaction.category total] floatValue] + [[self.transaction value] floatValue]]];
         }
             break;
             
@@ -275,8 +269,8 @@ enum
             textField.text = newCategoryName;
             
             // Assign new category to transaction
-            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-            SpnSpendCategory* newCategory = [month fetchCategoryWithName:newCategoryName];
+//            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
+            SpnSpendCategory* newCategory = [SpnSpendCategory fetchCategoryWithName:newCategoryName inManagedObjectContext:self.managedObjectContext];
             
             // Move transaction to new category
             [self transaction:self.transaction moveToCategory:newCategory];
@@ -287,13 +281,14 @@ enum
         {
             [self.transaction setDate:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] dateFromString:textField.text]];
             [self.transaction setSectionName:textField.text];
+        
             
-            // Assign new category/month combination for the same category name
-            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-            SpnSpendCategory* newCategory = [month fetchCategoryWithName:self.transaction.category.title];
-            
-            // Move transaction to new category
-            [self transaction:self.transaction moveToCategory:newCategory];
+//            // Assign new category/month combination for the same category name
+//            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
+//            SpnSpendCategory* newCategory = [month fetchCategoryWithName:self.transaction.category.title];
+//            
+//            // Move transaction to new category
+//            [self transaction:self.transaction moveToCategory:newCategory];
         }
             break;
             
@@ -310,14 +305,14 @@ enum
 
 - (void)transaction:(SpnTransaction*)transaction moveToCategory:(SpnSpendCategory*)category
 {
-    SpnSpendCategory* originalCategory = transaction.category;
+    SpnSpendCategory* originalCategory = (SpnSpendCategory*)transaction.category;
     
     // If the original category is different from the specified category
     if(category != originalCategory)
     {
         // Assign new category to transaction
-        [self.transaction setCategory:category];
-        [self.transaction addObserver:category forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:nil];
+        //[self.transaction setCategory:category];
+        [category addTransactionsObject:transaction];
         
         // Add the transaction to the new category
         //[category setTotal:[NSNumber numberWithFloat:[[category total] floatValue] + [[self.transaction value] floatValue]]];

@@ -9,7 +9,7 @@
 #import "spnViewController_Home.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnTransaction.h"
-#import "SpnMonth.h"
+//#import "SpnMonth.h"
 #import "SpnSpendCategory.h"
 
 @interface spnViewController_Home ()
@@ -55,23 +55,22 @@
     [super viewDidAppear:animated];
     
     NSError* error;
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnMonthMO"];
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnSpendCategoryMO"];
     NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
     
     NSMutableString* text = [[NSMutableString alloc] init];
     
-    for(SpnMonth* month in mutableFetchResults)
+    // First line
+    [text appendFormat:@"Categories:\n"];
+    
+    // Add summary text for each category
+    for(SpnSpendCategory* category in mutableFetchResults)
     {
-        [text appendFormat:@"%@ - %lu categories:\n", month.sectionName, (unsigned long)month.categories.count];
+        [text appendFormat:@"   %@ - $%.2f - %lu transactions:\n", category.title, category.total.floatValue, (unsigned long)category.transactions.count];
         
-        for(SpnSpendCategory* category in month.categories)
+        for(SpnTransaction* transaction in category.transactions)
         {
-            [text appendFormat:@"   %@ - %@ - $%.2f - %lu transactions:\n", category.title, category.month.sectionName, category.total.floatValue, (unsigned long)category.transactions.count];
-            
-            for(SpnTransaction* transaction in category.transactions)
-            {
-                [text appendFormat:@"       %@ - %@ - $%.2f - %@/%@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, category.title, category.month.sectionName];
-            }
+            [text appendFormat:@"       %@ - %@ - $%.2f - %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, category.title];
         }
     }
     
