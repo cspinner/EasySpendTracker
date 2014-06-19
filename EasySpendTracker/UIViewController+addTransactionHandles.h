@@ -8,7 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIViewController (addTransactionHandles)
+@interface UIViewController (addTransactionHandles) <UIActionSheetDelegate>
+
+enum
+{
+    EXPENSE_TRANSACTION_TYPE = 0u,
+    INCOME_TRANSACTION_TYPE,
+    NUM_TRANSACTION_TYPES
+};
 
 - (void)spnAddButtonClicked: (id)sender;
 - (void)saveContext:(NSManagedObjectContext*)managedObjectContext;

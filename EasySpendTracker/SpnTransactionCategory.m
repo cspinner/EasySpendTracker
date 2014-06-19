@@ -1,26 +1,26 @@
 //
-//  SpnSpendCategory.m
+//  SpnTransactionCategory.m
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 10/24/13.
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "SpnSpendCategory.h"
+#import "SpnTransactionCategory.h"
 #import "SpnTransaction.h"
 
-@implementation SpnSpendCategory
+@implementation SpnTransactionCategory
 
 static int transactionsObservanceContext;
 static int transactionValueObservanceContext;
 
-+ (SpnSpendCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
++ (SpnTransactionCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
 {
     NSError *error = nil;
-    SpnSpendCategory* category = nil;
+    SpnTransactionCategory* category = nil;
     
     // Find categories (but should only be one) matching the specified name
-    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnSpendCategoryMO"];
+    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionCategoryMO"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(title MATCHES[cd] %@)", categoryName];
     [fetchRequest setPredicate:predicate];
     
@@ -41,7 +41,7 @@ static int transactionValueObservanceContext;
         else
         {
             // Category not found - add a new one
-            category = [[SpnSpendCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnSpendCategoryMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
+            category = [[SpnTransactionCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionCategoryMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
             
             // Perform additional initialization.
             [category setTotal:[NSNumber numberWithFloat:0.00]];
@@ -61,6 +61,17 @@ static int transactionValueObservanceContext;
     
     // Monitor changes to the transactions set
     [self addObserver:self forKeyPath:@"transactions" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionsObservanceContext];
+    
+    // Start monitoring values of each transaction
+    if(self.transactions != nil)
+    {
+        // Need to redo observership for each transaction
+        for(SpnTransaction* transaction in self.transactions)
+        {
+            // Register for notifications for changes to this transaction's value
+            [transaction addObserver:self forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionValueObservanceContext];
+        }
+    }
 }
 
 - (void)awakeFromFetch
@@ -71,19 +82,31 @@ static int transactionValueObservanceContext;
     
     // Monitor changes to the transactions set
     [self addObserver:self forKeyPath:@"transactions" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionsObservanceContext];
+    
+    // Start monitoring values of each transaction
+    if(self.transactions != nil)
+    {
+        // Need to redo observership for each transaction
+        for(SpnTransaction* transaction in self.transactions)
+        {
+            // Register for notifications for changes to this transaction's value
+            [transaction addObserver:self forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionValueObservanceContext];
+        }
+    }
 }
 
-- (void)didTurnIntoFault
+- (void)willTurnIntoFault
 {
     // Called when this category is being sent to the store
-    [super didTurnIntoFault];
+    [super willTurnIntoFault];
     
     // Remove all observances this instance has
     [self removeObserver:self forKeyPath:@"transactions" context:&transactionsObservanceContext];
     
+    // Remove value observers
     for(SpnTransaction* transaction in self.transactions)
     {
-        [transaction removeObserver:self forKeyPath:@"value" context:&transactionsObservanceContext];
+        [transaction removeObserver:self forKeyPath:@"value" context:&transactionValueObservanceContext];
     }
     
 }
@@ -150,23 +173,16 @@ static int transactionValueObservanceContext;
                     //[self setTotal:[NSNumber numberWithFloat:[self.total floatValue] - [transaction.value floatValue]]];
                     
                     // stop observing properties of this object since it's being deleted. Otherwise we will get back to back notifications.
-                    @try
-                    {
-                        // TBD - in a try/catch because we sometimes lose track which category the transaction is attached to. Cannot remove observer from something that isn't being observer. 
-                        [transaction removeObserver:self forKeyPath:@"value" context:&transactionValueObservanceContext];
-                    }
-                    @catch(id anException)
-                    {
-                        NSLog(@"Exception: %@", anException);
-                    }
-                    
 
+                    [transaction removeObserver:self forKeyPath:@"value" context:&transactionValueObservanceContext];
                 }
             }
                 break;
                 
             case NSKeyValueChangeSetting:
             {
+                // TBD - Is this case dead code??
+                NSLog(@"NSKeyValueChangeSetting in observeValue hit in Category");
                 // "Transactions" set is being set (could be null)
                 if(self.transactions != nil)
                 {

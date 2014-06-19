@@ -88,4 +88,15 @@ static char const * const DatePickerKey = "DatePicker";
     }
 }
 
+- (void)dismissKeyboard
+{
+    UIView* firstResponder = [self spnFirstResponder];
+    
+    if(([firstResponder isKindOfClass:[UITextField class]]) ||
+       ([firstResponder isKindOfClass:[UITextView class]]))
+    {
+        [firstResponder resignFirstResponder];
+    }
+}
+
 @end

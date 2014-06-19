@@ -10,8 +10,10 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "UIView+spnViewCtgy.h"
 #import "spnTransactionCellView.h"
-#import "spnTableViewController_Transaction.h"
+#import "spnTableViewController_Expense.h"
+#import "spnTableViewController_Income.h"
 #import "SpnTransaction.h"
+#import "SpnTransactionCategory.h"
 
 @interface spnTableViewController_Transactions ()
 
@@ -115,17 +117,23 @@
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        // Delete the row from the data source
-        [self.managedObjectContext deleteObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
-
-        // Delete parent category too if this was the last transaction to be deleted
-        if([self.tableView numberOfRowsInSection:indexPath.section] == 1)
+        SpnTransaction* transaction = ((SpnTransaction*)[self.fetchedResultsController objectAtIndexPath:indexPath]);
+        
+        // Delete parent category too if this is the last transaction to be deleted
+        if(transaction.category.transactions.count == 1)
         {
-            [self.managedObjectContext deleteObject:[((SpnTransaction*)[self.fetchedResultsController objectAtIndexPath:indexPath]) category]];
+            // Deletion rule set to cascase = deletes last transaction as well
+            [self.managedObjectContext deleteObject:transaction.category];
         }
+        else
+        {
+            // Only delete the transaction
+            [self.managedObjectContext deleteObject:transaction];
+        }
+        
+        // Save changes
+        [self saveContext:self.managedObjectContext];
     }
-    
-    [self saveContext:self.managedObjectContext];
 }
 
 // <UITableViewDelegate> methods
@@ -135,11 +143,24 @@
     SpnTransaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
 
     // Create and Push transaction detail view controller
-    spnTableViewController_Transaction* transactionTableViewController = [[spnTableViewController_Transaction alloc] initWithStyle:UITableViewStyleGrouped];
-    transactionTableViewController.title = @"Transaction";
-    transactionTableViewController.managedObjectContext = self.managedObjectContext;
-    transactionTableViewController.transaction = transaction;
-    [[self navigationController] pushViewController:transactionTableViewController animated:YES];
+    if(transaction.type.integerValue == EXPENSE_TRANSACTION_TYPE)
+    {
+        spnTableViewController_Expense* transactionTableViewController = [[spnTableViewController_Expense alloc] initWithStyle:UITableViewStyleGrouped];
+        
+        transactionTableViewController.title = @"Transaction";
+        transactionTableViewController.managedObjectContext = self.managedObjectContext;
+        transactionTableViewController.transaction = transaction;
+        [[self navigationController] pushViewController:transactionTableViewController animated:YES];
+    }
+    else // INCOME_TRANSACTION_TYPE
+    {
+        spnTableViewController_Income* transactionTableViewController = [[spnTableViewController_Income alloc] initWithStyle:UITableViewStyleGrouped];
+        
+        transactionTableViewController.title = @"Transaction";
+        transactionTableViewController.managedObjectContext = self.managedObjectContext;
+        transactionTableViewController.transaction = transaction;
+        [[self navigationController] pushViewController:transactionTableViewController animated:YES];
+    }
     
     //NSLog(@"%li", (long)[self.tableView numberOfRowsInSection:indexPath.section]);
 }

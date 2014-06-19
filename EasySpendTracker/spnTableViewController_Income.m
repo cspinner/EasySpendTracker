@@ -6,29 +6,30 @@
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "spnTableViewController_Transaction.h"
+#import "spnTableViewController_Income.h"
 #import "UIView+spnViewCtgy.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnTransaction.h"
-#import "SpnSpendCategory.h"
+#import "SpnTransactionCategory.h"
 #import "spnUtils.h" 
-//#import "SpnMonth.h"
+#import "SpnRecurrence.h"
+#import "spnSpendTracker.h" //tbd
 
-@interface spnTableViewController_Transaction ()
+@interface spnTableViewController_Income ()
 
 @end
 
-@implementation spnTableViewController_Transaction
+@implementation spnTableViewController_Income
 
-#define DEFAULT_CATEGORY_TITLE @"Uncategorized"
+#define DEFAULT_CATEGORY_TITLE @"Income"
 
 enum
 {
     AMOUNT_SECTION_IDX,
     MERCHANT_SECTION_IDX,
-    CATEGORY_SECTION_IDX,
     DATE_SECTION_IDX,
     DESCRIPTION_SECTION_IDX,
+    RECURRENCE_SECTION_IDX,
     NUM_SECTIONS
 };
 
@@ -38,7 +39,8 @@ enum
     MERCHANT_VIEW_TAG,
     CATEGORY_VIEW_TAG,
     DATE_VIEW_TAG,
-    DESCRIPTION_VIEW_TAG
+    DESCRIPTION_VIEW_TAG,
+    RECURRENCE_VIEW_TAG
 };
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -53,6 +55,13 @@ enum
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    // Taps outside active text views/fields dismiss the keyboard
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
+                                   initWithTarget:self.view
+                                   action:@selector(dismissKeyboard)];
+    
+    [self.view addGestureRecognizer:tap];
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -74,7 +83,7 @@ enum
     if(!self.transaction.category)
     {
 //        SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-        SpnSpendCategory* newCategory = [SpnSpendCategory fetchCategoryWithName:DEFAULT_CATEGORY_TITLE inManagedObjectContext:self.managedObjectContext];
+        SpnTransactionCategory* newCategory = [SpnTransactionCategory fetchCategoryWithName:DEFAULT_CATEGORY_TITLE inManagedObjectContext:self.managedObjectContext];
         
         // Assign new category to transaction
 //        [self.transaction setCategory:newCategory];
@@ -95,6 +104,39 @@ enum
     // Dispose of any resources that can be recreated.
 }
 
+// Only applicable when adding a transaction, button does not appear when viewing/editting
+//   an existing one.
+- (void)doneButtonClicked: (id)sender
+{
+    if([sender isKindOfClass:[UIBarButtonItem class]])
+    {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+// Only applicable when adding a transaction, button does not appear when viewing/editting
+//   an existing one.
+- (void)cancelButtonClicked: (id)sender
+{
+    if([sender isKindOfClass:[UIBarButtonItem class]])
+    {
+        SpnTransactionCategory* category = self.transaction.category;
+   
+        // Remove the category if this is the only transaction
+        if(category.transactions.count == 1)
+        {
+            [self.managedObjectContext deleteObject:category];
+        }
+        else
+        {
+            // Just remove the transaction that was created for this add
+            [self.managedObjectContext deleteObject:self.transaction];
+        }
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
 // <UITableViewDataSource> methods
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -112,56 +154,74 @@ enum
 {
     UITextField* textField;
     UITextView* textView;
-    UITableViewCell* cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:nil];
-    //[cell.textLabel setFont:[UIFont systemFontOfSize:14]];
     
-    // Configure the cell...
-    switch(indexPath.section)
+    NSArray* reuseIdentifier = [NSArray arrayWithObjects:
+                                 @"IncomeAmountCell",
+                                 @"IncomeMerchantCell",
+                                 @"IncomeDateCell",
+                                 @"IncomeDescriptionCell",
+                                 @"IncomeRecurrenceCell",
+                                 nil];
+    
+    // Attempt to reuse a cell
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier[indexPath.section]];
+    
+    // If a cell wasn't defined for reuse, create one.
+    if (cell == nil)
     {
-        case AMOUNT_SECTION_IDX:
-            textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, 320, 44)];
-            [textField setTag:AMOUNT_VIEW_TAG];
-            [textField setText:[NSString stringWithFormat:@"$%.2f", [self.transaction.value floatValue]]];
-            [textField setDelegate:self];
-            [cell addSubview:textField];
-            break;
-            
-        case MERCHANT_SECTION_IDX:
-            textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, 320, 44)];
-            [textField setTag:MERCHANT_VIEW_TAG];
-            [textField setText:[self.transaction merchant]];
-            [textField setDelegate:self];
-            [cell addSubview:textField];
-            break;
-            
-        case CATEGORY_SECTION_IDX:
-            textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, 320, 44)];
-            [textField setTag:CATEGORY_VIEW_TAG];
-            [textField setText:[[self.transaction category] title]];
-            [textField setDelegate:self];
-            [cell addSubview:textField];
-            break;
-            
-        case DATE_SECTION_IDX:
-            textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, 320, 44)];
-            [textField setTag:DATE_VIEW_TAG];
-            [textField setText:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] stringFromDate:[self.transaction date]]];
-            [textField setDelegate:self];
-            [textField setInputView:[self.view datePickerView]];
-            [cell addSubview:textField];
-            break;
-            
-        case DESCRIPTION_SECTION_IDX:
-            //cell = [cell initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-            textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
-            [textField setTag:DESCRIPTION_VIEW_TAG];
-            [textView setText:[self.transaction notes]];
-            [textView sizeToFit];
-            [cell addSubview:textView];
-            break;
-            
-        default:
-            break;
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseIdentifier[indexPath.section]];
+        
+        CGFloat subViewWidth = tableView.frame.size.width;
+        CGFloat subViewHeight = [self tableView:tableView heightForRowAtIndexPath:indexPath];
+        
+        // Configure the cell...
+        switch(indexPath.section)
+        {
+            case AMOUNT_SECTION_IDX:
+                textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
+                [textField setTag:AMOUNT_VIEW_TAG];
+                [textField setText:[NSString stringWithFormat:@"$%.2f", [self.transaction.value floatValue]]];
+                [textField setDelegate:self];
+                [cell addSubview:textField];
+                break;
+                
+            case MERCHANT_SECTION_IDX:
+                textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
+                [textField setTag:MERCHANT_VIEW_TAG];
+                [textField setText:[self.transaction merchant]];
+                [textField setDelegate:self];
+                [cell addSubview:textField];
+                break;
+                
+            case DATE_SECTION_IDX:
+                textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
+                [textField setTag:DATE_VIEW_TAG];
+                [textField setText:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] stringFromDate:[self.transaction date]]];
+                [textField setDelegate:self];
+                [textField setInputView:[self.view datePickerView]];
+                [cell addSubview:textField];
+                break;
+                
+            case DESCRIPTION_SECTION_IDX:
+                textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
+                [textView setTag:DESCRIPTION_VIEW_TAG];
+                [textView setText:[self.transaction notes]];
+                [textView setEditable:YES];
+                [textView setDelegate:self];
+                [cell addSubview:textView];
+                break;
+                
+            case RECURRENCE_SECTION_IDX:
+                textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
+                [textField setTag:RECURRENCE_VIEW_TAG];
+                [textField setText:@"0"];
+                [textField setDelegate:self];
+                [cell addSubview:textField];
+                break;
+                
+            default:
+                break;
+        }
     }
     
     return cell;
@@ -173,32 +233,16 @@ enum
     UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, [self tableView:tableView heightForHeaderInSection:section])];
     UILabel* headerLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, headerView.frame.size.width, headerView.frame.size.height)];
     
-    switch (section)
-    {
-        case AMOUNT_SECTION_IDX:
-            [headerLabel setText:@"AMOUNT"];
-            break;
-            
-        case MERCHANT_SECTION_IDX:
-            [headerLabel setText:@"MERCHANT"];
-            break;
-            
-        case CATEGORY_SECTION_IDX:
-            [headerLabel setText:@"CATEGORY"];
-            break;
-            
-        case DATE_SECTION_IDX:
-            [headerLabel setText:@"DATE"];
-            break;
-            
-        case DESCRIPTION_SECTION_IDX:
-            [headerLabel setText:@"DESCRIPTION"];
-            break;
-            
-        default:
-            break;
-    }
+    NSArray* headerText = [NSArray arrayWithObjects:
+                                @"AMOUNT",
+                                @"MERCHANT",
+                                @"DATE",
+                                @"DESCRIPTION",
+                                @"RECURRENCE (DAYS)",
+                                nil];
     
+    // Set text based on section index
+    [headerLabel setText:headerText[section]];
     [headerLabel setFont:[UIFont systemFontOfSize:12]];
     [headerLabel setTextColor:[UIColor grayColor]];
     
@@ -219,18 +263,15 @@ enum
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    CGFloat height;
-    
-    if (indexPath.section == DESCRIPTION_SECTION_IDX)
-    {
-        height = 150;
-    }
-    else
-    {
-        height = 44;
-    }
-    
-    return height;
+    NSArray* rowHeight = [NSArray arrayWithObjects:
+                           [NSNumber numberWithFloat:44],
+                           [NSNumber numberWithFloat:44],
+                           [NSNumber numberWithFloat:44],
+                           [NSNumber numberWithFloat:106],
+                           [NSNumber numberWithFloat:44],
+                           nil];
+
+    return (CGFloat)[rowHeight[indexPath.section] floatValue];
 }
 
 // <UITextFieldDelegate> methods
@@ -248,7 +289,8 @@ enum
         case AMOUNT_VIEW_TAG:
         {
             NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];
-            [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
+            [formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+            [formatter setCurrencyCode:@"USD"];
             NSNumber* newValue = [formatter numberFromString:textField.text];
             newValue = ((!newValue.floatValue) ? [NSNumber numberWithFloat:0.0] : newValue);
 
@@ -270,7 +312,7 @@ enum
             
             // Assign new category to transaction
 //            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-            SpnSpendCategory* newCategory = [SpnSpendCategory fetchCategoryWithName:newCategoryName inManagedObjectContext:self.managedObjectContext];
+            SpnTransactionCategory* newCategory = [SpnTransactionCategory fetchCategoryWithName:newCategoryName inManagedObjectContext:self.managedObjectContext];
             
             // Move transaction to new category
             [self transaction:self.transaction moveToCategory:newCategory];
@@ -281,20 +323,58 @@ enum
         {
             [self.transaction setDate:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] dateFromString:textField.text]];
             [self.transaction setSectionName:textField.text];
-        
-            
-//            // Assign new category/month combination for the same category name
-//            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-//            SpnSpendCategory* newCategory = [month fetchCategoryWithName:self.transaction.category.title];
-//            
-//            // Move transaction to new category
-//            [self transaction:self.transaction moveToCategory:newCategory];
         }
             break;
             
+        case RECURRENCE_VIEW_TAG:
+            // tbd tbd tbd
+            if(self.transaction.recurrence != nil)
+            {
+                
+            }
+            else
+            {
+                SpnRecurrence* recurrence = [[SpnRecurrence alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnRecurrenceMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+                
+                NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];
+                [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
+                NSNumber* newValue = [formatter numberFromString:textField.text];
+                
+                [recurrence setFrequency:newValue];
+                
+                for(int i = 0; i < newValue.integerValue; i++)
+                {
+                    SpnTransaction* copiedTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:self.managedObjectContext] insertIntoManagedObjectContext:self.managedObjectContext];
+                    
+                    
+                    [copiedTransaction setDate:self.transaction.date];
+                    [copiedTransaction setMerchant:self.transaction.merchant];
+                    [copiedTransaction setNotes:self.transaction.notes];
+                    [copiedTransaction setSectionName:self.transaction.sectionName];
+                    [copiedTransaction setType:self.transaction.type];
+                    [copiedTransaction setValue:self.transaction.value];
+                    
+                    [copiedTransaction setCategory:self.transaction.category];
+                    [copiedTransaction setRecurrence: self.transaction.recurrence];
+                }
+            }
+            
+            // tbd tbd tbd
+            break;
+            
+        default:
+            break;
+    }
+}
+
+// <UITextViewDelegate> methods
+- (void)textViewDidEndEditing:(UITextView *)textView
+{
+    switch (textView.tag)
+    {
         case DESCRIPTION_VIEW_TAG:
         {
-            [self.transaction setNotes:@"Placeholder"];
+            [self.transaction setNotes:textView.text];
         }
             break;
             
@@ -303,9 +383,9 @@ enum
     }
 }
 
-- (void)transaction:(SpnTransaction*)transaction moveToCategory:(SpnSpendCategory*)category
+- (void)transaction:(SpnTransaction*)transaction moveToCategory:(SpnTransactionCategory*)category
 {
-    SpnSpendCategory* originalCategory = (SpnSpendCategory*)transaction.category;
+    SpnTransactionCategory* originalCategory = (SpnTransactionCategory*)transaction.category;
     
     // If the original category is different from the specified category
     if(category != originalCategory)

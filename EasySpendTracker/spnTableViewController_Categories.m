@@ -11,7 +11,7 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "UIView+spnViewCtgy.h"
 #import "spnCategoryCellView.h"
-#import "SpnSpendCategory.h"
+#import "SpnTransactionCategory.h"
 #import "spnUtils.h"
 
 @interface spnTableViewController_Categories ()
@@ -60,7 +60,7 @@
 
 - (void)configureCell:(spnCategoryCellView*)cell atIndexPath:(NSIndexPath*)indexPath
 {
-    SpnSpendCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnTransactionCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Write cell contents
     [cell setName:category.title withTotal:category.total.floatValue forMonth:[[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]] withBudget:0.00];
@@ -110,16 +110,15 @@
     {
         // Delete the row from the data source
         [self.managedObjectContext deleteObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        [self saveContext:self.managedObjectContext];
     }
-    
-    [self saveContext:self.managedObjectContext];
 }
 
 // <UITableViewDelegate> methods
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get reference to selected item from the fetch controller
-    SpnSpendCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnTransactionCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Create and Push transaction detail view controller
     spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];

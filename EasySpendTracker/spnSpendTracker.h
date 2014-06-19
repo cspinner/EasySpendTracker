@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 //#import "SpnMonth.h"
-#import "SpnSpendCategory.h"
+#import "SpnTransactionCategory.h"
 
 @interface spnSpendTracker : NSObject 
 

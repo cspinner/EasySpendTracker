@@ -9,7 +9,7 @@
 #import "spnSpendTracker.h"
 #import "spnViewController_Home.h"
 #import "spnTableViewController_Categories.h"
-#import "SpnSpendCategory.h"
+#import "SpnTransactionCategory.h"
 //#import "SpnMonth.h"
 #import "spnUtils.h"
 //#import "spnViewController_Months.h"
@@ -77,7 +77,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
     [self.categoryTableViewController setDelegate:self];
     
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnSpendCategoryMO"];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionCategoryMO"];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc]
                               initWithKey:@"lastModifiedDate" ascending:NO];

@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13D65" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="SpnSpendCategoryMO" representedClassName="SpnSpendCategory" syncable="YES">
+    <entity name="SpnRecurrenceMO" representedClassName="SpnRecurrenceMO" syncable="YES">
+        <attribute name="frequency" optional="YES" attributeType="Integer 32" defaultValueString="-1" syncable="YES"/>
+        <relationship name="transaction" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="recurrence" inverseEntity="SpnTransactionMO" syncable="YES"/>
+    </entity>
+    <entity name="SpnTransactionCategoryMO" representedClassName="SpnTransactionCategory" syncable="YES">
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="title" optional="YES" attributeType="String" defaultValueString="Uncategorized" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="total" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="category" inverseEntity="SpnTransactionMO" syncable="YES"/>
     </entity>
-    <entity name="SpnTransactionMO" representedClassName="SpnTransaction" syncable="YES">
+    <entity name="SpnTransactionMO" representedClassName="SpnTransactionMO" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="merchant" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="notes" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sectionName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="uniqueId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="value" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <relationship name="category" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="SpnSpendCategoryMO" inverseName="transactions" inverseEntity="SpnSpendCategoryMO" syncable="YES"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnTransactionCategoryMO" inverseName="transactions" inverseEntity="SpnTransactionCategoryMO" syncable="YES"/>
+        <relationship name="recurrence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="transaction" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
     </entity>
     <elements>
-        <element name="SpnSpendCategoryMO" positionX="0" positionY="0" width="128" height="103"/>
-        <element name="SpnTransactionMO" positionX="0" positionY="0" width="128" height="148"/>
+        <element name="SpnRecurrenceMO" positionX="9" positionY="63" width="128" height="73"/>
+        <element name="SpnTransactionCategoryMO" positionX="0" positionY="0" width="128" height="103"/>
+        <element name="SpnTransactionMO" positionX="0" positionY="0" width="128" height="165"/>
     </elements>
 </model>

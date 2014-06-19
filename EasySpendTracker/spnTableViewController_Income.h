@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "SpnTransaction.h"
 
-@interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
+@interface spnTableViewController_Income : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate>
 
 @property SpnTransaction* transaction;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;

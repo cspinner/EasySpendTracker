@@ -8,51 +8,86 @@
 
 #import "UIViewController+addTransactionHandles.h"
 #import "spnSpendTracker.h"
-#import "spnTableViewController_Transaction.h"
-//#import "SpnMonth.h"
-#import "SpnSpendCategory.h"
+#import "spnTableViewController_Expense.h"
+#import "spnTableViewController_Income.h"
+#import "SpnTransactionCategory.h"
 #import "SpnTransaction.h"
 
 @implementation UIViewController (addTransactionHandles)
 
+#define ACTION_SHEET_BUTTON_IDX_EXPENSE 0
+#define ACTION_SHEET_BUTTON_IDX_INCOME 1
+
 - (void)spnAddButtonClicked: (id)sender
 {
-    SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-    // Perform additional initialization.
-    [newTransaction setMerchant:@""];
-    [newTransaction setNotes:@""];
-    [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
-
-    spnTableViewController_Transaction* addViewController = [[spnTableViewController_Transaction alloc] initWithStyle:UITableViewStyleGrouped];
-    [addViewController setTitle:@"Add Transaction"];
-    [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
-    [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-    [addViewController setTransaction:newTransaction];
-
-    // Add done and cancel buttons
-    addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonClicked:)];
-    addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonClicked:)];
-
-    UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
+    UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:
+        @"Expense",
+        @"Income",
+        nil];
     
-    [self presentViewController:navController animated:YES completion:nil];
+    [actionSheet setActionSheetStyle:UIActionSheetStyleAutomatic];
+    
+    [actionSheet showInView:self.view];
 }
 
-- (void)doneButtonClicked: (id)sender
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if([sender isKindOfClass:[UIBarButtonItem class]])
+    switch (buttonIndex)
     {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
-- (void)cancelButtonClicked: (id)sender
-{
-    if([sender isKindOfClass:[UIBarButtonItem class]])
-    {
-        // Discard the changes
-        [[[spnSpendTracker sharedManager] managedObjectContext] rollback];
-        [self dismissViewControllerAnimated:YES completion:nil];
+        case ACTION_SHEET_BUTTON_IDX_EXPENSE:
+        {
+            SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+            
+            // Perform additional initialization.
+            [newTransaction setMerchant:@""];
+            [newTransaction setNotes:@""];
+            [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
+            [newTransaction setType:[NSNumber numberWithInt:EXPENSE_TRANSACTION_TYPE]];
+            
+            spnTableViewController_Expense* addViewController = [[spnTableViewController_Expense alloc] initWithStyle:UITableViewStyleGrouped];
+            [addViewController setTitle:@"Add Expense"];
+            [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
+            [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+            [addViewController setTransaction:newTransaction];
+            
+            // Add done and cancel buttons
+            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:@selector(doneButtonClicked:)];
+            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:@selector(cancelButtonClicked:)];
+            
+            UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
+            
+            [self presentViewController:navController animated:YES completion:nil];
+        }
+            break;
+            
+        case ACTION_SHEET_BUTTON_IDX_INCOME:
+        {
+            SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+            
+            // Perform additional initialization.
+            [newTransaction setMerchant:@""];
+            [newTransaction setNotes:@""];
+            [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
+            [newTransaction setType:[NSNumber numberWithInt:INCOME_TRANSACTION_TYPE]];
+            
+            spnTableViewController_Income* addViewController = [[spnTableViewController_Income alloc] initWithStyle:UITableViewStyleGrouped];
+            [addViewController setTitle:@"Add Income"];
+            [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
+            [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+            [addViewController setTransaction:newTransaction];
+            
+            // Add done and cancel buttons
+            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:@selector(doneButtonClicked:)];
+            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:@selector(cancelButtonClicked:)];
+            
+            UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
+            
+            [self presentViewController:navController animated:YES completion:nil];
+        }
+            break;
+            
+        default:
+            break;
     }
 }
 
