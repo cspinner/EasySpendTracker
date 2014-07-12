@@ -2,27 +2,27 @@
 //  SpnRecurrenceMO.h
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 6/16/14.
+//  Created by Christopher Spinner on 7/9/14.
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import <EventKit/EventKit.h>
 
 @class SpnTransaction;
 
 @interface SpnRecurrenceMO : NSManagedObject
 
-@property (nonatomic, retain) NSNumber* frequency;
-@property (nonatomic, retain) NSSet *transaction;
+@property (nonatomic, retain) id frequency;
+@property (nonatomic, retain) SpnTransaction *rootTransaction;
+@property (nonatomic, retain) NSSet *transactions;
 @end
 
 @interface SpnRecurrenceMO (CoreDataGeneratedAccessors)
 
-- (void)addTransactionObject:(SpnTransaction *)value;
-- (void)removeTransactionObject:(SpnTransaction *)value;
-- (void)addTransaction:(NSSet *)values;
-- (void)removeTransaction:(NSSet *)values;
+- (void)addTransactionsObject:(SpnTransaction *)value;
+- (void)removeTransactionsObject:(SpnTransaction *)value;
+- (void)addTransactions:(NSSet *)values;
+- (void)removeTransactions:(NSSet *)values;
 
 @end

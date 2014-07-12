@@ -2,14 +2,14 @@
 //  SpnTransactionMO.h
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 6/16/14.
+//  Created by Christopher Spinner on 7/5/14.
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class SpnRecurrenceMO, SpnTransactionCategory;
+@class SpnRecurrence, SpnTransactionCategory;
 
 @interface SpnTransactionMO : NSManagedObject
 
@@ -20,6 +20,7 @@
 @property (nonatomic, retain) NSNumber * type;
 @property (nonatomic, retain) NSNumber * value;
 @property (nonatomic, retain) SpnTransactionCategory *category;
-@property (nonatomic, retain) SpnRecurrenceMO *recurrence;
+@property (nonatomic, retain) SpnRecurrence *recurrence;
+@property (nonatomic, retain) SpnRecurrence *recurrenceWhereRoot;
 
 @end

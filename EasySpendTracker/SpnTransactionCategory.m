@@ -176,6 +176,14 @@ static int transactionValueObservanceContext;
 
                     [transaction removeObserver:self forKeyPath:@"value" context:&transactionValueObservanceContext];
                 }
+
+                // Is there a better way?
+                if (self.transactions.count == nil ||
+                    self.transactions.count == 0)
+                {
+                    [self.managedObjectContext deleteObject:self];
+                    NSLog(@"Removing empty category");
+                }
             }
                 break;
                 

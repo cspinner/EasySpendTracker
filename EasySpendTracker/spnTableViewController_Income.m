@@ -7,15 +7,21 @@
 //
 
 #import "spnTableViewController_Income.h"
+#import "spnViewController_Recur.h"
 #import "UIView+spnViewCtgy.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnTransaction.h"
 #import "SpnTransactionCategory.h"
-#import "spnUtils.h" 
 #import "SpnRecurrence.h"
-#import "spnSpendTracker.h" //tbd
 
 @interface spnTableViewController_Income ()
+
+@property NSNumber* value;
+@property NSString* merchant;
+@property NSString* category_string;
+@property NSDate* date;
+@property NSString* notes;
+@property NSDateComponents* frequency;
 
 @end
 
@@ -35,9 +41,8 @@ enum
 
 enum
 {
-    AMOUNT_VIEW_TAG,
+    AMOUNT_VIEW_TAG = 1,
     MERCHANT_VIEW_TAG,
-    CATEGORY_VIEW_TAG,
     DATE_VIEW_TAG,
     DESCRIPTION_VIEW_TAG,
     RECURRENCE_VIEW_TAG
@@ -60,7 +65,8 @@ enum
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
                                    initWithTarget:self.view
                                    action:@selector(dismissKeyboard)];
-    
+
+    [tap setDelegate:self];
     [self.view addGestureRecognizer:tap];
 
     // Uncomment the following line to preserve selection between presentations.
@@ -70,32 +76,19 @@ enum
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
-    //self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(spnEditButtonClicked:)];
     
-    // Date is required
-    if(!self.transaction.date)
+    // Assign the recurrence frequency to the property if it exists for this transaction
+    if (self.transaction.recurrence)
     {
-        [self.transaction setDate:[NSDate date]];
-        [self.transaction setSectionName:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] stringFromDate:[self.transaction date]]];
+        [self setFrequency:self.transaction.recurrence.frequency];
+    }
+    else
+    {
+        [self setFrequency:nil];
     }
     
-    // Category is required
-    if(!self.transaction.category)
-    {
-//        SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-        SpnTransactionCategory* newCategory = [SpnTransactionCategory fetchCategoryWithName:DEFAULT_CATEGORY_TITLE inManagedObjectContext:self.managedObjectContext];
-        
-        // Assign new category to transaction
-//        [self.transaction setCategory:newCategory];
-        [newCategory addTransactionsObject:self.transaction];
-    }
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
-    
-    [self saveContext:self.managedObjectContext];
+    // Category is hardcoded to "Income" for this view controller
+    [self setCategory_string:DEFAULT_CATEGORY_TITLE];
 }
 
 - (void)didReceiveMemoryWarning
@@ -104,35 +97,76 @@ enum
     // Dispose of any resources that can be recreated.
 }
 
-// Only applicable when adding a transaction, button does not appear when viewing/editting
-//   an existing one.
+// Only applicable when adding a transaction, button does not appear when viewing/editting an existing one.
 - (void)doneButtonClicked: (id)sender
 {
     if([sender isKindOfClass:[UIBarButtonItem class]])
     {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        // Buffer the local properties to the transaction managed object
+        self.transaction.value = self.value;
+        self.transaction.merchant = self.merchant;
+        self.transaction.date = self.date;
+        self.transaction.notes = self.notes;
+        
+        // Category - for an add transaction, this will be nil and so one needs to be created
+        if(!self.transaction.category)
+        {
+            SpnTransactionCategory* fetchedCategory = [SpnTransactionCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
+            
+            // Assign transaction to the new category. This has the side effect of removing the transaction from originalCategory
+            [fetchedCategory addTransactionsObject:self.transaction];
+        }
+        else
+        {
+            // If the transaction is assigned to a category, ensure it matches what was provided in this view controller. if not, fetch the new category and move the transaction to it
+            if(self.transaction.category.title != self.category_string)
+            {
+                SpnTransactionCategory* newCategory = [SpnTransactionCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
+
+                // Assign transaction to the new category. This has the side effect of removing the transaction from originalCategory
+                [newCategory addTransactionsObject:self.transaction];
+            }
+        }
+        
+        // Process any NEW recurrence
+        if ((self.transaction.recurrence == nil) && (self.frequency != nil))
+        {
+            // Create recurrence
+            SpnRecurrence* recurrence = [[SpnRecurrence alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnRecurrenceMO" inManagedObjectContext:self.managedObjectContext]insertIntoManagedObjectContext:self.managedObjectContext];
+            
+            [recurrence setRecurrenceForTransaction:self.transaction withFrequency:self.frequency withAction:RECUR_ACTION_CREATE];
+        }
+        else if (self.transaction.recurrence != nil)
+        {
+            // display the action sheet for updating a transaction within a series
+            UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:@"This transaction is part of a series..." delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:
+                                          @"Update All",
+                                          @"Update Future",
+                                          @"Update One",
+                                          nil];
+            
+            [actionSheet setActionSheetStyle:UIActionSheetStyleAutomatic];
+            [actionSheet showInView:self.view];
+            // this will not return
+        }
+        else
+        {
+            // Save and dismiss/pop
+            [self saveContext:self.managedObjectContext];
+        
+            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.navigationController popViewControllerAnimated:YES];
+        }
     }
 }
 
-// Only applicable when adding a transaction, button does not appear when viewing/editting
-//   an existing one.
+// Only applicable when adding a transaction, button does not appear when viewing/editting an existing one.
 - (void)cancelButtonClicked: (id)sender
 {
     if([sender isKindOfClass:[UIBarButtonItem class]])
     {
-        SpnTransactionCategory* category = self.transaction.category;
-   
-        // Remove the category if this is the only transaction
-        if(category.transactions.count == 1)
-        {
-            [self.managedObjectContext deleteObject:category];
-        }
-        else
-        {
-            // Just remove the transaction that was created for this add
-            [self.managedObjectContext deleteObject:self.transaction];
-        }
-        
+        // Just remove the transaction that was created for this add
+        [self.managedObjectContext deleteObject:self.transaction];
         [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
@@ -169,8 +203,8 @@ enum
     // If a cell wasn't defined for reuse, create one.
     if (cell == nil)
     {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseIdentifier[indexPath.section]];
-        
+        NSNumberFormatter* valueFormatter;
+        NSNumber* newValue;
         CGFloat subViewWidth = tableView.frame.size.width;
         CGFloat subViewHeight = [self tableView:tableView heightForRowAtIndexPath:indexPath];
         
@@ -178,45 +212,101 @@ enum
         switch(indexPath.section)
         {
             case AMOUNT_SECTION_IDX:
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier[indexPath.section]];
+                
+                // Buffer the transaction's value to the text field
                 textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
                 [textField setTag:AMOUNT_VIEW_TAG];
                 [textField setText:[NSString stringWithFormat:@"$%.2f", [self.transaction.value floatValue]]];
                 [textField setDelegate:self];
+				[textField setKeyboardType:UIKeyboardTypeNumberPad];
                 [cell addSubview:textField];
+                
+                // Maintain the view controller's property
+                valueFormatter = [[NSNumberFormatter alloc] init];
+                [valueFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                [valueFormatter setCurrencyCode:@"USD"];
+                newValue = [valueFormatter numberFromString:textField.text];
+                newValue = ((!newValue.floatValue) ? [NSNumber numberWithFloat:0.0] : newValue);
+                [self setValue:newValue];
                 break;
                 
             case MERCHANT_SECTION_IDX:
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier[indexPath.section]];
+                
+                // Buffer the transaction's merchant to the text field
                 textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
                 [textField setTag:MERCHANT_VIEW_TAG];
                 [textField setText:[self.transaction merchant]];
                 [textField setDelegate:self];
                 [cell addSubview:textField];
+                
+                // Maintain the view controller's property
+                [self setMerchant:textField.text];
                 break;
                 
             case DATE_SECTION_IDX:
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier[indexPath.section]];
+                
+                // Buffer the transaction's date to the text field if it is assigned to one. Otherwise assume today's date until user changes it.
                 textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
                 [textField setTag:DATE_VIEW_TAG];
-                [textField setText:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] stringFromDate:[self.transaction date]]];
+                
+                if(!self.transaction.date)
+                {
+                    [self.transaction setDate:[NSDate date]];
+                }
+                
+                [textField setText:self.transaction.sectionName];
                 [textField setDelegate:self];
                 [textField setInputView:[self.view datePickerView]];
                 [cell addSubview:textField];
+                
+                // Maintain the view controller's properties
+                [self setDate:self.transaction.date];
                 break;
                 
             case DESCRIPTION_SECTION_IDX:
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier[indexPath.section]];
+                
+                // Buffer the transaction's notes to the text view
                 textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
                 [textView setTag:DESCRIPTION_VIEW_TAG];
                 [textView setText:[self.transaction notes]];
                 [textView setEditable:YES];
                 [textView setDelegate:self];
                 [cell addSubview:textView];
+                
+                // Maintain the view controller's property
+                [self setNotes:textView.text];
                 break;
                 
             case RECURRENCE_SECTION_IDX:
-                textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth, subViewHeight)];
-                [textField setTag:RECURRENCE_VIEW_TAG];
-                [textField setText:@"0"];
-                [textField setDelegate:self];
-                [cell addSubview:textField];
+            {
+                // Don't assign a reuse identifier since we want the cell to be dynamic
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
+                
+                // Buffer the transaction's recurrence frequency to the text field
+                if(!self.frequency)
+                {
+                    [cell.detailTextLabel setText:@"None"];
+                }
+                else
+                {
+                    // Decompose it into a string and write to the cell label
+                    NSComparisonResult comparedToOne = [[self stringFromInterval:self.frequency] compare:@"1"];
+                    
+                    NSString* strInterval = comparedToOne == NSOrderedSame ? @"" : [NSString stringWithFormat:@"%@ ", [self stringFromInterval:self.frequency]];
+                    
+                    NSString* strFrequency = comparedToOne == NSOrderedSame ? [self stringFromFrequency:self.frequency] : [NSString stringWithFormat:@"%@s", [self stringFromFrequency:self.frequency]];
+                    
+                    [cell.detailTextLabel setText:[NSString stringWithFormat:@"Every %@%@", strInterval, strFrequency]];
+                }
+
+                // Add chevron button
+                [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+                [cell setTag:RECURRENCE_VIEW_TAG];
+            }
                 break;
                 
             default:
@@ -238,7 +328,7 @@ enum
                                 @"MERCHANT",
                                 @"DATE",
                                 @"DESCRIPTION",
-                                @"RECURRENCE (DAYS)",
+                                @"RECURRENCE",
                                 nil];
     
     // Set text based on section index
@@ -274,7 +364,40 @@ enum
     return (CGFloat)[rowHeight[indexPath.section] floatValue];
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == RECURRENCE_SECTION_IDX)
+    {
+        spnViewController_Recur* recurrenceViewCntrl = [[spnViewController_Recur alloc] initWithStyle:UITableViewStyleGrouped];
+        recurrenceViewCntrl.title = @"Recurrence";
+        recurrenceViewCntrl.delegate = self;
+        
+        //[[self navigationController] pushViewController:recurrenceViewCntrl animated:YES];
+        UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:recurrenceViewCntrl];
+        
+        [self presentViewController:navController animated:YES completion:nil];
+    }
+}
+
 // <UITextFieldDelegate> methods
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    switch (textField.tag)
+    {
+        case RECURRENCE_VIEW_TAG:
+        {
+            if ([textField.text isEqualToString:@"None"])
+            {
+                textField.text = @"";
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
@@ -282,84 +405,112 @@ enum
     return YES;
 }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
     switch (textField.tag)
     {
         case AMOUNT_VIEW_TAG:
         {
-            NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];
-            [formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-            [formatter setCurrencyCode:@"USD"];
-            NSNumber* newValue = [formatter numberFromString:textField.text];
-            newValue = ((!newValue.floatValue) ? [NSNumber numberWithFloat:0.0] : newValue);
-
-            // Assign new value to transaction
-            [self.transaction setValue:newValue];
+            NSString *text = textField.text;
+            NSString *decimalSeperator = @".";
+            NSCharacterSet *charSet = nil;
+            NSString *numberChars = @"0123456789";
+            
+            
+            // the number formatter will only be instantiated once ...
+            static NSNumberFormatter *numberFormatterCurrency;
+            if (!numberFormatterCurrency)
+            {
+                numberFormatterCurrency = [[NSNumberFormatter alloc] init];
+                numberFormatterCurrency.numberStyle = NSNumberFormatterCurrencyStyle;
+                numberFormatterCurrency.maximumFractionDigits = 2;
+                numberFormatterCurrency.minimumFractionDigits = 0;
+                numberFormatterCurrency.decimalSeparator = decimalSeperator;
+                numberFormatterCurrency.usesGroupingSeparator = NO;
+            }
+            
+            
+            // create a character set of valid chars (numbers and optionally a decimal sign) ...
+            NSRange decimalRange = [text rangeOfString:decimalSeperator];
+            BOOL isDecimalNumber = (decimalRange.location != NSNotFound);
+            if (isDecimalNumber)
+            {
+                charSet = [NSCharacterSet characterSetWithCharactersInString:numberChars];
+            }
+            else
+            {
+                numberChars = [numberChars stringByAppendingString:decimalSeperator];
+                charSet = [NSCharacterSet characterSetWithCharactersInString:numberChars];
+            }
+            
+            
+            // remove any characters from the string that are not a number or decimal sign ...
+            NSCharacterSet *invertedCharSet = [charSet invertedSet];
+            NSString *trimmedString = [string stringByTrimmingCharactersInSet:invertedCharSet];
+            text = [text stringByReplacingCharactersInRange:range withString:trimmedString];
+            
+            
+            // whenever a decimalSeperator is entered, we'll just update the textField.
+            // whenever other chars are entered, we'll calculate the new number and update the textField accordingly.
+            if ([string isEqualToString:decimalSeperator] == YES)
+            {
+                textField.text = text;
+            }
+            else
+            {
+                NSNumber *number = [numberFormatterCurrency numberFromString:text];
+                if (number == nil)
+                {
+                    number = [NSNumber numberWithFloat:0.00];
+                }
+                textField.text = isDecimalNumber ? text : [numberFormatterCurrency stringFromNumber:number];
+            }
+            
+            // Maintain the view controller's property
+            [self setValue:[numberFormatterCurrency numberFromString:text]];
+            
+            // we return NO because we have manually edited the textField contents.
+            return NO;
         }
             break;
             
+        default:
+            return YES;
+            break;
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    switch (textField.tag)
+    {
         case MERCHANT_VIEW_TAG:
         {
-            [self.transaction setMerchant:textField.text];
-        }
-            break;
-            
-        case CATEGORY_VIEW_TAG:
-        {
-            NSString* newCategoryName = (textField.text.length > 0) ? textField.text : DEFAULT_CATEGORY_TITLE;
-            textField.text = newCategoryName;
-            
-            // Assign new category to transaction
-//            SpnMonth* month = [SpnMonth fetchMonthWithDate:self.transaction.date inManagedObjectContext:self.managedObjectContext];
-            SpnTransactionCategory* newCategory = [SpnTransactionCategory fetchCategoryWithName:newCategoryName inManagedObjectContext:self.managedObjectContext];
-            
-            // Move transaction to new category
-            [self transaction:self.transaction moveToCategory:newCategory];
+            // Maintain the view controller's property
+            [self setMerchant:textField.text];
         }
             break;
             
         case DATE_VIEW_TAG:
         {
-            [self.transaction setDate:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] dateFromString:textField.text]];
-            [self.transaction setSectionName:textField.text];
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setLocale:[NSLocale currentLocale]];
+            [dateFormatter setDateStyle: NSDateFormatterMediumStyle];
+            
+            // Compute date from string. Maintain the view controller's properties
+            [self setDate:[dateFormatter dateFromString:textField.text]];
         }
             break;
             
         case RECURRENCE_VIEW_TAG:
-            // tbd tbd tbd
-            if(self.transaction.recurrence != nil)
+        {
+            if(([textField.text isEqualToString:@""]) ||
+               ([textField.text isEqualToString:@"0"]))
             {
-                
+                // invalid
+                [textField setText:@"None"];
             }
-            else
-            {
-                SpnRecurrence* recurrence = [[SpnRecurrence alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnRecurrenceMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-                
-                NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];
-                [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
-                NSNumber* newValue = [formatter numberFromString:textField.text];
-                
-                [recurrence setFrequency:newValue];
-                
-                for(int i = 0; i < newValue.integerValue; i++)
-                {
-                    SpnTransaction* copiedTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:self.managedObjectContext] insertIntoManagedObjectContext:self.managedObjectContext];
-                    
-                    
-                    [copiedTransaction setDate:self.transaction.date];
-                    [copiedTransaction setMerchant:self.transaction.merchant];
-                    [copiedTransaction setNotes:self.transaction.notes];
-                    [copiedTransaction setSectionName:self.transaction.sectionName];
-                    [copiedTransaction setType:self.transaction.type];
-                    [copiedTransaction setValue:self.transaction.value];
-                    
-                    [copiedTransaction setCategory:self.transaction.category];
-                    [copiedTransaction setRecurrence: self.transaction.recurrence];
-                }
-            }
-            
-            // tbd tbd tbd
+        }
             break;
             
         default:
@@ -374,7 +525,8 @@ enum
     {
         case DESCRIPTION_VIEW_TAG:
         {
-            [self.transaction setNotes:textView.text];
+            // Maintain the view controller's property
+            [self setNotes:textView.text];
         }
             break;
             
@@ -383,50 +535,133 @@ enum
     }
 }
 
-- (void)transaction:(SpnTransaction*)transaction moveToCategory:(SpnTransactionCategory*)category
+// <UIGestureRecognizerDelegate> methods
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    SpnTransactionCategory* originalCategory = (SpnTransactionCategory*)transaction.category;
+    UITableViewCell* recurrenceCell = [(UITableView*)self.view cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:RECURRENCE_SECTION_IDX]];
     
-    // If the original category is different from the specified category
-    if(category != originalCategory)
+    if ([touch.view isDescendantOfView:recurrenceCell])
     {
-        // Assign new category to transaction
-        //[self.transaction setCategory:category];
-        [category addTransactionsObject:transaction];
-        
-        // Add the transaction to the new category
-        //[category setTotal:[NSNumber numberWithFloat:[[category total] floatValue] + [[self.transaction value] floatValue]]];
-        
-        // Add to the total expenses of the month
-        //[category.month setTotalExpenses:[NSNumber numberWithFloat:[[category.month totalExpenses] floatValue] + [[self.transaction value] floatValue]]];
-        
-        // Delete old category if it's now empty
-        if(originalCategory.transactions.count == 0)
-        {
-            //SpnMonth* month = originalCategory.month;
-            
-            // Delete category object
-            [self.managedObjectContext deleteObject:originalCategory];
-            
-            // Delete month object if this was the last category
-            //if(month.categories.count == 0)
-            {
-            //    [self.managedObjectContext deleteObject:month];
-            }
-            //else
-            {
-                //[month setTotalExpenses:[NSNumber numberWithFloat:[[month totalExpenses] floatValue] - [[self.transaction value] floatValue]]];
-            }
-        }
-        else
-        {
-            // Subtract transaction from original category
-            //[originalCategory setTotal:[NSNumber numberWithFloat:[[originalCategory total] floatValue] - [[self.transaction value] floatValue]]];
-            
-            // Subtract transaction value from month
-            //[originalCategory.month setTotalExpenses:[NSNumber numberWithFloat:[[originalCategory.month totalExpenses] floatValue] + [[self.transaction value] floatValue]]];
-        }
+        // Don't let selection of recurrence cell fire the gesture recognizer
+        return NO;
     }
+    
+    return YES;
+}
+
+// <spnViewController_RecurDelegate> methods
+- (NSDateComponents*)recurGetFrequency
+{
+    return self.frequency;
+}
+
+- (void)recurSetFrequency:(NSDateComponents*)frequency
+{
+    // Set the frequency
+    self.frequency = frequency;
+    
+    // The udpates to the data supporting the table are complete
+    [self.tableView reloadData];
+}
+
+- (NSString*) stringFromFrequency:(NSDateComponents*)frequency
+{
+    NSString* strFrequency;
+    
+    if (frequency.day > 0)
+    {
+        strFrequency = @"Day";
+    }
+    else if (frequency.week > 0)
+    {
+        strFrequency = @"Week";
+    }
+    else if (frequency.month > 0)
+    {
+        strFrequency = @"Month";
+    }
+    else if (frequency.year > 0)
+    {
+        strFrequency = @"Year";
+    }
+    else
+    {
+        // Should not be here
+        strFrequency = @"Unknown";
+    }
+    
+    return strFrequency;
+}
+
+- (NSString*) stringFromInterval:(NSDateComponents*)frequency
+{
+    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    [numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+    
+    NSNumber* basis;
+    
+    if (frequency.day > 0)
+    {
+        basis = [NSNumber numberWithInteger:frequency.day];
+    }
+    else if (frequency.week > 0)
+    {
+        basis = [NSNumber numberWithInteger:frequency.week];
+    }
+    else if (frequency.month > 0)
+    {
+        basis = [NSNumber numberWithInteger:frequency.month];
+    }
+    else if (frequency.year > 0)
+    {
+        basis = [NSNumber numberWithInteger:frequency.year];
+    }
+    else
+    {
+        // Should not be here
+        basis = [NSNumber numberWithInteger:0];
+    }
+    
+    return [numberFormatter stringFromNumber:basis];
+}
+
+
+// <UIActionSheetDelegate> methods
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    SpnRecurrenceActionType action;
+    
+    switch (buttonIndex)
+    {
+        case UPDATE_ALL_AS_INDEX:
+        {
+            action = RECUR_ACTION_UPDATE_ALL;
+        }
+            break;
+            
+        case UPDATE_FUTURE_AS_INDEX:
+        {
+            action = RECUR_ACTION_UPDATE_FUTURE;
+        }
+            break;
+            
+        case UPDATE_ONE_AS_INDEX:
+        {
+            action = RECUR_ACTION_UPDATE_ONE;
+        }
+            break;
+            
+        default:
+            action = RECUR_ACTION_NONE;
+            break;
+    }
+
+    // Pass action along to the recurrence
+    [self.transaction.recurrence setRecurrenceForTransaction:self.transaction withFrequency:self.transaction.recurrence.frequency withAction:action];
+    
+    // Save and pop
+    [self saveContext:self.managedObjectContext];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 /*

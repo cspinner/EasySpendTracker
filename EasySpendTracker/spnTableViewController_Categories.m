@@ -128,8 +128,10 @@
     // Create fetch request and fetch controller
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
 
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+    NSSortDescriptor *sortTransactionsByDate = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+
+    // Assign the sort descriptor to the fetch request
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
     
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"category == %@", category];
     [fetchRequest setPredicate:predicate];

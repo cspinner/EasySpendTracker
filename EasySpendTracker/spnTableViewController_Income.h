@@ -8,8 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import "SpnTransaction.h"
+#import "spnViewController_Recur.h"
 
-@interface spnTableViewController_Income : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate>
+enum
+{
+    UPDATE_ALL_AS_INDEX,
+    UPDATE_FUTURE_AS_INDEX,
+    UPDATE_ONE_AS_INDEX
+};
+
+@interface spnTableViewController_Income : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, spnViewController_RecurDelegate, UIActionSheetDelegate>
 
 @property SpnTransaction* transaction;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;

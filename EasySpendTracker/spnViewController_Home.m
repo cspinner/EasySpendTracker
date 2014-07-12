@@ -50,34 +50,6 @@
     [self.view addSubview:self.textView];
 }
 
-// old text summary - debug
-//- (void)viewDidAppear:(BOOL)animated
-//{
-//    [super viewDidAppear:animated];
-//    
-//    NSError* error;
-//    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionCategoryMO"];
-//    NSMutableArray *mutableFetchResults = [[self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
-//    
-//    NSMutableString* text = [[NSMutableString alloc] init];
-//    
-//    // First line
-//    [text appendFormat:@"Categories:\n"];
-//    
-//    // Add summary text for each category
-//    for(SpnTransactionCategory* category in mutableFetchResults)
-//    {
-//        [text appendFormat:@"   %@ - $%.2f - %lu transactions:\n", category.title, category.total.floatValue, (unsigned long)category.transactions.count];
-//        
-//        for(SpnTransaction* transaction in category.transactions)
-//        {
-//            [text appendFormat:@"       %@ - %@ - $%.2f - %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, category.title];
-//        }
-//    }
-//    
-//    [self.textView setText:text];
-//}
-
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13D65" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="SpnRecurrenceMO" representedClassName="SpnRecurrenceMO" syncable="YES">
-        <attribute name="frequency" optional="YES" attributeType="Integer 32" defaultValueString="-1" syncable="YES"/>
-        <relationship name="transaction" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="recurrence" inverseEntity="SpnTransactionMO" syncable="YES"/>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13E28" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="SpnRecurrenceMO" representedClassName="SpnRecurrence" syncable="YES">
+        <attribute name="frequency" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <relationship name="rootTransaction" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnTransactionMO" inverseName="recurrenceWhereRoot" inverseEntity="SpnTransactionMO" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="recurrence" inverseEntity="SpnTransactionMO" syncable="YES"/>
     </entity>
     <entity name="SpnTransactionCategoryMO" representedClassName="SpnTransactionCategory" syncable="YES">
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
@@ -10,19 +11,20 @@
         <attribute name="total" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="category" inverseEntity="SpnTransactionMO" syncable="YES"/>
     </entity>
-    <entity name="SpnTransactionMO" representedClassName="SpnTransactionMO" syncable="YES">
+    <entity name="SpnTransactionMO" representedClassName="SpnTransaction" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="merchant" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="notes" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="sectionName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sectionName" optional="YES" transient="YES" attributeType="String" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="value" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnTransactionCategoryMO" inverseName="transactions" inverseEntity="SpnTransactionCategoryMO" syncable="YES"/>
-        <relationship name="recurrence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="transaction" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
+        <relationship name="category" maxCount="1" deletionRule="Nullify" destinationEntity="SpnTransactionCategoryMO" inverseName="transactions" inverseEntity="SpnTransactionCategoryMO" syncable="YES"/>
+        <relationship name="recurrence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="transactions" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
+        <relationship name="recurrenceWhereRoot" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="rootTransaction" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
     </entity>
     <elements>
-        <element name="SpnRecurrenceMO" positionX="9" positionY="63" width="128" height="73"/>
+        <element name="SpnRecurrenceMO" positionX="9" positionY="63" width="128" height="88"/>
         <element name="SpnTransactionCategoryMO" positionX="0" positionY="0" width="128" height="103"/>
-        <element name="SpnTransactionMO" positionX="0" positionY="0" width="128" height="165"/>
+        <element name="SpnTransactionMO" positionX="0" positionY="0" width="128" height="180"/>
     </elements>
 </model>

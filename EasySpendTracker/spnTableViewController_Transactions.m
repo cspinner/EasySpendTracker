@@ -109,7 +109,7 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
     id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
-   
+
     return [sectionInfo name];
 }
 
@@ -119,17 +119,8 @@
     {
         SpnTransaction* transaction = ((SpnTransaction*)[self.fetchedResultsController objectAtIndexPath:indexPath]);
         
-        // Delete parent category too if this is the last transaction to be deleted
-        if(transaction.category.transactions.count == 1)
-        {
-            // Deletion rule set to cascase = deletes last transaction as well
-            [self.managedObjectContext deleteObject:transaction.category];
-        }
-        else
-        {
-            // Only delete the transaction
-            [self.managedObjectContext deleteObject:transaction];
-        }
+        // Delete the object
+        [self.managedObjectContext deleteObject:transaction];
         
         // Save changes
         [self saveContext:self.managedObjectContext];
@@ -150,6 +141,17 @@
         transactionTableViewController.title = @"Transaction";
         transactionTableViewController.managedObjectContext = self.managedObjectContext;
         transactionTableViewController.transaction = transaction;
+        
+        // Add done and cancel buttons
+        transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:@selector(doneButtonClicked:)];
+        
+        self.navigationItem.backBarButtonItem =
+        [[UIBarButtonItem alloc] initWithTitle:@"Cancel"
+                                         style:self.navigationItem.backBarButtonItem.style
+                                        target:nil
+                                        action:nil];
+        
+        // Present the view
         [[self navigationController] pushViewController:transactionTableViewController animated:YES];
     }
     else // INCOME_TRANSACTION_TYPE
@@ -159,6 +161,17 @@
         transactionTableViewController.title = @"Transaction";
         transactionTableViewController.managedObjectContext = self.managedObjectContext;
         transactionTableViewController.transaction = transaction;
+        
+        // Add done and cancel buttons
+        transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:@selector(doneButtonClicked:)];
+        
+        self.navigationItem.backBarButtonItem =
+            [[UIBarButtonItem alloc] initWithTitle:@"Cancel"
+                                             style:self.navigationItem.backBarButtonItem.style
+                                            target:nil
+                                            action:nil];
+        
+        // Present the view
         [[self navigationController] pushViewController:transactionTableViewController animated:YES];
     }
     

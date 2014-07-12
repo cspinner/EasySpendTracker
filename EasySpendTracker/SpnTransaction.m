@@ -10,4 +10,14 @@
 
 @implementation SpnTransaction
 
+- (NSString*) sectionName
+{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setLocale:[NSLocale currentLocale]];
+    [dateFormatter setDateStyle: NSDateFormatterMediumStyle];
+    
+    return [dateFormatter stringFromDate:self.date];
+}
+
+
 @end

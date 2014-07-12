@@ -7,7 +7,6 @@
 //
 
 #import "UIView+spnViewCtgy.h"
-#import "spnUtils.h"
 #import <objc/runtime.h>
 
 static char const * const DatePickerKey = "DatePicker";
@@ -80,7 +79,12 @@ static char const * const DatePickerKey = "DatePicker";
             
             if([(UIBarButtonItem*)sender tag] == 1)
             {
-                [textField setText:[[[spnUtils sharedUtils] dateFormatterMonthDayYear] stringFromDate:[self.datePicker date]]];
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                [dateFormatter setLocale:[NSLocale currentLocale]];
+                [dateFormatter setDateStyle: NSDateFormatterMediumStyle];
+                
+                // Set the text field based on the formatted date
+                [textField setText:[dateFormatter stringFromDate:[self.datePicker date]]];
             }
             
             [textField resignFirstResponder];

@@ -2,7 +2,7 @@
 //  SpnTransactionMO.m
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 6/16/14.
+//  Created by Christopher Spinner on 7/5/14.
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
@@ -21,5 +21,6 @@
 @dynamic value;
 @dynamic category;
 @dynamic recurrence;
+@dynamic recurrenceWhereRoot;
 
 @end
