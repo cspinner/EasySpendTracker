@@ -10,4 +10,6 @@
 
 @interface SpnTransaction : SpnTransactionMO
 
+- (SpnTransaction*)clone;
+
 @end

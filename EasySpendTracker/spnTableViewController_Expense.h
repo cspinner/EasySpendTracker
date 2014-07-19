@@ -7,12 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SpnTransaction.h"
-#import "spnViewController_Recur.h"
+#import "spnTableViewController_Transaction.h"
 
-@interface spnTableViewController_Expense : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, spnViewController_RecurDelegate>
-
-@property SpnTransaction* transaction;
-@property (nonatomic) NSManagedObjectContext* managedObjectContext;
+@interface spnTableViewController_Expense : spnTableViewController_Transaction
 
 @end

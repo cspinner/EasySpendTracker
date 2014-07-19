@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
+@interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UIActionSheetDelegate>
 
+@property NSString* categoryTitle;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
-@property (nonatomic) NSFetchedResultsController* fetchedResultsController;
 
 @end

@@ -11,7 +11,5 @@
 @interface spnTableViewController_Categories : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
-@property (nonatomic) NSFetchedResultsController* fetchedResultsController;
-@property id delegate;
 
 @end

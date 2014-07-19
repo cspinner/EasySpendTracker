@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
-#import "spnViewController_Recur.h"
+#import "spnViewController_RecurSelect.h"
 #import "UIView+spnViewCtgy.h"
 
-@interface spnViewController_Recur ()
+@interface spnViewController_RecurSelect ()
 
 @property NSDateComponents* frequency;
 
@@ -19,7 +19,7 @@
 
 @end
 
-@implementation spnViewController_Recur
+@implementation spnViewController_RecurSelect
 
 // table sections
 enum
@@ -366,6 +366,26 @@ NSArray* strFreqArray;
     }
 }
 
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    switch (textField.tag)
+    {
+        case BASIS_VIEW_TAG:
+        {
+            // Minimum basis is 1
+            if ([textField.text isEqualToString:@"0"] ||
+                [textField.text isEqualToString:@""])
+            {
+                textField.text = @"1";
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
@@ -405,7 +425,7 @@ NSArray* strFreqArray;
             NSNumber *number = [numberFormatterBasis numberFromString:text];
             if (number == nil)
             {
-                number = [NSNumber numberWithInt:1];
+                number = [NSNumber numberWithInt:0];
             }
             
             textField.text = [numberFormatterBasis stringFromNumber:number];

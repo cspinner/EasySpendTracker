@@ -2,8 +2,9 @@
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13E28" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="SpnRecurrenceMO" representedClassName="SpnRecurrence" syncable="YES">
         <attribute name="frequency" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="nextDate" optional="YES" attributeType="Date" syncable="YES"/>
         <relationship name="rootTransaction" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnTransactionMO" inverseName="recurrenceWhereRoot" inverseEntity="SpnTransactionMO" syncable="YES"/>
-        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="recurrence" inverseEntity="SpnTransactionMO" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SpnTransactionMO" inverseName="recurrence" inverseEntity="SpnTransactionMO" syncable="YES"/>
     </entity>
     <entity name="SpnTransactionCategoryMO" representedClassName="SpnTransactionCategory" syncable="YES">
         <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
@@ -23,7 +24,7 @@
         <relationship name="recurrenceWhereRoot" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="rootTransaction" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
     </entity>
     <elements>
-        <element name="SpnRecurrenceMO" positionX="9" positionY="63" width="128" height="88"/>
+        <element name="SpnRecurrenceMO" positionX="9" positionY="63" width="128" height="105"/>
         <element name="SpnTransactionCategoryMO" positionX="0" positionY="0" width="128" height="103"/>
         <element name="SpnTransactionMO" positionX="0" positionY="0" width="128" height="180"/>
     </elements>

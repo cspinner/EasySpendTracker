@@ -13,9 +13,10 @@
 #import "spnTableViewController_Expense.h"
 #import "spnTableViewController_Income.h"
 #import "SpnTransaction.h"
-#import "SpnTransactionCategory.h"
 
 @interface spnTableViewController_Transactions ()
+
+@property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
 
 @end
 
@@ -63,6 +64,36 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (NSFetchedResultsController*)fetchedResultsController
+{
+    // Return the instance if it already exists
+    if (_fetchedResultsController != nil)
+    {
+        return _fetchedResultsController;
+    }
+    
+    // Otherwise, initialize the instance and then return it:
+    
+    // Create fetch request and fetch controller
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
+    
+    NSSortDescriptor *sortTransactionsByDate = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+    
+    // Assign the sort descriptor to the fetch request
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
+    
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"category.title == %@", self.categoryTitle];
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setFetchBatchSize:20];
+    
+    [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
+    
+    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"sectionName" cacheName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
+    [_fetchedResultsController setDelegate:self];
+    
+    return _fetchedResultsController;
 }
 
 - (void)configureCell:(spnTransactionCellView*)cell atIndexPath:(NSIndexPath*)indexPath
@@ -128,6 +159,11 @@
 }
 
 // <UITableViewDelegate> methods
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleNone;
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get transaction corresponding to selected cell
@@ -161,6 +197,7 @@
         transactionTableViewController.title = @"Transaction";
         transactionTableViewController.managedObjectContext = self.managedObjectContext;
         transactionTableViewController.transaction = transaction;
+        transactionTableViewController.isNew = NO;
         
         // Add done and cancel buttons
         transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:@selector(doneButtonClicked:)];
@@ -210,7 +247,7 @@
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
+            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:newIndexPath];
             break;
             
         case NSFetchedResultsChangeMove:

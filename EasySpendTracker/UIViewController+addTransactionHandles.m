@@ -49,6 +49,7 @@
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
             [addViewController setTransaction:newTransaction];
+            [addViewController setIsNew:YES];
             
             // Add done and cancel buttons
             addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:@selector(doneButtonClicked:)];
@@ -75,6 +76,7 @@
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
             [addViewController setTransaction:newTransaction];
+            [addViewController setIsNew:YES];
             
             // Add done and cancel buttons
             addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:@selector(doneButtonClicked:)];

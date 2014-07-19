@@ -2,7 +2,7 @@
 //  SpnRecurrenceMO.m
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 7/9/14.
+//  Created by Christopher Spinner on 7/18/14.
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
@@ -13,6 +13,7 @@
 @implementation SpnRecurrenceMO
 
 @dynamic frequency;
+@dynamic nextDate;
 @dynamic rootTransaction;
 @dynamic transactions;
 

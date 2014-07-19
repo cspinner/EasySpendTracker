@@ -9,7 +9,6 @@
 #import "spnSpendTracker.h"
 #import "spnViewController_Home.h"
 #import "spnTableViewController_Categories.h"
-#import "SpnTransactionCategory.h"
 
 @interface spnSpendTracker ()
 
@@ -68,34 +67,8 @@ static spnSpendTracker *sharedSpendTracker = nil;
 
 - (void)initCategoriesViewCntrl
 {
-//    SpnMonth* month = [SpnMonth fetchMonthWithDate:[NSDate date] inManagedObjectContext:self.managedObjectContext];
-    NSError *error;
-    
-    [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.categoryTableViewController setDelegate:self];
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionCategoryMO"];
-    
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc]
-                              initWithKey:@"lastModifiedDate" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    [fetchRequest setFetchBatchSize:20];
-    
-    [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
-    [self.categoryTableViewController setFetchedResultsController:[[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.categoryTableViewController.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheCategories"]];
-    
-    [self.categoryTableViewController.fetchedResultsController setDelegate:self.categoryTableViewController];
-//    [self monthChange:month];
-    
-
-    if (![self.categoryTableViewController.fetchedResultsController performFetch:&error])
-    {
-        // Update to handle the error appropriately.
-        NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
-        exit(-1);
-    }
-    
     [self.categoryTableViewController setTitle:@"Categories"];
+    [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
 }
 
 

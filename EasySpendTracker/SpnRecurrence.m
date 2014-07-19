@@ -148,44 +148,14 @@ static int rootTransactionObservanceContext;
     
     NSCalendar* calendar = [NSCalendar currentCalendar];
     
-    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
-    [tempComponents setMonth:1];
-    
-    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
-    
-    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
-    [tempComponents setDay:1];
-    
-    // First day of the next month - this will be the end date
-    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
-    
     // Create first interval date:
     // add this transaction to the set of transactions for this recurrence
     [self addTransactionsObject:transaction];
     
-    NSDate* nextDate = [calendar dateByAddingComponents:self.frequency toDate:transaction.date options:0];
+    self.nextDate = [calendar dateByAddingComponents:self.frequency toDate:transaction.date options:0];
     
-    
-    // Continue to create recurring transactions until the end of this month - TBD this comparison is subsecond granularity, check manual for options
-    while([firstDayOfNextMonth compare:nextDate] == NSOrderedDescending)
-    {
-        // copy the specified transaction
-        SpnTransaction* copiedTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:self.managedObjectContext] insertIntoManagedObjectContext:self.managedObjectContext];
-        
-        [copiedTransaction setDate:nextDate];
-        [copiedTransaction setMerchant:transaction.merchant];
-        [copiedTransaction setNotes:transaction.notes];
-        [copiedTransaction setType:transaction.type];
-        [copiedTransaction setValue:transaction.value];
-        
-        [copiedTransaction setCategory:transaction.category];
-        
-        // finally, add it to the set of transactions for this recurrence
-        [self addTransactionsObject:copiedTransaction];
-        
-        // Create next interval date
-        nextDate = [calendar dateByAddingComponents:self.frequency toDate:copiedTransaction.date options:0];
-    }
+    // Copy the transaction through the end of the month
+    [self extendSeriesThroughEndOfMonth];
 }
 
 - (void) updateAllTransactionsInSeriesWith:(SpnTransaction*)transaction
@@ -228,7 +198,10 @@ static int rootTransactionObservanceContext;
 
 - (void) deleteAllTransactionsInSeries
 {
-    // delete all transactions associated with the recurrence. The recurrence itself will be removed within "observeValueForKeyPath" once the set is empty
+    // delete the recurrence itself
+    [self.managedObjectContext deleteObject:self];
+    
+    // delete all transactions associated with the recurrence.
     for (SpnTransaction* transaction in self.transactions)
     {
         [self.managedObjectContext deleteObject:transaction];
@@ -241,7 +214,11 @@ static int rootTransactionObservanceContext;
     NSPredicate* datePredicate = [NSPredicate predicateWithFormat:@"date >= %@", transaction.date];
     NSSet* filteredTransactions = [self.transactions filteredSetUsingPredicate:datePredicate];
     
-    // delete future transactions associated with the recurrence.
+    // delete the recurrence. Note the previous transactions will remain
+    [self.managedObjectContext deleteObject:self];
+    NSLog(@"Deleting recurrence");
+    
+    // delete future transactions (including the one specified) associated with the recurrence.
     for (SpnTransaction* transaction in filteredTransactions)
     {
         [self.managedObjectContext deleteObject:transaction];
@@ -252,6 +229,36 @@ static int rootTransactionObservanceContext;
 {
     // just delete the transaction
     [self.managedObjectContext deleteObject:transaction];
+}
+
+- (void) extendSeriesThroughEndOfMonth
+{
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    
+    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
+    [tempComponents setMonth:1];
+    
+    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
+    
+    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
+    [tempComponents setDay:1];
+    
+    // First day of the next month - this will be the end date
+    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
+    
+    // Continue to create recurring transactions based on the root transaction until the end of this month - TBD this comparison is subsecond granularity, check manual for options
+    while([firstDayOfNextMonth compare:self.nextDate] == NSOrderedDescending)
+    {
+        // copy the root transaction
+        SpnTransaction* copiedTransaction = [self.rootTransaction clone];
+        [copiedTransaction setDate:self.nextDate];
+        
+        // finally, add it to the set of transactions for this recurrence
+        [self addTransactionsObject:copiedTransaction];
+        
+        // Create next interval date
+        self.nextDate = [calendar dateByAddingComponents:self.frequency toDate:copiedTransaction.date options:0];
+    }
 }
 
 @end

@@ -16,6 +16,8 @@
 
 @interface spnTableViewController_Categories ()
 
+@property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
+
 @end
 
 @implementation spnTableViewController_Categories
@@ -41,9 +43,15 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
-    //self.navigationItem.leftBarButtonItem = self.editButtonItem;
-//    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self.delegate action:@selector(monthSelect)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
+    
+    NSError *error;
+    if (![self.fetchedResultsController performFetch:&error])
+    {
+        // Update to handle the error appropriately.
+        NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
+        exit(-1);
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -56,6 +64,34 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (NSFetchedResultsController*)fetchedResultsController
+{
+    // Return the instance if it already exists
+    if (_fetchedResultsController != nil)
+    {
+        return _fetchedResultsController;
+    }
+    
+    // Otherwise, initialize the instance and then return it:
+    
+    // Create fetch request and fetch controller
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionCategoryMO"];
+    
+    NSSortDescriptor *sort = [[NSSortDescriptor alloc]
+                              initWithKey:@"lastModifiedDate" ascending:NO];
+    
+    // Assign the sort descriptor to the fetch request
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+    [fetchRequest setFetchBatchSize:20];
+    
+    [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
+    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheCategories"];
+    
+    [_fetchedResultsController setDelegate:self];
+    
+    return _fetchedResultsController;
 }
 
 - (void)configureCell:(spnCategoryCellView*)cell atIndexPath:(NSIndexPath*)indexPath
@@ -78,7 +114,7 @@
     if (!cell)
     {
         // Create cell if reuse cell doesn't exist.
-        cell = [[spnCategoryCellView alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:CellIdentifier];
+        cell = [[spnCategoryCellView alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
     }
     
     [self configureCell:cell atIndexPath:indexPath];
@@ -115,6 +151,11 @@
 }
 
 // <UITableViewDelegate> methods
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleNone;
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get reference to selected item from the fetch controller
@@ -124,22 +165,7 @@
     spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
     [transactionsTableViewController setTitle:[category title]];
     [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-    
-    // Create fetch request and fetch controller
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
-
-    NSSortDescriptor *sortTransactionsByDate = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-
-    // Assign the sort descriptor to the fetch request
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
-    
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"category == %@", category];
-    [fetchRequest setPredicate:predicate];
-    [fetchRequest setFetchBatchSize:20];
-    
-    [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", category.title]];
-    [transactionsTableViewController setFetchedResultsController:[[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"sectionName" cacheName:[NSString stringWithFormat:@"Cache%@Transactions", category.title]]];
-    [transactionsTableViewController.fetchedResultsController setDelegate:transactionsTableViewController];
+    [transactionsTableViewController setCategoryTitle:category.title];
     
     [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
 }
@@ -166,7 +192,7 @@
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnCategoryCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
+            [self configureCell:(spnCategoryCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:newIndexPath];
             break;
             
         case NSFetchedResultsChangeMove:

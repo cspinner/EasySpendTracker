@@ -2,7 +2,7 @@
 //  SpnRecurrenceMO.h
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 7/9/14.
+//  Created by Christopher Spinner on 7/18/14.
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
@@ -14,6 +14,7 @@
 @interface SpnRecurrenceMO : NSManagedObject
 
 @property (nonatomic, retain) id frequency;
+@property (nonatomic, retain) NSDate * nextDate;
 @property (nonatomic, retain) SpnTransaction *rootTransaction;
 @property (nonatomic, retain) NSSet *transactions;
 @end
