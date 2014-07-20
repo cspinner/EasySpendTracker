@@ -13,7 +13,6 @@
 
 @dynamic lastModifiedDate;
 @dynamic title;
-@dynamic total;
 @dynamic transactions;
 
 @end

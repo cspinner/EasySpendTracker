@@ -103,6 +103,7 @@
 		3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnRecurrenceMO.m; sourceTree = "<group>"; };
 		3B771A16197AD7C600CF556F /* spnViewController_CategorySelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_CategorySelect.h; sourceTree = "<group>"; };
 		3B771A17197AD7C600CF556F /* spnViewController_CategorySelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_CategorySelect.m; sourceTree = "<group>"; };
+		3B771A19197B5EBD00CF556F /* EasySpendTracker2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EasySpendTracker2.xcdatamodel; sourceTree = "<group>"; };
 		3B94A55219641F24004EB00B /* spnViewController_RecurSelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_RecurSelect.h; sourceTree = "<group>"; };
 		3B94A55319641F24004EB00B /* spnViewController_RecurSelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_RecurSelect.m; sourceTree = "<group>"; };
 		3BDB00031819D69900876590 /* SpnTransactionCategoryMO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SpnTransactionCategoryMO.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -649,6 +650,7 @@
 		3B61712617EDED6800FBF39F /* EasySpendTracker.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				3B771A19197B5EBD00CF556F /* EasySpendTracker2.xcdatamodel */,
 				3B61712717EDED6800FBF39F /* EasySpendTracker.xcdatamodel */,
 			);
 			currentVersion = 3B61712717EDED6800FBF39F /* EasySpendTracker.xcdatamodel */;

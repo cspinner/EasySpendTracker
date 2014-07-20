@@ -10,7 +10,6 @@
 #import "spnTableViewController_Transactions.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "UIView+spnViewCtgy.h"
-#import "spnCategoryCellView.h"
 #import "SpnTransactionCategory.h"
 #import "spnUtils.h"
 
@@ -94,19 +93,46 @@
     return _fetchedResultsController;
 }
 
-- (void)configureCell:(spnCategoryCellView*)cell atIndexPath:(NSIndexPath*)indexPath
+- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath
 {
     SpnTransactionCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
+    // Determine category total for this month
+    // Get the start and end date for predicate to use
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    
+    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
+    [tempComponents setMonth:1];
+    
+    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
+    
+    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
+    [tempComponents setDay:1];
+    
+    // First day of the next month - this will be the end date (exclusive)
+    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
+    
+    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:[NSDate date]];
+    [tempComponents setDay:1];
+    
+    // First day of this month - this will be the start date (inclusive)
+    NSDate* firstDayOfThisMonth = [calendar dateFromComponents:tempComponents];
+    
+    // Create predicate to filter transactions by date
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date >= %@) AND (date < %@)", firstDayOfThisMonth, firstDayOfNextMonth];
+    
+    NSSet* thisMonthTransactions = [category.transactions filteredSetUsingPredicate:predicate];
+
     // Write cell contents
-    [cell setName:category.title withTotal:category.total.floatValue forMonth:[[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]] withBudget:0.00];
+    [cell.textLabel setText:category.title];
+    [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@: $%@", [[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]], [thisMonthTransactions valueForKeyPath:@"@sum.value"]]];
 }
 
 // <UITableViewDataSource> methods
-- (spnCategoryCellView *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString* CellIdentifier = @"CategoryCell";
-    spnCategoryCellView* cell = nil;
+    UITableViewCell* cell = nil;
 
     // Acquire reuse cell object from the table view
     cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -114,7 +140,7 @@
     if (!cell)
     {
         // Create cell if reuse cell doesn't exist.
-        cell = [[spnCategoryCellView alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
     }
     
     [self configureCell:cell atIndexPath:indexPath];
@@ -192,7 +218,7 @@
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnCategoryCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:newIndexPath];
+            [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:newIndexPath];
             break;
             
         case NSFetchedResultsChangeMove:

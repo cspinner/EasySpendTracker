@@ -15,7 +15,6 @@
 
 @property (nonatomic, retain) NSDate * lastModifiedDate;
 @property (nonatomic, retain) NSString * title;
-@property (nonatomic, retain) NSNumber * total;
 @property (nonatomic, retain) NSSet *transactions;
 @end
 

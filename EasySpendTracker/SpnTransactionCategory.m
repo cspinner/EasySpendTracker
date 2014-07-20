@@ -12,7 +12,6 @@
 @implementation SpnTransactionCategory
 
 static int transactionsObservanceContext;
-static int transactionValueObservanceContext;
 
 + (SpnTransactionCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
 {
@@ -44,7 +43,6 @@ static int transactionValueObservanceContext;
             category = [[SpnTransactionCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionCategoryMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
             
             // Perform additional initialization.
-            [category setTotal:[NSNumber numberWithFloat:0.00]];
             [category setLastModifiedDate:[NSDate date]];
             [category setTitle:categoryName];
         }
@@ -61,17 +59,6 @@ static int transactionValueObservanceContext;
     
     // Monitor changes to the transactions set
     [self addObserver:self forKeyPath:@"transactions" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionsObservanceContext];
-    
-    // Start monitoring values of each transaction
-    if(self.transactions != nil)
-    {
-        // Need to redo observership for each transaction
-        for(SpnTransaction* transaction in self.transactions)
-        {
-            // Register for notifications for changes to this transaction's value
-            [transaction addObserver:self forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionValueObservanceContext];
-        }
-    }
 }
 
 - (void)awakeFromFetch
@@ -82,17 +69,6 @@ static int transactionValueObservanceContext;
     
     // Monitor changes to the transactions set
     [self addObserver:self forKeyPath:@"transactions" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionsObservanceContext];
-    
-    // Start monitoring values of each transaction
-    if(self.transactions != nil)
-    {
-        // Need to redo observership for each transaction
-        for(SpnTransaction* transaction in self.transactions)
-        {
-            // Register for notifications for changes to this transaction's value
-            [transaction addObserver:self forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionValueObservanceContext];
-        }
-    }
 }
 
 - (void)willTurnIntoFault
@@ -102,81 +78,16 @@ static int transactionValueObservanceContext;
     
     // Remove all observances this instance has
     [self removeObserver:self forKeyPath:@"transactions" context:&transactionsObservanceContext];
-    
-    // Remove value observers
-    for(SpnTransaction* transaction in self.transactions)
-    {
-        [transaction removeObserver:self forKeyPath:@"value" context:&transactionValueObservanceContext];
-    }
-    
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == &transactionValueObservanceContext)
-    {
-//        NSString *const NSKeyValueChangeKindKey;
-//        NSString *const NSKeyValueChangeNewKey;
-//        NSString *const NSKeyValueChangeOldKey;
-//        NSString *const NSKeyValueChangeIndexesKey;
-//        NSString *const NSKeyValueChangeNotificationIsPriorKey;
-        
-        switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
-        {
-//            case NSKeyValueChangeSetting:
-//            {
-//                NSNumber* oldNumber = [change objectForKey:NSKeyValueChangeOldKey];
-//                NSNumber* newNumber = [change objectForKey:NSKeyValueChangeNewKey];
-//                [self setTotal:[NSNumber numberWithFloat:[self.total floatValue] - [oldNumber floatValue]]];
-//                [self setTotal:[NSNumber numberWithFloat:[self.total floatValue] + [newNumber floatValue]]];
-//            }
-//                break;
-            
-            case NSKeyValueChangeSetting:
-            case NSKeyValueChangeInsertion:
-            case NSKeyValueChangeRemoval:
-            case NSKeyValueChangeReplacement:
-            default:
-                break;
-        }
-        
-        // Refresh category total
-        [self setTotal:[self valueForKeyPath:@"transactions.@sum.value"]];
-    }
-    else if (context == &transactionsObservanceContext)
+    if (context == &transactionsObservanceContext)
     {
         switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
         {
-            case NSKeyValueChangeInsertion:
-            {
-                // Transaction is being inserted into the "transactions" set
-                NSSet* transactions = [change objectForKey:NSKeyValueChangeNewKey];
-                
-                for(SpnTransaction* transaction in transactions)
-                {
-                    // Update category total
-                    //[self setTotal:[NSNumber numberWithFloat:[self.total floatValue] + [transaction.value floatValue]]];
-                    
-                    // Register for notifications for changes to this transaction's value
-                    [transaction addObserver:self forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionValueObservanceContext];
-                }
-            }
-                break;
-                
             case NSKeyValueChangeRemoval:
             {
-                // Transaction is being removed from the "transactions" set
-                NSSet* transactions = [change objectForKey:NSKeyValueChangeOldKey];
-                
-                for(SpnTransaction* transaction in transactions)
-                {
-                    //[self setTotal:[NSNumber numberWithFloat:[self.total floatValue] - [transaction.value floatValue]]];
-                    
-                    // stop observing properties of this object since it's being deleted. Otherwise we will get back to back notifications.
-
-                    [transaction removeObserver:self forKeyPath:@"value" context:&transactionValueObservanceContext];
-                }
-
                 // Is there a better way?
                 if (self.transactions.count == nil ||
                     self.transactions.count == 0)
@@ -187,32 +98,12 @@ static int transactionValueObservanceContext;
             }
                 break;
                 
-            case NSKeyValueChangeSetting:
-            {
-                // TBD - Is this case dead code??
-                NSLog(@"NSKeyValueChangeSetting in observeValue hit in Category");
-                // "Transactions" set is being set (could be null)
-                if(self.transactions != nil)
-                {
-                    NSSet* transactions = [change objectForKey:NSKeyValueChangeNewKey];
-                    
-                    // Need to redo observership for each transaction
-                    for(SpnTransaction* transaction in transactions)
-                    {
-                        // Register for notifications for changes to this transaction's value
-                        [transaction addObserver:self forKeyPath:@"value" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionValueObservanceContext];
-                    }
-                }
-            }
-                break;
-                
             case NSKeyValueChangeReplacement:
+            case NSKeyValueChangeSetting:
+            case NSKeyValueChangeInsertion:
             default:
                 break;
         }
-        
-        // Refresh category total
-        [self setTotal:[self valueForKeyPath:@"transactions.@sum.value"]];
     }
     
 }
