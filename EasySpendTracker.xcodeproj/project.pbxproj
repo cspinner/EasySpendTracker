@@ -15,7 +15,6 @@
 		3B61711F17EDED6800FBF39F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B61711D17EDED6800FBF39F /* InfoPlist.strings */; };
 		3B61712117EDED6800FBF39F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61712017EDED6800FBF39F /* main.m */; };
 		3B61712517EDED6800FBF39F /* spnAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61712417EDED6800FBF39F /* spnAppDelegate.m */; };
-		3B61712817EDED6800FBF39F /* EasySpendTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3B61712617EDED6800FBF39F /* EasySpendTracker.xcdatamodeld */; };
 		3B61712A17EDED6800FBF39F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3B61712917EDED6800FBF39F /* Images.xcassets */; };
 		3B61713117EDED6800FBF39F /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61713017EDED6800FBF39F /* XCTest.framework */; };
 		3B61713217EDED6800FBF39F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711217EDED6800FBF39F /* Foundation.framework */; };
@@ -37,6 +36,7 @@
 		3B771A121975DF4900CF556F /* spnTableViewController_Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A111975DF4900CF556F /* spnTableViewController_Transaction.m */; };
 		3B771A151979CC4600CF556F /* SpnRecurrenceMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */; };
 		3B771A18197AD7C600CF556F /* spnViewController_CategorySelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A17197AD7C600CF556F /* spnViewController_CategorySelect.m */; };
+		3B771A1C197B61EF00CF556F /* EasySpendTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A1A197B61EF00CF556F /* EasySpendTracker.xcdatamodeld */; };
 		3B94A55419641F24004EB00B /* spnViewController_RecurSelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B94A55319641F24004EB00B /* spnViewController_RecurSelect.m */; };
 		3BDB00051819D69900876590 /* SpnTransactionCategoryMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00041819D69900876590 /* SpnTransactionCategoryMO.m */; };
 		3BDB000B1819D70100876590 /* SpnTransactionCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB000A1819D70100876590 /* SpnTransactionCategory.m */; };
@@ -68,7 +68,6 @@
 		3B61712217EDED6800FBF39F /* EasySpendTracker-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "EasySpendTracker-Prefix.pch"; sourceTree = "<group>"; };
 		3B61712317EDED6800FBF39F /* spnAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spnAppDelegate.h; sourceTree = "<group>"; };
 		3B61712417EDED6800FBF39F /* spnAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = spnAppDelegate.m; sourceTree = "<group>"; };
-		3B61712717EDED6800FBF39F /* EasySpendTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EasySpendTracker.xcdatamodel; sourceTree = "<group>"; };
 		3B61712917EDED6800FBF39F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		3B61712F17EDED6800FBF39F /* EasySpendTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EasySpendTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B61713017EDED6800FBF39F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -103,7 +102,7 @@
 		3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnRecurrenceMO.m; sourceTree = "<group>"; };
 		3B771A16197AD7C600CF556F /* spnViewController_CategorySelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_CategorySelect.h; sourceTree = "<group>"; };
 		3B771A17197AD7C600CF556F /* spnViewController_CategorySelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_CategorySelect.m; sourceTree = "<group>"; };
-		3B771A19197B5EBD00CF556F /* EasySpendTracker2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EasySpendTracker2.xcdatamodel; sourceTree = "<group>"; };
+		3B771A1B197B61EF00CF556F /* EasySpendTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EasySpendTracker.xcdatamodel; sourceTree = "<group>"; };
 		3B94A55219641F24004EB00B /* spnViewController_RecurSelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_RecurSelect.h; sourceTree = "<group>"; };
 		3B94A55319641F24004EB00B /* spnViewController_RecurSelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_RecurSelect.m; sourceTree = "<group>"; };
 		3BDB00031819D69900876590 /* SpnTransactionCategoryMO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SpnTransactionCategoryMO.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -276,9 +275,9 @@
 		3B61721A17FEF27F00FBF39F /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				3B771A1A197B61EF00CF556F /* EasySpendTracker.xcdatamodeld */,
 				3BDB00121819D9B100876590 /* ManagedObjects */,
 				3BDB00131819D9C400876590 /* Subclasses */,
-				3B61712617EDED6800FBF39F /* EasySpendTracker.xcdatamodeld */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -430,11 +429,11 @@
 				3B94A55419641F24004EB00B /* spnViewController_RecurSelect.m in Sources */,
 				3B771A121975DF4900CF556F /* spnTableViewController_Transaction.m in Sources */,
 				3B72F7FA1968E30900BF2C3C /* SpnTransactionMO.m in Sources */,
-				3B61712817EDED6800FBF39F /* EasySpendTracker.xcdatamodeld in Sources */,
 				3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */,
 				3B61714B17EE226900FBF39F /* spnViewController_Home.m in Sources */,
 				3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */,
 				3B61721217FCD3BD00FBF39F /* spnTableViewController_Expense.m in Sources */,
+				3B771A1C197B61EF00CF556F /* EasySpendTracker.xcdatamodeld in Sources */,
 				3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */,
 				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
 			);
@@ -647,13 +646,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		3B61712617EDED6800FBF39F /* EasySpendTracker.xcdatamodeld */ = {
+		3B771A1A197B61EF00CF556F /* EasySpendTracker.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				3B771A19197B5EBD00CF556F /* EasySpendTracker2.xcdatamodel */,
-				3B61712717EDED6800FBF39F /* EasySpendTracker.xcdatamodel */,
+				3B771A1B197B61EF00CF556F /* EasySpendTracker.xcdatamodel */,
 			);
-			currentVersion = 3B61712717EDED6800FBF39F /* EasySpendTracker.xcdatamodel */;
+			currentVersion = 3B771A1B197B61EF00CF556F /* EasySpendTracker.xcdatamodel */;
 			path = EasySpendTracker.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
