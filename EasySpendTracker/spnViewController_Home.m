@@ -47,6 +47,7 @@
     
     // Create button object, set text, display frame, and action
     [self.textView setFont:[UIFont systemFontOfSize:10.0]];
+    [self.textView setDelegate:self];
     [self.view addSubview:self.textView];
 }
 
@@ -58,15 +59,13 @@
     [self updateAllRecurrences];
     
     NSError* error;
-    
-    // Start date = The first of this month
-    NSDateComponents* dateComponents = [[NSCalendar currentCalendar] components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:[NSDate date]];
-    [dateComponents setDay:1];
-    NSDate* startDate = [[NSCalendar currentCalendar] dateFromComponents:dateComponents];
-    
-    // End date = The last of the month
     NSCalendar* calendar = [NSCalendar currentCalendar];
     
+    // The first of this month
+    NSDateComponents* dateComponents = [calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:[NSDate date]];
+    [dateComponents setDay:1];
+    NSDate* firstDayOfThisMonth = [calendar dateFromComponents:dateComponents];
+
     NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
     [tempComponents setMonth:1];
     
@@ -75,23 +74,48 @@
     tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
     [tempComponents setDay:1];
     
-    // First day of the next month - this will be the end date
-    NSDate* endDate = [calendar dateFromComponents:tempComponents];
+    // First day of the next month
+    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
+    
+    tempComponents = [tempComponents init]; // reinitalize component
+    [tempComponents setMonth:-1];
+    
+    // First day of last month
+    NSDate* firstDayOfLastMonth = [calendar dateFromComponents:tempComponents];
     
 
 
-    // Fetch all EXPENSE transactions since the first of the month
+    // Fetch all EXPENSE transactions for this month
     NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(category.title MATCHES %@) AND (date >= %@) AND (date <= %@)", @"Income", startDate, endDate];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
     [fetchRequest setPredicate:predicate];
 
-    NSArray *expenseResults = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
+    NSArray *expenseResultsThisMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
     
-    // Fetch all INCOME transactions since the first of the month
-    predicate = [NSPredicate predicateWithFormat:@"(category.title MATCHES %@) AND (date >= %@) AND (date <= %@)", @"Income", startDate, endDate];
+    // Fetch all INCOME transactions for this month
+    predicate = [NSPredicate predicateWithFormat:@"(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
     [fetchRequest setPredicate:predicate];
     
-    NSArray *incomeResults = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
+    NSArray *incomeResultsThisMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
+    
+    
+    
+    
+    
+    
+    
+    
+    // Fetch all EXPENSE transactions for last month
+    predicate = [NSPredicate predicateWithFormat:@"NOT(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
+    [fetchRequest setPredicate:predicate];
+    
+    NSArray *expenseResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
+    
+    // Fetch all INCOME transactions for last month
+    predicate = [NSPredicate predicateWithFormat:@"(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
+    [fetchRequest setPredicate:predicate];
+    
+    NSArray *incomeResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
     
     
     
@@ -102,27 +126,44 @@
     NSMutableString* text = [[NSMutableString alloc] init];
     
     // First line
-    [text appendFormat:@"Expenses since %@:\n", startDate];
+    [text appendFormat:@"Expenses since %@:\n", firstDayOfThisMonth];
     
     // Add summary text for each transaction
-    for(SpnTransaction* transaction in expenseResults)
+    for(SpnTransaction* transaction in expenseResultsThisMonth)
     {
         [text appendFormat:@"       %@ - %@ - $%.2f - %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, transaction.category.title];
     }
     
     // Income
     [text appendFormat:@"\n"];
-    [text appendFormat:@"Income since %@:\n", startDate];
+    [text appendFormat:@"Income since %@:\n", firstDayOfThisMonth];
     
     // Add summary text for each transaction
-    for(SpnTransaction* transaction in incomeResults)
+    for(SpnTransaction* transaction in incomeResultsThisMonth)
     {
         [text appendFormat:@"       %@ - %@ - $%.2f - %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, transaction.category.title];
     }
     
+    // Totals
+    NSNumber* expenseTotal, *incomeTotal, *budgetDelta;
+    
+    // This month
+    expenseTotal = [expenseResultsThisMonth valueForKeyPath: @"@sum.value"];
+    incomeTotal = [incomeResultsThisMonth valueForKeyPath: @"@sum.value"];
+    budgetDelta = [NSNumber numberWithFloat:incomeTotal.floatValue - expenseTotal.floatValue];
     [text appendFormat:@"\n"];
-    [text appendFormat:@"Total expense: $%@\n", [expenseResults valueForKeyPath: @"@sum.value.floatValue"]];
-    [text appendFormat:@"Total income: $%@\n", [incomeResults valueForKeyPath: @"@sum.value.floatValue"]];
+    [text appendFormat:@"Total expense: $%.2f\n", expenseTotal.floatValue];
+    [text appendFormat:@"Total income: $%.2f\n", incomeTotal.floatValue];
+    [text appendFormat:@"Delta: $%.2f\n", budgetDelta.floatValue];
+    
+    // Last month
+    expenseTotal = [expenseResultsLastMonth valueForKeyPath: @"@sum.value"];
+    incomeTotal = [incomeResultsLastMonth valueForKeyPath: @"@sum.value"];
+    budgetDelta = [NSNumber numberWithFloat:incomeTotal.floatValue - expenseTotal.floatValue];
+    [text appendFormat:@"\n"];
+    [text appendFormat:@"Total expense from last month: $%.2f\n", expenseTotal.floatValue];
+    [text appendFormat:@"Total income from last month: $%.2f\n", incomeTotal.floatValue];
+    [text appendFormat:@"Delta: $%.2f\n", budgetDelta.floatValue];
     
     [self.textView setText:text];
 }
@@ -145,5 +186,9 @@
     [recurrencesArray makeObjectsPerformSelector:@selector(extendSeriesThroughEndOfMonth)];
 }
 
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{
+    return NO;
+}
 
 @end

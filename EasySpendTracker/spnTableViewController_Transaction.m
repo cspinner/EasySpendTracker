@@ -765,7 +765,7 @@
                     // Then create a new series starting with the copied transaction
                     SpnRecurrence* recurrence = [[SpnRecurrence alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnRecurrenceMO" inManagedObjectContext:self.managedObjectContext]insertIntoManagedObjectContext:self.managedObjectContext];
                     
-                    [recurrence setRecurrenceForTransaction:self.transaction withFrequency:self.frequency withAction:RECUR_ACTION_CREATE];
+                    [recurrence setRecurrenceForTransaction:copiedTransaction withFrequency:self.frequency withAction:RECUR_ACTION_CREATE];
                     
                     // Save and pop
                     [self saveContext:self.managedObjectContext];

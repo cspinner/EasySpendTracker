@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface spnViewController_Home : UIViewController
+@interface spnViewController_Home : UIViewController <UITextViewDelegate>
 
 @property NSManagedObjectContext* managedObjectContext;
 
