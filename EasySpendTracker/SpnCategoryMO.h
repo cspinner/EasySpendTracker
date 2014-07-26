@@ -1,5 +1,5 @@
 //
-//  SpnTransactionCategoryMO.h
+//  SpnCategoryMO.h
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 10/24/13.
@@ -11,14 +11,14 @@
 
 @class SpnTransaction;
 
-@interface SpnTransactionCategoryMO : NSManagedObject
+@interface SpnCategoryMO : NSManagedObject
 
 @property (nonatomic, retain) NSDate * lastModifiedDate;
 @property (nonatomic, retain) NSString * title;
 @property (nonatomic, retain) NSSet *transactions;
 @end
 
-@interface SpnTransactionCategoryMO (CoreDataGeneratedAccessors)
+@interface SpnCategoryMO (CoreDataGeneratedAccessors)
 
 - (void)addTransactionsObject:(SpnTransaction *)value;
 - (void)removeTransactionsObject:(SpnTransaction *)value;

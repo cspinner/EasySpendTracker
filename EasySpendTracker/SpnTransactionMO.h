@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class SpnRecurrence, SpnTransactionCategory;
+@class SpnRecurrence, SpnCategory;
 
 @interface SpnTransactionMO : NSManagedObject
 
@@ -19,7 +19,7 @@
 @property (nonatomic, retain) NSString * sectionName;
 @property (nonatomic, retain) NSNumber * type;
 @property (nonatomic, retain) NSNumber * value;
-@property (nonatomic, retain) SpnTransactionCategory *category;
+@property (nonatomic, retain) SpnCategory *category;
 @property (nonatomic, retain) SpnRecurrence *recurrence;
 @property (nonatomic, retain) SpnRecurrence *recurrenceWhereRoot;
 

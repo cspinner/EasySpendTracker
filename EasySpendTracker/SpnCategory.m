@@ -1,25 +1,25 @@
 //
-//  SpnTransactionCategory.m
+//  SpnCategory.m
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 10/24/13.
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 #import "SpnTransaction.h"
 
-@implementation SpnTransactionCategory
+@implementation SpnCategory
 
 static int transactionsObservanceContext;
 
-+ (SpnTransactionCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
++ (SpnCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
 {
     NSError *error = nil;
-    SpnTransactionCategory* category = nil;
+    SpnCategory* category = nil;
     
     // Find categories (but should only be one) matching the specified name
-    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionCategoryMO"];
+    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnCategoryMO"];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(title MATCHES[cd] %@)", categoryName];
     [fetchRequest setPredicate:predicate];
     
@@ -40,7 +40,7 @@ static int transactionsObservanceContext;
         else
         {
             // Category not found - add a new one
-            category = [[SpnTransactionCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionCategoryMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
+            category = [[SpnCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnCategoryMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
             
             // Perform additional initialization.
             [category setLastModifiedDate:[NSDate date]];

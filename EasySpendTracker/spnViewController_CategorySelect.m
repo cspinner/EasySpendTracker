@@ -62,7 +62,7 @@ enum
     
     // Create fetch request
     NSError* error;
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionCategoryMO"];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnCategoryMO"];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc]
                               initWithKey:@"lastModifiedDate" ascending:NO];

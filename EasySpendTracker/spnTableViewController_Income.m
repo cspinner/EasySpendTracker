@@ -7,7 +7,7 @@
 //
 
 #import "spnTableViewController_Income.h"
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 
 @interface spnTableViewController_Income ()
 

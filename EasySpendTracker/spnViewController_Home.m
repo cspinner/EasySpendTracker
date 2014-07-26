@@ -10,7 +10,7 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnTransaction.h"
 //#import "SpnMonth.h"
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 
 @interface spnViewController_Home ()
 @property UITextView* textView;

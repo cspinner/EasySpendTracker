@@ -1,15 +1,15 @@
 //
-//  SpnTransactionCategoryMO.m
+//  SpnCategoryMO.m
 //  EasySpendTracker
 //
 //  Created by Christopher Spinner on 10/24/13.
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "SpnTransactionCategoryMO.h"
+#import "SpnCategoryMO.h"
 
 
-@implementation SpnTransactionCategoryMO
+@implementation SpnCategoryMO
 
 @dynamic lastModifiedDate;
 @dynamic title;

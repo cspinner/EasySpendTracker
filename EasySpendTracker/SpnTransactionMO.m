@@ -8,7 +8,7 @@
 
 #import "SpnTransactionMO.h"
 #import "SpnRecurrenceMO.h"
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 
 
 @implementation SpnTransactionMO

@@ -10,7 +10,7 @@
 #import "UIView+spnViewCtgy.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnRecurrence.h"
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 #import "spnViewController_RecurSelect.h"
 #import "spnViewController_CategorySelect.h"
 
@@ -80,7 +80,7 @@
         // Category - for a new transaction, fetch a category and assign the transaction to it
         if(!self.transaction.category)
         {
-            SpnTransactionCategory* fetchedCategory = [SpnTransactionCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
+            SpnCategory* fetchedCategory = [SpnCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
             
             // Assign transaction to the new category. This has the side effect of removing the transaction from originalCategory
             [fetchedCategory addTransactionsObject:self.transaction];
@@ -90,7 +90,7 @@
             // If the transaction is assigned to a category, ensure it matches what was provided in this view controller. if not, fetch the new category and move the transaction to it
             if(![self.transaction.category.title isEqualToString:self.category_string])
             {
-                SpnTransactionCategory* newCategory = [SpnTransactionCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
+                SpnCategory* newCategory = [SpnCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
                 
                 // Assign transaction to the new category. This has the side effect of removing the transaction from originalCategory
                 [newCategory addTransactionsObject:self.transaction];

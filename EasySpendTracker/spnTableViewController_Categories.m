@@ -10,7 +10,7 @@
 #import "spnTableViewController_Transactions.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "UIView+spnViewCtgy.h"
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 #import "spnUtils.h"
 
 @interface spnTableViewController_Categories ()
@@ -76,7 +76,7 @@
     // Otherwise, initialize the instance and then return it:
     
     // Create fetch request and fetch controller
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionCategoryMO"];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnCategoryMO"];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc]
                               initWithKey:@"lastModifiedDate" ascending:NO];
@@ -95,7 +95,7 @@
 
 - (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath
 {
-    SpnTransactionCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Determine category total for this month
     // Get the start and end date for predicate to use
@@ -185,7 +185,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get reference to selected item from the fetch controller
-    SpnTransactionCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     // Create and Push transaction detail view controller
     spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];

@@ -10,7 +10,7 @@
 #import "spnSpendTracker.h"
 #import "spnTableViewController_Expense.h"
 #import "spnTableViewController_Income.h"
-#import "SpnTransactionCategory.h"
+#import "SpnCategory.h"
 #import "SpnTransaction.h"
 
 @implementation UIViewController (addTransactionHandles)
