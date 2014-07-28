@@ -2,13 +2,13 @@
 //  SpnTransactionMO.m
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 7/5/14.
+//  Created by Christopher Spinner on 7/26/14.
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
 #import "SpnTransactionMO.h"
-#import "SpnRecurrenceMO.h"
-#import "SpnCategory.h"
+#import "SpnRecurrence.h"
+#import "SpnSubCategoryMO.h"
 
 
 @implementation SpnTransactionMO
@@ -19,7 +19,7 @@
 @dynamic sectionName;
 @dynamic type;
 @dynamic value;
-@dynamic category;
+@dynamic subCategory;
 @dynamic recurrence;
 @dynamic recurrenceWhereRoot;
 

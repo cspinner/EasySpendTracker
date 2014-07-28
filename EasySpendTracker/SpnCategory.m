@@ -7,11 +7,11 @@
 //
 
 #import "SpnCategory.h"
-#import "SpnTransaction.h"
+#import "SpnSubCategory.h"
 
 @implementation SpnCategory
 
-static int transactionsObservanceContext;
+static int subCategoriesObservanceContext;
 
 + (SpnCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
 {
@@ -51,6 +51,37 @@ static int transactionsObservanceContext;
     return category;
 }
 
+- (SpnSubCategory*)fetchSubCategoryWithName:(NSString*)subCategoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext
+{
+    SpnSubCategory* subCategory;
+    
+    // Search for an existing sub category of this category
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(title MATCHES[cd] %@)", subCategoryName];
+    
+    NSSet *filteredResults = [self.subCategories filteredSetUsingPredicate:predicate];
+    
+    // Sub-category was found
+    if([filteredResults count] != 0)
+    {
+        // set the return value - again, assumes only 1 match and so return the first in the array
+        subCategory = [filteredResults anyObject];
+    }
+    else
+    {
+        // Sub-Category not found - add a new one
+        subCategory = [[SpnSubCategory alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnSubCategoryMO" inManagedObjectContext:managedObjectContext] insertIntoManagedObjectContext:managedObjectContext];
+        
+        // Perform additional initialization.
+        [subCategory setLastModifiedDate:[NSDate date]];
+        [subCategory setTitle:subCategoryName];
+        
+        // Add the sub-category to this category
+        [self addSubCategoriesObject:subCategory];
+    }
+    
+    return subCategory;
+}
+
 - (void)awakeFromInsert
 {
     // Called when this category is inserted into the managed object context.
@@ -58,7 +89,7 @@ static int transactionsObservanceContext;
     [super awakeFromInsert];
     
     // Monitor changes to the transactions set
-    [self addObserver:self forKeyPath:@"transactions" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionsObservanceContext];
+    [self addObserver:self forKeyPath:@"subCategories" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&subCategoriesObservanceContext];
 }
 
 - (void)awakeFromFetch
@@ -68,7 +99,7 @@ static int transactionsObservanceContext;
     [super awakeFromFetch];
     
     // Monitor changes to the transactions set
-    [self addObserver:self forKeyPath:@"transactions" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&transactionsObservanceContext];
+    [self addObserver:self forKeyPath:@"subCategories" options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) context:&subCategoriesObservanceContext];
 }
 
 - (void)willTurnIntoFault
@@ -77,20 +108,20 @@ static int transactionsObservanceContext;
     [super willTurnIntoFault];
     
     // Remove all observances this instance has
-    [self removeObserver:self forKeyPath:@"transactions" context:&transactionsObservanceContext];
+    [self removeObserver:self forKeyPath:@"subCategories" context:&subCategoriesObservanceContext];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == &transactionsObservanceContext)
+    if (context == &subCategoriesObservanceContext)
     {
         switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
         {
             case NSKeyValueChangeRemoval:
             {
                 // Is there a better way?
-                if (self.transactions.count == nil ||
-                    self.transactions.count == 0)
+                if (self.subCategories.count == nil ||
+                    self.subCategories.count == 0)
                 {
                     [self.managedObjectContext deleteObject:self];
                     NSLog(@"Removing empty category");
@@ -104,6 +135,9 @@ static int transactionsObservanceContext;
             default:
                 break;
         }
+        
+        // Update last modified date
+        self.lastModifiedDate = [NSDate date];
     }
     
 }

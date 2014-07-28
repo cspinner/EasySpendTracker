@@ -8,17 +8,19 @@
 
 #import <UIKit/UIKit.h>
 #import "SpnTransaction.h"
-#import "spnViewController_RecurSelect.h"
-#import "spnViewController_CategorySelect.h"
+#import "spnTableViewController_RecurSelect.h"
+#import "spnTableViewController_MainCategorySelect.h"
+#import "spnTableViewController_SubCategorySelect.h"
 
 @interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, spnViewController_RecurSelectDelegate, spnViewController_CategorySelectDelegate, UIActionSheetDelegate>
 
 // Table section indexes
-enum
+typedef NS_ENUM(NSInteger, SpnTransactionViewCntlSectionIndexType)
 {
     AMOUNT_SECTION_IDX,
     MERCHANT_SECTION_IDX,
     CATEGORY_SECTION_IDX,
+    SUB_CATEGORY_SECTION_IDX,
     DATE_SECTION_IDX,
     DESCRIPTION_SECTION_IDX,
     RECURRENCE_SECTION_IDX,
@@ -32,6 +34,7 @@ enum
     AMOUNT_VIEW_TAG = 1,
     MERCHANT_VIEW_TAG,
     CATEGORY_VIEW_TAG,
+    SUB_CATEGORY_VIEW_TAG,
     DATE_VIEW_TAG,
     DESCRIPTION_VIEW_TAG,
     RECURRENCE_VIEW_TAG
@@ -70,6 +73,7 @@ enum
 @property NSNumber* value;
 @property NSString* merchant;
 @property NSString* category_string;
+@property NSString* subCategory_string;
 @property NSDate* date;
 @property NSString* notes;
 @property NSDateComponents* frequency;

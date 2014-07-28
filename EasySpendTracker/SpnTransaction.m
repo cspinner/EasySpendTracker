@@ -21,7 +21,7 @@
     [clonedTransaction setNotes:self.notes];
     [clonedTransaction setType:self.type];
     [clonedTransaction setValue:self.value];
-    [clonedTransaction setCategory:self.category];
+    [clonedTransaction setSubCategory:self.subCategory];
     
     // return the clone
     return clonedTransaction;

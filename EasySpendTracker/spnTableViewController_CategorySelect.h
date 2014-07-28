@@ -12,12 +12,14 @@
 
 @required
 
-- (void)categorySetName:(NSString*)category_str;
+- (void)categorySetName:(NSString*)category_str context:(void *)context;
 
 @end
 
-@interface spnViewController_CategorySelect : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
+@interface spnTableViewController_CategorySelect : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
 
+@property void * context;
+@property NSArray* categoryTitleDictionaryArray;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
 @property(nonatomic,assign) id<spnViewController_CategorySelectDelegate> delegate;
 

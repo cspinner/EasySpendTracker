@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
-#import "spnViewController_CategorySelect.h"
+#import "spnTableViewController_CategorySelect.h"
 #import "UIView+spnViewCtgy.h"
 
-@interface spnViewController_CategorySelect ()
+@interface spnTableViewController_CategorySelect ()
 
 // Section enums
 enum
@@ -25,12 +25,11 @@ enum
     MANUAL_INPUT_VIEW_TAG = 1
 };
 
-@property NSArray* categoryTitleDictionaryArray;
 @property NSString* categoryTitleManualInput;
 
 @end
 
-@implementation spnViewController_CategorySelect
+@implementation spnTableViewController_CategorySelect
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -59,26 +58,6 @@ enum
     
     // Add cancel button
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonClicked:)];
-    
-    // Create fetch request
-    NSError* error;
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnCategoryMO"];
-    
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc]
-                              initWithKey:@"lastModifiedDate" ascending:NO];
-    
-    // All categories for expenses (excludes Income)
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"NOT(title MATCHES %@)", @"Income"];
-    
-    // Assign the sort and predicate descriptor to the fetch request on the TITLEs of the categories
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    [fetchRequest setPredicate:predicate];
-    [fetchRequest setResultType:NSDictionaryResultType];
-    [fetchRequest setPropertiesToFetch:[NSArray arrayWithObjects:@"title", nil]];
-    [fetchRequest setReturnsDistinctResults:YES];
-    
-    // Fetch the categories
-    self.categoryTitleDictionaryArray = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     
     self.categoryTitleManualInput = @"";
 }
@@ -222,9 +201,9 @@ enum
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self.delegate respondsToSelector:@selector(categorySetName:)])
+    if ([self.delegate respondsToSelector:@selector(categorySetName:context:)])
     {
-        [self.delegate categorySetName:[[self.categoryTitleDictionaryArray objectAtIndex:indexPath.row] objectForKey:@"title"]];
+        [self.delegate categorySetName:[[self.categoryTitleDictionaryArray objectAtIndex:indexPath.row] objectForKey:@"title"] context:self.context];
     }
     
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -235,9 +214,9 @@ enum
 {
     [textField resignFirstResponder];
     
-    if ([self.delegate respondsToSelector:@selector(categorySetName:)])
+    if ([self.delegate respondsToSelector:@selector(categorySetName:context:)])
     {
-        [self.delegate categorySetName:self.categoryTitleManualInput];
+        [self.delegate categorySetName:self.categoryTitleManualInput context:self.context];
     }
     
     [self dismissViewControllerAnimated:YES completion:nil];

@@ -11,14 +11,19 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnRecurrence.h"
 #import "SpnCategory.h"
-#import "spnViewController_RecurSelect.h"
-#import "spnViewController_CategorySelect.h"
+#import "SpnSubCategory.h"
+#import "spnTableViewController_RecurSelect.h"
+#import "spnTableViewController_MainCategorySelect.h"
+#import "spnTableViewController_SubCategorySelect.h"
 
 @interface spnTableViewController_Transaction ()
 
 @end
 
 @implementation spnTableViewController_Transaction
+
+static int mainCategorySetContext;
+static int subCategorySetContext;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -77,23 +82,30 @@
         self.transaction.date = self.date;
         self.transaction.notes = self.notes;
         
-        // Category - for a new transaction, fetch a category and assign the transaction to it
-        if(!self.transaction.category)
+        // Category - for a new transaction, fetch a category and sub-category and assign the transaction to it
+        if(!self.transaction.subCategory)
         {
+            // get main category
             SpnCategory* fetchedCategory = [SpnCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
             
+            // ..and sub-category
+            SpnSubCategory* fetchedSubCategory = [fetchedCategory fetchSubCategoryWithName:self.subCategory_string inManagedObjectContext:self.managedObjectContext];
+            
             // Assign transaction to the new category. This has the side effect of removing the transaction from originalCategory
-            [fetchedCategory addTransactionsObject:self.transaction];
+            [fetchedSubCategory addTransactionsObject:self.transaction];
         }
         else
         {
-            // If the transaction is assigned to a category, ensure it matches what was provided in this view controller. if not, fetch the new category and move the transaction to it
-            if(![self.transaction.category.title isEqualToString:self.category_string])
+            // If the transaction is assigned to a category/sub-category, ensure it matches what was provided in this view controller. if not, fetch the new category and sub-category, and move the transaction to it
+            if(![self.transaction.subCategory.category.title isEqualToString:self.category_string] ||
+               ![self.transaction.subCategory.title isEqualToString:self.subCategory_string])
             {
                 SpnCategory* newCategory = [SpnCategory fetchCategoryWithName:self.category_string inManagedObjectContext:self.managedObjectContext];
                 
-                // Assign transaction to the new category. This has the side effect of removing the transaction from originalCategory
-                [newCategory addTransactionsObject:self.transaction];
+                SpnSubCategory* newSubCategory = [newCategory fetchSubCategoryWithName:self.subCategory_string inManagedObjectContext:self.managedObjectContext];
+                
+                // Assign transaction to the new sub-category. This has the side effect of removing the transaction from original category/sub-category
+                [newSubCategory addTransactionsObject:self.transaction];
             }
         }
         
@@ -175,10 +187,12 @@
     UITextField* textField;
     UITextView* textView;
     
+    // Must be in the same order as SpnTransactionViewCntlSectionIndexType
     NSArray* reuseIdentifier = [NSArray arrayWithObjects:
                                 @"TrnsAmountCell",
                                 @"TrnsMerchantCell",
                                 @"TrnsCategoryCell",
+                                @"TrnsSubCategoryCell",
                                 @"TrnsDateCell",
                                 @"TrnsDescriptionCell",
                                 @"TrnsRecurrenceCell",
@@ -207,7 +221,7 @@
                 [textField setTag:AMOUNT_VIEW_TAG];
                 [textField setText:[NSString stringWithFormat:@"$%.2f", [self.transaction.value floatValue]]];
                 [textField setDelegate:self];
-				[textField setKeyboardType:UIKeyboardTypeNumberPad];
+				[textField setKeyboardType:UIKeyboardTypeDecimalPad];
                 [cell addSubview:textField];
                 
                 // Maintain the view controller's property
@@ -242,6 +256,17 @@
                 // Add chevron button
                 [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
                 [cell setTag:CATEGORY_VIEW_TAG];
+                break;
+                
+            case SUB_CATEGORY_SECTION_IDX:
+                // Don't assign a reuse identifier since we want the cell to be dynamic
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+                
+                [cell.textLabel setText:self.subCategory_string];
+                
+                // Add chevron button
+                [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+                [cell setTag:SUB_CATEGORY_VIEW_TAG];
                 break;
                 
             case DATE_SECTION_IDX:
@@ -332,6 +357,7 @@
         case AMOUNT_SECTION_IDX:
         case MERCHANT_SECTION_IDX:
         case CATEGORY_SECTION_IDX:
+        case SUB_CATEGORY_SECTION_IDX:
         case DATE_SECTION_IDX:
         case DESCRIPTION_SECTION_IDX:
         case RECURRENCE_SECTION_IDX:
@@ -362,10 +388,12 @@
     UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, [self tableView:tableView heightForHeaderInSection:section])];
     UILabel* headerLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, headerView.frame.size.width, headerView.frame.size.height)];
     
+    // Must be in the same order as SpnTransactionViewCntlSectionIndexType
     NSArray* headerText = [NSArray arrayWithObjects:
                            @"AMOUNT",
                            @"MERCHANT",
                            @"CATEGORY",
+                           @"SUB-CATEGORY",
                            @"DATE",
                            @"DESCRIPTION",
                            @"RECURRENCE",
@@ -394,7 +422,9 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    // Must be in the same order as SpnTransactionViewCntlSectionIndexType
     NSArray* rowHeight = [NSArray arrayWithObjects:
+                          [NSNumber numberWithFloat:44],
                           [NSNumber numberWithFloat:44],
                           [NSNumber numberWithFloat:44],
                           [NSNumber numberWithFloat:44],
@@ -413,10 +443,26 @@
     {
         case CATEGORY_SECTION_IDX:
         {
-            spnViewController_CategorySelect* categorySelectViewCntrl = [[spnViewController_CategorySelect alloc] initWithStyle:UITableViewStyleGrouped];
+            spnTableViewController_MainCategorySelect* categorySelectViewCntrl = [[spnTableViewController_MainCategorySelect alloc] initWithStyle:UITableViewStyleGrouped];
             categorySelectViewCntrl.title = @"Select Category";
             categorySelectViewCntrl.delegate = self;
             categorySelectViewCntrl.managedObjectContext = self.managedObjectContext;
+            categorySelectViewCntrl.context = &mainCategorySetContext;
+            
+            UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:categorySelectViewCntrl];
+            
+            [self presentViewController:navController animated:YES completion:nil];
+        }
+            break;
+            
+        case SUB_CATEGORY_SECTION_IDX:
+        {
+            spnTableViewController_SubCategorySelect* categorySelectViewCntrl = [[spnTableViewController_SubCategorySelect alloc] initWithStyle:UITableViewStyleGrouped];
+            categorySelectViewCntrl.title = @"Select Sub-Category";
+            categorySelectViewCntrl.delegate = self;
+            categorySelectViewCntrl.managedObjectContext = self.managedObjectContext;
+            categorySelectViewCntrl.mainCategoryTitle = self.category_string;
+            categorySelectViewCntrl.context = &subCategorySetContext;
             
             UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:categorySelectViewCntrl];
             
@@ -426,7 +472,7 @@
             
         case RECURRENCE_SECTION_IDX:
         {
-            spnViewController_RecurSelect* recurrenceViewCntrl = [[spnViewController_RecurSelect alloc] initWithStyle:UITableViewStyleGrouped];
+            spnTableViewController_RecurSelect* recurrenceViewCntrl = [[spnTableViewController_RecurSelect alloc] initWithStyle:UITableViewStyleGrouped];
             recurrenceViewCntrl.title = @"Recurrence";
             recurrenceViewCntrl.delegate = self;
             
@@ -580,17 +626,6 @@
         }
             break;
             
-        case CATEGORY_VIEW_TAG:
-        {
-            // Protect against empty string - keep existing category string if this is the case
-            NSString* newCategoryName = (textField.text.length > 0) ? textField.text : self.category_string;
-            textField.text = newCategoryName;
-            
-            // Maintain the view controller's property
-            [self setCategory_string:newCategoryName];
-        }
-            break;
-            
         case DATE_VIEW_TAG:
         {
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -636,7 +671,7 @@
     self.frequency = frequency;
     self.frequencyWasUpdated = true;
     
-    // The udpates to the data supporting the table are complete
+    // The updates to the data supporting the table are complete
     [self.tableView reloadData];
 }
 
@@ -857,12 +892,19 @@
 }
 
 //<spnViewController_CategorySelectDelegate> methods
-- (void)categorySetName:(NSString*)category_str
+- (void)categorySetName:(NSString*)category_str context:(void *)context
 {
-    // Set the frequency
-    self.category_string = category_str;
+    // Set the title string depending on the context
+    if (context == &mainCategorySetContext)
+    {
+        self.category_string = category_str;
+    }
+    else if (context == &subCategorySetContext)
+    {
+        self.subCategory_string = category_str;
+    }
     
-    // The udpates to the data supporting the table are complete
+    // The updates to the data supporting the table are complete
     [self.tableView reloadData];
 }
 

@@ -84,7 +84,7 @@
     // Assign the sort descriptor to the fetch request
     [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
     
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"category.title == %@", self.categoryTitle];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title == %@", self.categoryTitle];
     [fetchRequest setPredicate:predicate];
     [fetchRequest setFetchBatchSize:20];
     

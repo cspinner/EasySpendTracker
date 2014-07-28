@@ -18,7 +18,7 @@
 @end
 
 
-@interface spnViewController_RecurSelect : UITableViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UIGestureRecognizerDelegate>
+@interface spnTableViewController_RecurSelect : UITableViewController <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UIGestureRecognizerDelegate>
 
 @property(nonatomic,assign) id<spnViewController_RecurSelectDelegate> delegate;
 

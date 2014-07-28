@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
-#import "spnViewController_RecurSelect.h"
+#import "spnTableViewController_RecurSelect.h"
 #import "UIView+spnViewCtgy.h"
 
-@interface spnViewController_RecurSelect ()
+@interface spnTableViewController_RecurSelect ()
 
 @property NSDateComponents* frequency;
 
@@ -19,7 +19,7 @@
 
 @end
 
-@implementation spnViewController_RecurSelect
+@implementation spnTableViewController_RecurSelect
 
 // table sections
 enum

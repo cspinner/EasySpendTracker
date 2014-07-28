@@ -121,11 +121,14 @@
     // Create predicate to filter transactions by date
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date >= %@) AND (date < %@)", firstDayOfThisMonth, firstDayOfNextMonth];
     
-    NSSet* thisMonthTransactions = [category.transactions filteredSetUsingPredicate:predicate];
+    //NSSet* thisMonthTransactions = [category.transactions filteredSetUsingPredicate:predicate];
+    NSSet* mergedTransactionsSets = [category.subCategories valueForKeyPath:@"@distinctUnionOfSets.transactions"];
+    NSSet* thisMonthTransactions = [mergedTransactionsSets filteredSetUsingPredicate:predicate];
 
     // Write cell contents
+    NSNumber* thisMonthTotal = [thisMonthTransactions valueForKeyPath:@"@sum.value"];
     [cell.textLabel setText:category.title];
-    [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@: $%@", [[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]], [thisMonthTransactions valueForKeyPath:@"@sum.value"]]];
+    [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@: $%.2f", [[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]], thisMonthTotal.floatValue]];
 }
 
 // <UITableViewDataSource> methods

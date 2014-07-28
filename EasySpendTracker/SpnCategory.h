@@ -7,9 +7,12 @@
 //
 
 #import "SpnCategoryMO.h"
+#import "SpnSubCategory.h"
 
 @interface SpnCategory : SpnCategoryMO
 
 + (SpnCategory*)fetchCategoryWithName:(NSString*)categoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext;
+
+- (SpnSubCategory*)fetchSubCategoryWithName:(NSString*)subCategoryName inManagedObjectContext:(NSManagedObjectContext*)managedObjectContext;
 
 @end

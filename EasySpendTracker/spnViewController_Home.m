@@ -9,8 +9,8 @@
 #import "spnViewController_Home.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnTransaction.h"
-//#import "SpnMonth.h"
 #import "SpnCategory.h"
+#import "SpnSubCategory.h"
 
 @interface spnViewController_Home ()
 @property UITextView* textView;
@@ -87,13 +87,13 @@
 
     // Fetch all EXPENSE transactions for this month
     NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
     [fetchRequest setPredicate:predicate];
 
     NSArray *expenseResultsThisMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
     
     // Fetch all INCOME transactions for this month
-    predicate = [NSPredicate predicateWithFormat:@"(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
+    predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
     [fetchRequest setPredicate:predicate];
     
     NSArray *incomeResultsThisMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
@@ -106,13 +106,13 @@
     
     
     // Fetch all EXPENSE transactions for last month
-    predicate = [NSPredicate predicateWithFormat:@"NOT(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
+    predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
     [fetchRequest setPredicate:predicate];
     
     NSArray *expenseResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
     
     // Fetch all INCOME transactions for last month
-    predicate = [NSPredicate predicateWithFormat:@"(category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
+    predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
     [fetchRequest setPredicate:predicate];
     
     NSArray *incomeResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
@@ -131,7 +131,7 @@
     // Add summary text for each transaction
     for(SpnTransaction* transaction in expenseResultsThisMonth)
     {
-        [text appendFormat:@"       %@ - %@ - $%.2f - %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, transaction.category.title];
+        [text appendFormat:@" %@ - %@ - $%.2f - %@, %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, transaction.subCategory.category.title, transaction.subCategory.title];
     }
     
     // Income
@@ -141,7 +141,7 @@
     // Add summary text for each transaction
     for(SpnTransaction* transaction in incomeResultsThisMonth)
     {
-        [text appendFormat:@"       %@ - %@ - $%.2f - %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, transaction.category.title];
+        [text appendFormat:@" %@ - %@ - $%.2f - %@, %@\n", transaction.sectionName, transaction.merchant, transaction.value.floatValue, transaction.subCategory.category.title, transaction.subCategory.title];
     }
     
     // Totals

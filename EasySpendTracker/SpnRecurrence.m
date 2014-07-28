@@ -166,7 +166,7 @@ static int rootTransactionObservanceContext;
         [seriesTransaction setMerchant:transaction.merchant];
         [seriesTransaction setNotes:transaction.notes];
         [seriesTransaction setValue:transaction.value];
-        [seriesTransaction setCategory:transaction.category];
+        [seriesTransaction setSubCategory:transaction.subCategory];
     }
     
     // Update the root transaction
@@ -185,7 +185,7 @@ static int rootTransactionObservanceContext;
         [seriesTransaction setMerchant:transaction.merchant];
         [seriesTransaction setNotes:transaction.notes];
         [seriesTransaction setValue:transaction.value];
-        [seriesTransaction setCategory:transaction.category];
+        [seriesTransaction setSubCategory:transaction.subCategory];
     }
     
     // Update the root transaction

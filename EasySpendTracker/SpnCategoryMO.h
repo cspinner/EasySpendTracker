@@ -2,27 +2,27 @@
 //  SpnCategoryMO.h
 //  EasySpendTracker
 //
-//  Created by Christopher Spinner on 10/24/13.
-//  Copyright (c) 2013 Christopher Spinner. All rights reserved.
+//  Created by Christopher Spinner on 7/26/14.
+//  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class SpnTransaction;
+@class SpnSubCategoryMO;
 
 @interface SpnCategoryMO : NSManagedObject
 
 @property (nonatomic, retain) NSDate * lastModifiedDate;
 @property (nonatomic, retain) NSString * title;
-@property (nonatomic, retain) NSSet *transactions;
+@property (nonatomic, retain) NSSet *subCategories;
 @end
 
 @interface SpnCategoryMO (CoreDataGeneratedAccessors)
 
-- (void)addTransactionsObject:(SpnTransaction *)value;
-- (void)removeTransactionsObject:(SpnTransaction *)value;
-- (void)addTransactions:(NSSet *)values;
-- (void)removeTransactions:(NSSet *)values;
+- (void)addSubCategoriesObject:(SpnSubCategoryMO *)value;
+- (void)removeSubCategoriesObject:(SpnSubCategoryMO *)value;
+- (void)addSubCategories:(NSSet *)values;
+- (void)removeSubCategories:(NSSet *)values;
 
 @end
