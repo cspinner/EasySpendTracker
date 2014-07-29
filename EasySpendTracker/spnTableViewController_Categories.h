@@ -8,8 +8,24 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol spnTableViewController_CategoriesDelegate <NSObject>
+
+@required
+- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath;
+- (void)selectedRowAtIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+
 @interface spnTableViewController_Categories : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
 
+
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
+@property(nonatomic,assign) id<spnTableViewController_CategoriesDelegate> delegate;
+
+// properties used for fetched results controller
+@property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
+@property NSString* entityName;
+@property NSPredicate* predicate;
 
 @end

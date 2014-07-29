@@ -8,13 +8,15 @@
 
 #import "spnSpendTracker.h"
 #import "spnViewController_Home.h"
-#import "spnTableViewController_Categories.h"
+#import "spnTableViewController_MainCategories.h"
+#import "spnTableViewController_Transactions.h"
 
 @interface spnSpendTracker ()
 
 @property UITabBarController* mainTabBarController;
 @property spnViewController_Home* homeViewController;
-@property spnTableViewController_Categories* categoryTableViewController;
+@property spnTableViewController_MainCategories* categoryTableViewController;
+@property spnTableViewController_Transactions* allTransTableViewController;
 
 @end
 
@@ -38,21 +40,29 @@ static spnSpendTracker *sharedSpendTracker = nil;
     self.homeViewController = [[spnViewController_Home alloc] init];
     [self initHomeViewCntrl];
     
-    self.categoryTableViewController = [[spnTableViewController_Categories alloc] initWithStyle:UITableViewStyleGrouped];
+    self.categoryTableViewController = [[spnTableViewController_MainCategories alloc] initWithStyle:UITableViewStyleGrouped];
     [self initCategoriesViewCntrl];
+    
+    self.allTransTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
+    [self initTransactionsViewCntrl];
     
     // Navigation Controllers
     UINavigationController* homeNavController = [[UINavigationController alloc] initWithRootViewController:self.homeViewController];
-    UINavigationController* tableNavController = [[UINavigationController alloc] initWithRootViewController:self.categoryTableViewController];
-    NSArray* navControllerArray = [NSArray arrayWithObjects:homeNavController, tableNavController, nil];
+    UINavigationController* categoryTableNavController = [[UINavigationController alloc] initWithRootViewController:self.categoryTableViewController];
+    UINavigationController* allTransTableNavController = [[UINavigationController alloc] initWithRootViewController:self.allTransTableViewController];
+    NSArray* navControllerArray = [NSArray arrayWithObjects:homeNavController, categoryTableNavController, allTransTableNavController, nil];
     
     // Setup Home Tab
     UITabBarItem* homeTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:nil tag:0];
     homeNavController.tabBarItem = homeTabBarItem;
     
-    // Setup Category Tab
-    UITabBarItem* catTabBarItem = [[UITabBarItem alloc] initWithTitle:@"$" image:nil tag:1];
-    tableNavController.tabBarItem = catTabBarItem;
+    // Setup Categories Tab
+    UITabBarItem* catTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Categories" image:nil tag:1];
+    categoryTableNavController.tabBarItem = catTabBarItem;
+    
+    // Setup Transactions Tab
+    UITabBarItem* trnsTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Transactions" image:nil tag:2];
+    allTransTableNavController.tabBarItem = trnsTabBarItem;
     
     // Setup Tab Bar Control - set as root view controller
     self.mainTabBarController.viewControllers = navControllerArray;
@@ -69,6 +79,13 @@ static spnSpendTracker *sharedSpendTracker = nil;
 {
     [self.categoryTableViewController setTitle:@"Categories"];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
+}
+
+- (void)initTransactionsViewCntrl
+{
+    [self.allTransTableViewController setTitle:@"All Transactions"];
+    [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
+    [self.allTransTableViewController setCategoryTitle:@"*"];
 }
 
 

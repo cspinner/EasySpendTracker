@@ -7,15 +7,9 @@
 //
 
 #import "spnTableViewController_Categories.h"
-#import "spnTableViewController_Transactions.h"
 #import "UIViewController+addTransactionHandles.h"
-#import "UIView+spnViewCtgy.h"
-#import "SpnCategory.h"
-#import "spnUtils.h"
 
 @interface spnTableViewController_Categories ()
-
-@property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
 
 @end
 
@@ -43,14 +37,6 @@
     self.tableView.dataSource = self;
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
-    
-    NSError *error;
-    if (![self.fetchedResultsController performFetch:&error])
-    {
-        // Update to handle the error appropriately.
-        NSLog(@"Category Fetch Error: %@, %@", error, [error userInfo]);
-        exit(-1);
-    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -76,17 +62,18 @@
     // Otherwise, initialize the instance and then return it:
     
     // Create fetch request and fetch controller
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnCategoryMO"];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:self.entityName];
     
     NSSortDescriptor *sort = [[NSSortDescriptor alloc]
                               initWithKey:@"lastModifiedDate" ascending:NO];
     
     // Assign the sort descriptor to the fetch request
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+    [fetchRequest setPredicate:self.predicate];
     [fetchRequest setFetchBatchSize:20];
     
-    [NSFetchedResultsController deleteCacheWithName:@"CacheCategories"];
-    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:@"CacheCategories"];
+    [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@", self.entityName]];
+    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:[NSString stringWithFormat:@"Cache%@", self.entityName]];
     
     [_fetchedResultsController setDelegate:self];
     
@@ -95,40 +82,10 @@
 
 - (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath
 {
-    SpnCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    
-    // Determine category total for this month
-    // Get the start and end date for predicate to use
-    NSCalendar* calendar = [NSCalendar currentCalendar];
-    
-    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
-    [tempComponents setMonth:1];
-    
-    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
-    
-    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
-    [tempComponents setDay:1];
-    
-    // First day of the next month - this will be the end date (exclusive)
-    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
-    
-    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:[NSDate date]];
-    [tempComponents setDay:1];
-    
-    // First day of this month - this will be the start date (inclusive)
-    NSDate* firstDayOfThisMonth = [calendar dateFromComponents:tempComponents];
-    
-    // Create predicate to filter transactions by date
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date >= %@) AND (date < %@)", firstDayOfThisMonth, firstDayOfNextMonth];
-    
-    //NSSet* thisMonthTransactions = [category.transactions filteredSetUsingPredicate:predicate];
-    NSSet* mergedTransactionsSets = [category.subCategories valueForKeyPath:@"@distinctUnionOfSets.transactions"];
-    NSSet* thisMonthTransactions = [mergedTransactionsSets filteredSetUsingPredicate:predicate];
-
-    // Write cell contents
-    NSNumber* thisMonthTotal = [thisMonthTransactions valueForKeyPath:@"@sum.value"];
-    [cell.textLabel setText:category.title];
-    [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@: $%.2f", [[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]], thisMonthTotal.floatValue]];
+    if ([self.delegate respondsToSelector:@selector(configureCell:atIndexPath:)])
+    {
+        [self.delegate configureCell:cell atIndexPath:indexPath];
+    }
 }
 
 // <UITableViewDataSource> methods
@@ -187,16 +144,10 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Get reference to selected item from the fetch controller
-    SpnCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    
-    // Create and Push transaction detail view controller
-    spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
-    [transactionsTableViewController setTitle:[category title]];
-    [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-    [transactionsTableViewController setCategoryTitle:category.title];
-    
-    [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
+    if ([self.delegate respondsToSelector:@selector(selectedRowAtIndexPath:)])
+    {
+        [self.delegate selectedRowAtIndexPath:indexPath];
+    }
 }
 
 // <NSFetchedResultsControllerDelegate> methods

@@ -13,6 +13,8 @@
 		3B2C9BB2198406B000384B00 /* SpnSubCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BB1198406B000384B00 /* SpnSubCategory.m */; };
 		3B2C9BB5198482E500384B00 /* spnTableViewController_MainCategorySelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BB4198482E500384B00 /* spnTableViewController_MainCategorySelect.m */; };
 		3B2C9BB91984834000384B00 /* spnTableViewController_SubCategorySelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BB81984834000384B00 /* spnTableViewController_SubCategorySelect.m */; };
+		3B2C9BBF1985EFA800384B00 /* spnTableViewController_MainCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BBE1985EFA800384B00 /* spnTableViewController_MainCategories.m */; };
+		3B2C9BC21985EFB900384B00 /* spnTableViewController_SubCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BC11985EFB900384B00 /* spnTableViewController_SubCategories.m */; };
 		3B4E201819492ED300D79FFB /* spnTableViewController_Income.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */; };
 		3B61711317EDED6800FBF39F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711217EDED6800FBF39F /* Foundation.framework */; };
 		3B61711517EDED6800FBF39F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711417EDED6800FBF39F /* CoreGraphics.framework */; };
@@ -70,6 +72,10 @@
 		3B2C9BB4198482E500384B00 /* spnTableViewController_MainCategorySelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_MainCategorySelect.m; sourceTree = "<group>"; };
 		3B2C9BB71984834000384B00 /* spnTableViewController_SubCategorySelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_SubCategorySelect.h; sourceTree = "<group>"; };
 		3B2C9BB81984834000384B00 /* spnTableViewController_SubCategorySelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_SubCategorySelect.m; sourceTree = "<group>"; };
+		3B2C9BBD1985EFA800384B00 /* spnTableViewController_MainCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_MainCategories.h; sourceTree = "<group>"; };
+		3B2C9BBE1985EFA800384B00 /* spnTableViewController_MainCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_MainCategories.m; sourceTree = "<group>"; };
+		3B2C9BC01985EFB900384B00 /* spnTableViewController_SubCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_SubCategories.h; sourceTree = "<group>"; };
+		3B2C9BC11985EFB900384B00 /* spnTableViewController_SubCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_SubCategories.m; sourceTree = "<group>"; };
 		3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnTableViewController_Income.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		3B4E201719492ED300D79FFB /* spnTableViewController_Income.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Income.h; sourceTree = "<group>"; };
 		3B61710F17EDED6800FBF39F /* EasySpendTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasySpendTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -150,6 +156,49 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3B2C9BBA1985EEF000384B00 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3B94A55219641F24004EB00B /* spnTableViewController_RecurSelect.h */,
+				3B94A55319641F24004EB00B /* spnTableViewController_RecurSelect.m */,
+				3B771A16197AD7C600CF556F /* spnTableViewController_CategorySelect.h */,
+				3B771A17197AD7C600CF556F /* spnTableViewController_CategorySelect.m */,
+				3B2C9BB3198482E500384B00 /* spnTableViewController_MainCategorySelect.h */,
+				3B2C9BB4198482E500384B00 /* spnTableViewController_MainCategorySelect.m */,
+				3B2C9BB71984834000384B00 /* spnTableViewController_SubCategorySelect.h */,
+				3B2C9BB81984834000384B00 /* spnTableViewController_SubCategorySelect.m */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
+		3B2C9BBB1985EF1400384B00 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				3B61715717F3D9D700FBF39F /* spnTableViewController_Categories.h */,
+				3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */,
+				3B2C9BBD1985EFA800384B00 /* spnTableViewController_MainCategories.h */,
+				3B2C9BBE1985EFA800384B00 /* spnTableViewController_MainCategories.m */,
+				3B2C9BC01985EFB900384B00 /* spnTableViewController_SubCategories.h */,
+				3B2C9BC11985EFB900384B00 /* spnTableViewController_SubCategories.m */,
+			);
+			name = Category;
+			sourceTree = "<group>";
+		};
+		3B2C9BBC1985EF3800384B00 /* Transaction */ = {
+			isa = PBXGroup;
+			children = (
+				3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */,
+				3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */,
+				3B771A101975DF4900CF556F /* spnTableViewController_Transaction.h */,
+				3B771A111975DF4900CF556F /* spnTableViewController_Transaction.m */,
+				3B61721017FCD3BD00FBF39F /* spnTableViewController_Expense.h */,
+				3B61721117FCD3BD00FBF39F /* spnTableViewController_Expense.m */,
+				3B4E201719492ED300D79FFB /* spnTableViewController_Income.h */,
+				3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */,
+			);
+			name = Transaction;
+			sourceTree = "<group>";
+		};
 		3B61710617EDED6800FBF39F = {
 			isa = PBXGroup;
 			children = (
@@ -230,26 +279,11 @@
 		3B61715A17F44AC200FBF39F /* ViewContollers */ = {
 			isa = PBXGroup;
 			children = (
+				3B2C9BBC1985EF3800384B00 /* Transaction */,
+				3B2C9BBB1985EF1400384B00 /* Category */,
+				3B2C9BBA1985EEF000384B00 /* Helpers */,
 				3B61714917EE226900FBF39F /* spnViewController_Home.h */,
 				3B61714A17EE226900FBF39F /* spnViewController_Home.m */,
-				3B61715717F3D9D700FBF39F /* spnTableViewController_Categories.h */,
-				3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */,
-				3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */,
-				3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */,
-				3B771A101975DF4900CF556F /* spnTableViewController_Transaction.h */,
-				3B771A111975DF4900CF556F /* spnTableViewController_Transaction.m */,
-				3B61721017FCD3BD00FBF39F /* spnTableViewController_Expense.h */,
-				3B61721117FCD3BD00FBF39F /* spnTableViewController_Expense.m */,
-				3B4E201719492ED300D79FFB /* spnTableViewController_Income.h */,
-				3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */,
-				3B94A55219641F24004EB00B /* spnTableViewController_RecurSelect.h */,
-				3B94A55319641F24004EB00B /* spnTableViewController_RecurSelect.m */,
-				3B771A16197AD7C600CF556F /* spnTableViewController_CategorySelect.h */,
-				3B771A17197AD7C600CF556F /* spnTableViewController_CategorySelect.m */,
-				3B2C9BB3198482E500384B00 /* spnTableViewController_MainCategorySelect.h */,
-				3B2C9BB4198482E500384B00 /* spnTableViewController_MainCategorySelect.m */,
-				3B2C9BB71984834000384B00 /* spnTableViewController_SubCategorySelect.h */,
-				3B2C9BB81984834000384B00 /* spnTableViewController_SubCategorySelect.m */,
 			);
 			name = ViewContollers;
 			sourceTree = "<group>";
@@ -455,6 +489,8 @@
 				3B771A1C197B61EF00CF556F /* EasySpendTracker.xcdatamodeld in Sources */,
 				3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */,
 				3B2C9BA91984067000384B00 /* SpnCategoryMO.m in Sources */,
+				3B2C9BC21985EFB900384B00 /* spnTableViewController_SubCategories.m in Sources */,
+				3B2C9BBF1985EFA800384B00 /* spnTableViewController_MainCategories.m in Sources */,
 				3B2C9BB2198406B000384B00 /* SpnSubCategory.m in Sources */,
 				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
 			);
