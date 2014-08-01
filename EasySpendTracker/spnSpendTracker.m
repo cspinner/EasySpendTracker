@@ -88,5 +88,17 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.allTransTableViewController setCategoryTitle:@"*"];
 }
 
+- (void)updateAllRecurrences
+{
+    NSError* error;
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnRecurrenceMO"];
+    
+    // Get all recurrences from the managed object context
+    NSArray *recurrencesArray = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    
+    // Call the extend routine on them all. Transactions will be created through the end of the month, if they don't already exist
+    [recurrencesArray makeObjectsPerformSelector:@selector(extendSeriesThroughEndOfMonth)];
+}
+
 
 @end

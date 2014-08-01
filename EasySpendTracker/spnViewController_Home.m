@@ -55,9 +55,6 @@
 {
     [super viewDidAppear:animated];
     
-    // Adds any recurring transactions as necessary
-    [self updateAllRecurrences];
-    
     NSError* error;
     NSCalendar* calendar = [NSCalendar currentCalendar];
     
@@ -172,18 +169,6 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-- (void)updateAllRecurrences
-{
-    NSError* error;
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnRecurrenceMO"];
-    
-    // Get all recurrences from the managed object context
-    NSArray *recurrencesArray = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
-    
-    // Call the extend routine on them all. Transactions will be created through the end of the month, if they don't already exist
-    [recurrencesArray makeObjectsPerformSelector:@selector(extendSeriesThroughEndOfMonth)];
 }
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView

@@ -43,13 +43,13 @@ static int transactionsObservanceContext;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == &transactionsObservanceContext)
+    if ((context == &transactionsObservanceContext) && (self.isDeleted == false))
     {
         switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
         {
             case NSKeyValueChangeRemoval:
             {
-                // Is there a better way?
+                // Is there a better way? TBD
                 if (self.transactions.count == nil ||
                     self.transactions.count == 0)
                 {

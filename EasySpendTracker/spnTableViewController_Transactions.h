@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UIActionSheetDelegate>
+@interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 @property NSString* categoryTitle;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;

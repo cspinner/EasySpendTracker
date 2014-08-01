@@ -18,7 +18,24 @@
 
 @property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
 
+@property (nonatomic, strong) UISearchDisplayController* mySearchDisplayController;
+@property UISearchBar* searchBar;
+@property NSMutableArray* searchResults;
+
 @end
+
+#define CELL_HEIGHT 44.0
+
+const float epsilon = 0.000001;
+
+typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
+{
+    SEARCHBAR_ALL_BUTTON_INDEX,
+    SEARCHBAR_AMOUNT_BUTTON_INDEX,
+    SEARCHBAR_MERCHANT_BUTTON_INDEX,
+    SEARCHBAR_NOTES_BUTTON_INDEX,
+    SEARCHBAR_BUTTON_INDEX_COUNT
+};
 
 @implementation spnTableViewController_Transactions
 
@@ -43,6 +60,22 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
+    // search bar init
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, CELL_HEIGHT)];
+    [self.searchBar setDelegate:self];
+    [self.searchBar setPlaceholder:@"Search for Transaction"];
+    [self.searchBar setScopeButtonTitles:[NSArray arrayWithObjects:@"All", @"Amount", @"Merchant", @"Notes", nil]];
+    
+    // search display controller
+    self.mySearchDisplayController = [[UISearchDisplayController alloc]
+                                      initWithSearchBar:self.searchBar contentsController:self];
+    [self.mySearchDisplayController setDelegate:self];
+    [self.mySearchDisplayController setSearchResultsDataSource:self];
+    [self.mySearchDisplayController setSearchResultsDelegate:self];
+    
+    // initialize empty search results array
+    self.searchResults = [[NSMutableArray alloc] initWithCapacity:0];
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
     
     NSError *error;
@@ -57,6 +90,10 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    // Display the search bar
+    [self.tableView setTableHeaderView:self.searchBar];
+    
     [self.tableView reloadData];
 }
 
@@ -96,9 +133,9 @@
     return _fetchedResultsController;
 }
 
-- (void)configureCell:(spnTransactionCellView*)cell atIndexPath:(NSIndexPath*)indexPath
+- (void)configureCell:(spnTransactionCellView*)cell withObject:(id)object
 {
-    SpnTransaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnTransaction* transaction = (SpnTransaction*)object;
     
     // Write cell contents
     [cell setValue:transaction.value.floatValue withMerchant:[transaction merchant] onDate:[transaction date] withDescription:[transaction notes]];
@@ -119,43 +156,64 @@
         cell = [[spnTransactionCellView alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:CellIdentifier];
     }
     
-    [self configureCell:cell atIndexPath:indexPath];
-    
+    if (self.tableView == tableView)
+    {
+        [self configureCell:cell withObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+    }
+    else // self.searchDisplayController.searchResultsTableView
+    {
+        [self configureCell:cell withObject:[self.searchResults objectAtIndex:indexPath.row]];
+    }
+
     return cell;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return [[self.fetchedResultsController sections] count];
+    if (self.tableView == tableView)
+    {
+        return [[self.fetchedResultsController sections] count];
+    }
+    else // self.searchDisplayController.searchResultsTableView
+    {
+        return 1;
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
-    //NSLog(@"%lu", (unsigned long)[sectionInfo numberOfObjects]);
-    return [sectionInfo numberOfObjects];
+    // Return the number of row.
+    if (self.tableView == tableView)
+    {
+        id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
+
+        return [sectionInfo numberOfObjects];
+    }
+    else // self.searchDisplayController.searchResultsTableView
+    {
+        return self.searchResults.count;
+    }
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
-
-    return [sectionInfo name];
+    if (self.tableView == tableView)
+    {
+        id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
+        
+        return [sectionInfo name];
+    }
+    else // self.searchDisplayController.searchResultsTableView
+    {
+        return nil;
+    }
 }
 
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (editingStyle == UITableViewCellEditingStyleDelete)
-    {
-        SpnTransaction* transaction = ((SpnTransaction*)[self.fetchedResultsController objectAtIndexPath:indexPath]);
-        
-        // Delete the object
-        [self.managedObjectContext deleteObject:transaction];
-        
-        // Save changes
-        [self saveContext:self.managedObjectContext];
-    }
+    // The table view should not be re-orderable.
+    return NO;
 }
 
 // <UITableViewDelegate> methods
@@ -167,7 +225,16 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Get transaction corresponding to selected cell
-    SpnTransaction* transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnTransaction* transaction;
+    
+    if (self.tableView == tableView)
+    {
+        transaction = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    }
+    else // self.searchDisplayController.searchResultsTableView
+    {
+        transaction = [self.searchResults objectAtIndex:indexPath.row];
+    }
 
     // Create and Push transaction detail view controller
     if(transaction.type.integerValue == EXPENSE_TRANSACTION_TYPE)
@@ -217,7 +284,14 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 30;
+    if (self.tableView == tableView)
+    {
+        return 30;
+    }
+    else // self.searchDisplayController.searchResultsTableView
+    {
+        return 0.001;
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
@@ -247,7 +321,7 @@
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:newIndexPath];
+            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] withObject:[self.fetchedResultsController objectAtIndexPath:newIndexPath]];
             break;
             
         case NSFetchedResultsChangeMove:
@@ -280,42 +354,108 @@
     [self.tableView endUpdates];
 }
 
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+//<UISearchDisplayDelegate> methods
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
-    // Return NO if you do not want the specified item to be editable.
+    // Tells the table data source to reload when text changes
+    [self filterContentForSearchText:searchString scopeButtonIndex:[self.searchBar selectedScopeButtonIndex]];
+    
+    // Return YES to cause the search result table view to be reloaded.
     return YES;
 }
-*/
 
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption
 {
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
+    // Tells the table data source to reload when scope bar selection changes
+    [self filterContentForSearchText:self.searchDisplayController.searchBar.text scopeButtonIndex:searchOption];
+    
+    // Return YES to cause the search result table view to be reloaded.
     return YES;
 }
-*/
 
-/*
-#pragma mark - Navigation
-
-// In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void)filterContentForSearchText:(NSString*)searchText scopeButtonIndex:(NSInteger)scopeButtonIndex
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    // Remove all objects from the filtered search array
+    [self.searchResults removeAllObjects];
+    
+    NSArray* fetchedObjects = [self.fetchedResultsController fetchedObjects];
+    
+    NSPredicate* predicate;
+    
+    // Set predicate based on scope option
+    switch (scopeButtonIndex)
+    {
+        case SEARCHBAR_AMOUNT_BUTTON_INDEX:
+        {
+            // Search text for the amount must be preceded by the dollar sign since we're expecting currency
+            NSString* numberString = searchText;
+            NSRange currencySymbolRange = [numberString rangeOfString:@"$"];
+            if (currencySymbolRange.location == NSNotFound)
+            {
+                // Prepend the currency symbol to the front of the received string.
+                NSString* currencySymbol = @"$";
+                numberString = [currencySymbol stringByAppendingString:numberString];
+            }
+            
+            // Parse search text and convert to a number
+            NSNumberFormatter* valueFormatter = [[NSNumberFormatter alloc] init];
+            [valueFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+            [valueFormatter setCurrencyCode:@"USD"];
+            NSNumber* numberToSearchFor = [valueFormatter numberFromString:numberString];
+            
+            // Protect against NaN
+            numberToSearchFor = ((!numberToSearchFor.floatValue) ? [NSNumber numberWithFloat:0.0] : numberToSearchFor);
+            
+            // Predicate searches float value in sizable range since it is never safe to directly compare two floats
+            predicate = [NSPredicate predicateWithFormat:@"(value >= %f) AND (value =< %f)", numberToSearchFor.floatValue - epsilon, numberToSearchFor.floatValue + epsilon];
+        }
+            break;
+            
+        case SEARCHBAR_MERCHANT_BUTTON_INDEX:
+        {
+            predicate = [NSPredicate predicateWithFormat:@"merchant CONTAINS[cd] %@", searchText];
+        }
+            break;
+            
+        case SEARCHBAR_NOTES_BUTTON_INDEX:
+        {
+            predicate = [NSPredicate predicateWithFormat:@"notes CONTAINS[cd] %@", searchText];
+        }
+            break;
+            
+        case SEARCHBAR_ALL_BUTTON_INDEX:
+        default:
+        {
+            // Search text for the amount must be preceded by the dollar sign since we're expecting currency
+            NSNumber* numberToSearchFor;
+            {
+                NSString* numberString = searchText;
+                NSRange currencySymbolRange = [numberString rangeOfString:@"$"];
+                
+                if (currencySymbolRange.location == NSNotFound)
+                {
+                    // Prepend the currency symbol to the front of the received string.
+                    NSString* currencySymbol = @"$";
+                    numberString = [currencySymbol stringByAppendingString:numberString];
+                }
+                
+                // Parse search text and convert to a number
+                NSNumberFormatter* valueFormatter = [[NSNumberFormatter alloc] init];
+                [valueFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                [valueFormatter setCurrencyCode:@"USD"];
+                numberToSearchFor = [valueFormatter numberFromString:numberString];
+                
+                // Protect against NaN
+                numberToSearchFor = ((!numberToSearchFor.floatValue) ? [NSNumber numberWithFloat:0.0] : numberToSearchFor);
+            }
+            
+            // Predicate searches float value in sizable range since it is never safe to directly compare two floats
+            predicate = [NSPredicate predicateWithFormat:@"((value >= %f) AND (value =< %f)) OR (merchant CONTAINS[cd] %@) OR (notes CONTAINS[cd] %@)", numberToSearchFor.floatValue - epsilon, numberToSearchFor.floatValue + epsilon, searchText, searchText];
+        }
+            break;
+    }
+    
+    self.searchResults = [NSMutableArray arrayWithArray:[fetchedObjects filteredArrayUsingPredicate:predicate]];
 }
-
- */
 
 @end

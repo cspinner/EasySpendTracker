@@ -15,5 +15,6 @@
 
 + (spnSpendTracker*)sharedManager;
 - (void)initViews;
+- (void)updateAllRecurrences;
 
 @end

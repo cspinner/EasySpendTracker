@@ -36,9 +36,9 @@
 }
 
 //<spnTableViewController_CategoriesDelegate> methods
-- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath
+- (void)configureCell:(UITableViewCell*)cell withObject:(id)object
 {
-    SpnCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnCategory* category = (SpnCategory*)object;
     
     // Determine category total for this month
     // Get the start and end date for predicate to use
@@ -73,10 +73,10 @@
     [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@: $%.2f", [[[spnUtils sharedUtils] dateFormatterMonth] stringFromDate:[NSDate date]], thisMonthTotal.floatValue]];
 }
 
-- (void)selectedRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)selectedObjectIndexPath:(id)object;
 {
     // Get reference to selected item from the fetch controller
-    SpnCategory* category = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    SpnCategory* category = (SpnCategory*)object;
     
     // Create and Push transaction detail view controller
     spnTableViewController_SubCategories* subCategoryTableViewController = [[spnTableViewController_SubCategories alloc] initWithStyle:UITableViewStyleGrouped];

@@ -11,13 +11,13 @@
 @protocol spnTableViewController_CategoriesDelegate <NSObject>
 
 @required
-- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath*)indexPath;
-- (void)selectedRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)configureCell:(UITableViewCell*)cell withObject:(id)object;
+- (void)selectedObjectIndexPath:(id)object;
 
 @end
 
 
-@interface spnTableViewController_Categories : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
+@interface spnTableViewController_Categories : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;

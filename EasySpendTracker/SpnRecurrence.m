@@ -44,7 +44,7 @@ static int rootTransactionObservanceContext;
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == &rootTransactionObservanceContext)
+    if ((context == &rootTransactionObservanceContext) && (self.isDeleted == false))
     {
         //        NSString *const NSKeyValueChangeKindKey;
         //        NSString *const NSKeyValueChangeNewKey;
@@ -68,7 +68,7 @@ static int rootTransactionObservanceContext;
                 if ([change objectForKey:NSKeyValueChangeNewKey] == nil ||
                     [change objectForKey:NSKeyValueChangeNewKey] == (id)[NSNull null])
                 {
-                    // Remove this object (and observance) if there are no other transactions associated with it
+                    // Remove this object if there are no other transactions associated with it
                     if (self.transactions.count == 0)
                     {
                         [self.managedObjectContext deleteObject:self];
@@ -213,7 +213,7 @@ static int rootTransactionObservanceContext;
     // Look for transactions at the same date to or later than this one
     NSPredicate* datePredicate = [NSPredicate predicateWithFormat:@"date >= %@", transaction.date];
     NSSet* filteredTransactions = [self.transactions filteredSetUsingPredicate:datePredicate];
-    
+
     // delete the recurrence. Note the previous transactions will remain
     [self.managedObjectContext deleteObject:self];
     NSLog(@"Deleting recurrence");
