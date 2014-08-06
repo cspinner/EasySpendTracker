@@ -16,7 +16,7 @@
 
 @end
 
-@interface spnTableViewController_CategorySelect : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
+@interface spnTableViewController_CategorySelect : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 @property void * context;
 @property NSArray* categoryTitleDictionaryArray;
