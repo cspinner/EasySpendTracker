@@ -224,6 +224,8 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    SEL doneButtonSelector = sel_registerName("doneButtonClicked:");
+    
     // Get transaction corresponding to selected cell
     SpnTransaction* transaction;
     
@@ -246,7 +248,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
         transactionTableViewController.transaction = transaction;
         
         // Add done and cancel buttons
-        transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:@selector(doneButtonClicked:)];
+        transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:doneButtonSelector];
         
         self.navigationItem.backBarButtonItem =
         [[UIBarButtonItem alloc] initWithTitle:@"Cancel"
@@ -267,7 +269,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
         transactionTableViewController.isNew = NO;
         
         // Add done and cancel buttons
-        transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:@selector(doneButtonClicked:)];
+        transactionTableViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:transactionTableViewController action:doneButtonSelector];
         
         self.navigationItem.backBarButtonItem =
             [[UIBarButtonItem alloc] initWithTitle:@"Cancel"

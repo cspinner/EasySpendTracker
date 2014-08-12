@@ -10,6 +10,7 @@
 #import "spnViewController_Home.h"
 #import "spnTableViewController_MainCategories.h"
 #import "spnTableViewController_Transactions.h"
+#import "SpnRecurrence.h"
 
 @interface spnSpendTracker ()
 

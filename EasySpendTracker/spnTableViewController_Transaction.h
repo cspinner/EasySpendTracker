@@ -12,7 +12,7 @@
 #import "spnTableViewController_MainCategorySelect.h"
 #import "spnTableViewController_SubCategorySelect.h"
 
-@interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, spnViewController_RecurSelectDelegate, spnViewController_CategorySelectDelegate, UIActionSheetDelegate>
+@interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, spnViewController_RecurSelectDelegate, spnViewController_CategorySelectDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate>
 
 // Table section indexes
 typedef NS_ENUM(NSInteger, SpnTransactionViewCntlSectionIndexType)

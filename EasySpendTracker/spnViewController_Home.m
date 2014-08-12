@@ -11,6 +11,7 @@
 #import "SpnTransaction.h"
 #import "SpnCategory.h"
 #import "SpnSubCategory.h"
+#import "CorePlot-CocoaTouch.h"
 
 @interface spnViewController_Home ()
 @property UITextView* textView;

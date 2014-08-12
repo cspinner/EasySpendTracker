@@ -31,6 +31,9 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
+    SEL cancelButtonSelector = sel_registerName("cancelButtonClicked:");
+    SEL doneButtonSelector = sel_registerName("doneButtonClicked:");
+    
     switch (buttonIndex)
     {
         case ACTION_SHEET_BUTTON_IDX_EXPENSE:
@@ -51,8 +54,8 @@
             [addViewController setIsNew:YES];
             
             // Add done and cancel buttons
-            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:@selector(doneButtonClicked:)];
-            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:@selector(cancelButtonClicked:)];
+            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:doneButtonSelector];
+            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:cancelButtonSelector];
             
             UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
             
@@ -78,8 +81,8 @@
             [addViewController setIsNew:YES];
             
             // Add done and cancel buttons
-            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:@selector(doneButtonClicked:)];
-            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:@selector(cancelButtonClicked:)];
+            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:doneButtonSelector];
+            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:cancelButtonSelector];
             
             UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
             

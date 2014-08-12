@@ -14,5 +14,6 @@
 
 - (UIView*)spnFirstResponder;
 - (UIView*)datePickerView;
+- (void)dismissKeyboard;
 
 @end
