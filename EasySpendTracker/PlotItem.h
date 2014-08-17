@@ -22,7 +22,7 @@
     NSMutableArray *graphs;
     NSString *section;
     NSString *title;
-    //CPTNativeImage *cachedImage;
+    UIImage *cachedImage;
 }
 
 @property (nonatomic, retain) CPTGraphHostingView *defaultLayerHostingView;
@@ -32,12 +32,11 @@
 
 -(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated;
 
-//-(CPTNativeImage *)image;
+-(UIImage *)image;
 
 -(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated;
 
 -(void)setTitleDefaultsForGraph:(CPTGraph *)graph withBounds:(CGRect)bounds;
--(void)setPaddingDefaultsForGraph:(CPTGraph *)graph withBounds:(CGRect)bounds;
 
 -(void)reloadData;
 -(void)applyTheme:(CPTTheme *)theme toGraph:(CPTGraph *)graph withDefault:(CPTTheme *)defaultTheme;

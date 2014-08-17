@@ -56,7 +56,7 @@
         defaultLayerHostingView = nil;
     }
 
-    //cachedImage = nil;
+    cachedImage = nil;
 
     [graphs removeAllObjects];
 }
@@ -79,73 +79,56 @@
     textStyle.fontName             = @"Helvetica-Bold";
     textStyle.fontSize             = round( bounds.size.height / CPTFloat(20.0) );
     graph.titleTextStyle           = textStyle;
-    graph.titleDisplacement        = CPTPointMake( 0.0, textStyle.fontSize * CPTFloat(1.5) );
+    graph.titleDisplacement        = CPTPointMake( 0.0, -80.0);
     graph.titlePlotAreaFrameAnchor = CPTRectAnchorTop;
 }
 
--(void)setPaddingDefaultsForGraph:(CPTGraph *)graph withBounds:(CGRect)bounds
+-(UIImage *)image
 {
-    CGFloat boundsPadding = round( bounds.size.width / CPTFloat(20.0) ); // Ensure that padding falls on an integral pixel
+    if ( cachedImage == nil )
+    {
+        CGRect imageFrame = CGRectMake(0, 0, 400, 300);
+        UIView *imageView = [[UIView alloc] initWithFrame:imageFrame];
+        [imageView setOpaque:YES];
+        [imageView setUserInteractionEnabled:NO];
 
-    graph.paddingLeft = boundsPadding;
+        [self renderInView:imageView withTheme:nil animated:NO];
 
-    if ( graph.titleDisplacement.y > 0.0 ) {
-        graph.paddingTop = graph.titleTextStyle.fontSize * 2.0;
+        CGSize boundsSize = imageView.bounds.size;
+
+        UIGraphicsBeginImageContextWithOptions(boundsSize, YES, 0.0);
+
+        CGContextRef context = UIGraphicsGetCurrentContext();
+
+        CGContextSetAllowsAntialiasing(context, true);
+
+        for ( UIView *subView in imageView.subviews )
+        {
+            if ( [subView isKindOfClass:[CPTGraphHostingView class]] )
+            {
+                CPTGraphHostingView *hostingView = (CPTGraphHostingView *)subView;
+                CGRect frame = hostingView.frame;
+
+                CGContextSaveGState(context);
+
+                CGContextTranslateCTM(context, frame.origin.x, frame.origin.y + frame.size.height);
+                CGContextScaleCTM(context, 1.0, -1.0);
+                [hostingView.hostedGraph layoutAndRenderInContext:context];
+
+                CGContextRestoreGState(context);
+            }
+        }
+
+        CGContextSetAllowsAntialiasing(context, false);
+
+        cachedImage = UIGraphicsGetImageFromCurrentImageContext();
+
+        UIGraphicsEndImageContext();
+
     }
-    else {
-        graph.paddingTop = boundsPadding;
-    }
 
-    graph.paddingRight  = boundsPadding;
-    graph.paddingBottom = boundsPadding;
+    return cachedImage;
 }
-
-//-(UIImage *)image
-//{
-//    if ( cachedImage == nil )
-//    {
-//        CGRect imageFrame = CGRectMake(0, 0, 400, 300);
-//        UIView *imageView = [[UIView alloc] initWithFrame:imageFrame];
-//        [imageView setOpaque:YES];
-//        [imageView setUserInteractionEnabled:NO];
-//
-//        [self renderInView:imageView withTheme:nil animated:NO];
-//
-//        CGSize boundsSize = imageView.bounds.size;
-//
-//        UIGraphicsBeginImageContextWithOptions(boundsSize, YES, 0.0);
-//
-//        CGContextRef context = UIGraphicsGetCurrentContext();
-//
-//        CGContextSetAllowsAntialiasing(context, true);
-//
-//        for ( UIView *subView in imageView.subviews )
-//        {
-//            if ( [subView isKindOfClass:[CPTGraphHostingView class]] )
-//            {
-//                CPTGraphHostingView *hostingView = (CPTGraphHostingView *)subView;
-//                CGRect frame                     = hostingView.frame;
-//
-//                CGContextSaveGState(context);
-//
-//                CGContextTranslateCTM(context, frame.origin.x, frame.origin.y + frame.size.height);
-//                CGContextScaleCTM(context, 1.0, -1.0);
-//                [hostingView.hostedGraph layoutAndRenderInContext:context];
-//
-//                CGContextRestoreGState(context);
-//            }
-//        }
-//
-//        CGContextSetAllowsAntialiasing(context, false);
-//
-//        cachedImage = UIGraphicsGetImageFromCurrentImageContext();
-//
-//        UIGraphicsEndImageContext();
-//
-//    }
-//
-//    return cachedImage;
-//}
 
 -(void)applyTheme:(CPTTheme *)theme toGraph:(CPTGraph *)graph withDefault:(CPTTheme *)defaultTheme
 {

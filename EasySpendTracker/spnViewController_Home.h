@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CorePlot-CocoaTouch.h"
+#import "spnPieChart.h"
 
-@interface spnViewController_Home : UIViewController <UITextViewDelegate,CPTPieChartDataSource, CPTPieChartDelegate>
+@interface spnViewController_Home : UIViewController <UITextViewDelegate, spnPieChartDelegate>
 
 @property NSManagedObjectContext* managedObjectContext;
 

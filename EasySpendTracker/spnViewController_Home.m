@@ -11,13 +11,26 @@
 #import "SpnTransaction.h"
 #import "SpnCategory.h"
 #import "SpnSubCategory.h"
-//#import "CorePlot-CocoaTouch.h"
-#import "spnSimplePieChart.h"
+#import "spnPieChart.h"
 
 @interface spnViewController_Home ()
+
+@property NSDate* firstDayOfThisMonth;
+@property NSDate* firstDayOfNextMonth;
+
 @property UITextView* textView;
+@property spnPieChart* expensePieChartThisMonth;
+@property spnPieChart* expensePieChartAllTime;
+@property spnPieChart* incomePieChart;
+@property NSString* focusCategory;
+
+@property NSArray *expenseResultsThisMonth;
+@property NSArray *incomeResultsThisMonth;
 
 @end
+
+int pieChartCategoryContext;
+int pieChartSubCategoryContext;
 
 @implementation spnViewController_Home
 
@@ -35,6 +48,24 @@
     [super viewDidLoad];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
+    
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    
+    // The first of this month
+    NSDateComponents* dateComponents = [calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:[NSDate date]];
+    [dateComponents setDay:1];
+    self.firstDayOfThisMonth = [calendar dateFromComponents:dateComponents];
+    
+    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
+    [tempComponents setMonth:1];
+    
+    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
+    
+    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
+    [tempComponents setDay:1];
+    
+    // First day of the next month
+    self.firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
 }
 
 - (void)loadView
@@ -42,7 +73,7 @@
     // Create the view and store it to the view property of the controller
     // frame = width: 320.000000, height: 548.000000
     self.view = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-    //[self.view setBackgroundColor:[UIColor blueColor]];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
     
     // Create subviews next - i.e. labels, buttons, text fields...
     //self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 0, 300, 548)];
@@ -57,120 +88,24 @@
 {
     [super viewDidAppear:animated];
     
-    NSError* error;
-    NSCalendar* calendar = [NSCalendar currentCalendar];
     
-    // The first of this month
-    NSDateComponents* dateComponents = [calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:[NSDate date]];
-    [dateComponents setDay:1];
-    NSDate* firstDayOfThisMonth = [calendar dateFromComponents:dateComponents];
+    
+    
+    
+    self.expensePieChartThisMonth = [[spnPieChart alloc] initWithContext:&pieChartCategoryContext];
+    self.expensePieChartThisMonth.delegate = self;
+    
+//    UIImageView* imageView = [[UIImageView alloc] initWithImage:[self.expensePieChart image]];
+//    [self.view addSubview:imageView];
 
-    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
-    [tempComponents setMonth:1];
+    //[self.expensePieChartThisMonth renderInView:self.view withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] animated:YES];
     
-    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
     
-    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
-    [tempComponents setDay:1];
-    
-    // First day of the next month
-    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
-    
-    tempComponents = [tempComponents init]; // reinitalize component
-    [tempComponents setMonth:-1];
-    
-    // First day of last month
-    NSDate* firstDayOfLastMonth = [calendar dateFromComponents:tempComponents];
-    
+    self.expensePieChartAllTime = [[spnPieChart alloc] initWithContext:&pieChartCategoryContext];
+    self.expensePieChartAllTime.delegate = self;
+    [self.expensePieChartAllTime renderInView:self.view withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] animated:YES];
 
-
-    // Fetch all EXPENSE transactions for this month
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
-    [fetchRequest setPredicate:predicate];
-
-    NSArray *expenseResultsThisMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
     
-    // Fetch all INCOME transactions for this month
-    predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfThisMonth, firstDayOfNextMonth];
-    [fetchRequest setPredicate:predicate];
-    
-    NSArray *incomeResultsThisMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
-    
-    
-    
-    
-    
-    
-    
-    
-    // Fetch all EXPENSE transactions for last month
-    predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
-    [fetchRequest setPredicate:predicate];
-    
-    NSArray *expenseResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
-    
-    // Fetch all INCOME transactions for last month
-    predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", firstDayOfLastMonth, firstDayOfThisMonth];
-    [fetchRequest setPredicate:predicate];
-    
-    NSArray *incomeResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
-    
-    
-    
-    
-//    NSString *const 	kCPTDarkGradientTheme
-// 	A graph theme with dark gray gradient backgrounds and light gray lines. More...
-//    
-//    NSString *const 	kCPTPlainBlackTheme
-// 	A graph theme with black backgrounds and white lines. More...
-//    
-//    NSString *const 	kCPTPlainWhiteTheme
-// 	A graph theme with white backgrounds and black lines. More...
-//    
-//    NSString *const 	kCPTSlateTheme
-// 	A graph theme with colors that match the default iPhone navigation bar, toolbar buttons, and table views. More...
-//    
-//    NSString *const 	kCPTStocksTheme
-    
-    spnSimplePieChart* pieChart = [[spnSimplePieChart alloc] init];
-    [pieChart killGraph];
-    [pieChart renderInView:self.view withTheme:[CPTTheme themeNamed:kCPTDarkGradientTheme] animated:YES];
-    
-//    // Create pieChart from theme
-//    CPTXYGraph *pieChart = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
-//    CPTTheme *theme = [CPTTheme themeNamed:kCPTDarkGradientTheme];
-//    [pieChart applyTheme:theme];
-//    
-//    CPTGraphHostingView *hostingView = [[CPTGraphHostingView alloc] initWithFrame:self.view.bounds];
-//    hostingView.hostedGraph = pieChart;
-//    
-//    pieChart.paddingLeft   = 20.0;
-//    pieChart.paddingTop    = 20.0;
-//    pieChart.paddingRight  = 20.0;
-//    pieChart.paddingBottom = 20.0;
-//    
-//    pieChart.axisSet = nil;
-//    
-//    CPTMutableTextStyle *whiteText = [CPTMutableTextStyle textStyle];
-//    whiteText.color = [CPTColor whiteColor];
-//    
-//    pieChart.titleTextStyle = whiteText;
-//    pieChart.title          = @"Graph Title";
-//    
-//    // Add pie chart
-//    CPTPieChart *piePlot = [[CPTPieChart alloc] init];
-//    piePlot.dataSource      = self;
-//    piePlot.pieRadius       = 131.0;
-//    piePlot.identifier      = @"Pie Chart 1";
-//    piePlot.startAngle      = M_PI_4;
-//    piePlot.sliceDirection  = CPTPieDirectionCounterClockwise;
-//    piePlot.centerAnchor    = CGPointMake(0.5, 0.38);
-//    piePlot.borderLineStyle = [CPTLineStyle lineStyle];
-//    piePlot.delegate        = self;
-//    [pieChart addPlot:piePlot];
-//    
-//    [self.view addSubview:hostingView];
 
     
 
@@ -232,71 +167,348 @@
     return NO;
 }
 
-#pragma mark -
-#pragma mark Plot Data Source Methods
-
--(NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot
+-(NSArray*)getExpenseTransactionsFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate
 {
-    return 5;
-}
-
--(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index
-{
-    if ( index >= 5 ) {
-        return nil;
+    // Fetch all EXPENSE transactions in date range
+    NSError* error;
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
+    NSPredicate *predicate;
+    
+    // No start date
+    if (startDate == nil)
+    {
+        // No start and no end date specified
+        if (endDate == nil)
+        {
+            predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@)", @"Income"];
+        }
+        // End date with no start date
+        else
+        {
+            predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date < %@)", @"Income", endDate];
+        }
+    }
+    // Start date with no end date
+    else if (endDate == nil)
+    {
+        predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@)", @"Income", startDate];
+    }
+    // Start and End date specified
+    else
+    {
+        predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", startDate, endDate];
     }
     
-    if ( fieldEnum == CPTPieChartFieldSliceWidth ) {
-        return [NSNumber numberWithUnsignedInteger:1+index];
-    }
-    else {
-        return [NSNumber numberWithUnsignedInteger:index];
-    }
-}
-
--(CPTLayer *)dataLabelForPlot:(CPTPlot *)plot recordIndex:(NSUInteger)index
-{
-    CPTTextLayer *label            = [[CPTTextLayer alloc] initWithText:[NSString stringWithFormat:@"%lu", (unsigned long)index]];
-    CPTMutableTextStyle *textStyle = [label.textStyle mutableCopy];
+    [fetchRequest setPredicate:predicate];
     
-    textStyle.color = [CPTColor lightGrayColor];
-    label.textStyle = textStyle;
-    return label;
+    return [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
 }
 
--(CGFloat)radialOffsetForPieChart:(CPTPieChart *)piePlot recordIndex:(NSUInteger)index
+-(NSArray*)getIncomeTransactionsFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate
 {
-    CGFloat offset = 0.0;
+    // Fetch all INCOME transactions in date range
+    NSError* error;
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
+    NSPredicate *predicate;
     
-    if ( index == 0 ) {
-        offset = piePlot.pieRadius / 8.0;
+    // No start date
+    if (startDate == nil)
+    {
+        // No start and no end date specified
+        if (endDate == nil)
+        {
+            predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@)", @"Income"];
+        }
+        // End date with no start date
+        else
+        {
+            predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date < %@)", @"Income", endDate];
+        }
+    }
+    // Start date with no end date
+    else if (endDate == nil)
+    {
+        predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@)", @"Income", startDate];
+    }
+    // Start and End date specified
+    else
+    {
+        predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", startDate, endDate];
     }
     
-    return offset;
+    [fetchRequest setPredicate:predicate];
+    
+    return [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
 }
 
-/*-(CPTFill *)sliceFillForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)index;
- * {
- *  return nil;
- * }*/
-
-#pragma mark -
-#pragma mark Delegate Methods
-
--(void)pieChart:(CPTPieChart *)plot sliceWasSelectedAtRecordIndex:(NSUInteger)index
+-(NSArray*)getCategoryTotalsForTransactions:(NSArray*)transactions
 {
-//    pieChart.title = [NSString stringWithFormat:@"Selected index: %lu", (unsigned long)index];
+    NSMutableArray* totals = [[NSMutableArray alloc] init];
+    
+    // Get array of unique category titles
+    NSArray* categoryTitles = [transactions valueForKeyPath:@"@distinctUnionOfObjects.subCategory.category.title"];
+    
+    for(NSString* categoryTitle in categoryTitles)
+    {
+        // Get array of transactions for each category, by category title
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", categoryTitle];
+        NSArray* filteredTransactions = [transactions filteredArrayUsingPredicate:predicate];
+        
+        // Store the sum of values of those transactions to the array
+        [totals addObject:[filteredTransactions valueForKeyPath:@"@sum.value"]];
+    }
+    
+    return totals;
 }
 
-//-(void)animationDidStop:(CAAnimation *)theAnimation finished:(BOOL)flag
-//{
-//    CPTPieChart *piePlot             = (CPTPieChart *)[pieChart plotWithIdentifier:@"Pie Chart 1"];
-//    CABasicAnimation *basicAnimation = (CABasicAnimation *)theAnimation;
+-(NSArray*)getCategoryTitlesForTransactions:(NSArray*)transactions
+{
+    return [transactions valueForKeyPath:@"@distinctUnionOfObjects.subCategory.category.title"];
+}
+
+-(NSArray*)getSubCategoryTotalsForTransactions:(NSArray*)transactions
+{
+    NSMutableArray* totals = [[NSMutableArray alloc] init];
+    
+    // Get array of unique sub-category titles
+    NSArray* subCategoryTitles = [transactions valueForKeyPath:@"@distinctUnionOfObjects.subCategory.title"];
+    
+    for(NSString* subCategoryTitle in subCategoryTitles)
+    {
+        // Get array of transactions for each category, by category title
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title MATCHES[cd] %@", subCategoryTitle];
+        NSArray* filteredTransactions = [transactions filteredArrayUsingPredicate:predicate];
+        
+        // Store the sum of values of those transactions to the array
+        [totals addObject:[filteredTransactions valueForKeyPath:@"@sum.value"]];
+    }
+    
+    return totals;
+}
+
+-(NSArray*)getSubCategoryTitlesForTransactions:(NSArray*)transactions
+{
+    return [transactions valueForKeyPath:@"@distinctUnionOfObjects.subCategory.title"];
+}
+
+//<spnPieChartDelegate> methods>
+-(NSArray*)dataArrayForPieChart:(spnPieChart*)pieChart
+{
+    NSError* error;
+//    NSCalendar* calendar = [NSCalendar currentCalendar];
 //    
-//    [piePlot removeAnimationForKey:basicAnimation.keyPath];
-//    [piePlot setValue:basicAnimation.toValue forKey:basicAnimation.keyPath];
-//    [piePlot repositionAllLabelAnnotations];
-//}
+//    // The first of this month
+//    NSDateComponents* dateComponents = [calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:[NSDate date]];
+//    [dateComponents setDay:1];
+//    NSDate* firstDayOfThisMonth = [calendar dateFromComponents:dateComponents];
+//    
+//    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
+//    [tempComponents setMonth:1];
+//    
+//    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
+//    
+//    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
+//    [tempComponents setDay:1];
+//    
+//    // First day of the next month
+//    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
+//    
+//    tempComponents = [tempComponents init]; // reinitalize component
+//    [tempComponents setMonth:-1];
+//    
+//    // First day of last month
+//    NSDate* firstDayOfLastMonth = [calendar dateFromComponents:tempComponents];
+    
+    
+    
+//    // Fetch all EXPENSE transactions for this month
+//    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
+//    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfThisMonth, self.firstDayOfNextMonth];
+//    [fetchRequest setPredicate:predicate];
+//    
+//    self.expenseResultsThisMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+//    
+//    // Fetch all INCOME transactions for this month
+//    predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfThisMonth, self.firstDayOfNextMonth];
+//    [fetchRequest setPredicate:predicate];
+//    
+//    self.incomeResultsThisMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    
+    
+    
+
+    
+    
+    
+//    // Fetch all EXPENSE transactions for last month
+//    predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfLastMonth, self.firstDayOfThisMonth];
+//    [fetchRequest setPredicate:predicate];
+//    
+//    NSArray *expenseResultsLastMonth = [self.managedObjectContext                                                executeFetchRequest:fetchRequest error:&error];
+//    
+//    // Fetch all INCOME transactions for last month
+//    predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title MATCHES %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfLastMonth, self.firstDayOfThisMonth];
+//    [fetchRequest setPredicate:predicate];
+//    
+//    NSArray *incomeResultsLastMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    
+    
+    
+    
+    
+    
+    // EXPENSE
+    if (pieChart == self.expensePieChartThisMonth)
+    {
+        NSArray* totals = [[NSArray alloc] init];
+        
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            // Get category totals for transactions this month
+            totals = [self getCategoryTotalsForTransactions:[self getExpenseTransactionsFromStartDate:self.firstDayOfThisMonth toEndDate:self.firstDayOfNextMonth]];
+        }
+        else if (pieChart.context == &pieChartSubCategoryContext)
+        {
+            // Get sub-category totals for transactions this month that belong to the focus category
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", self.focusCategory];
+            NSArray* thisMonthExpenseTransactions = [self getExpenseTransactionsFromStartDate:self.firstDayOfThisMonth toEndDate:self.firstDayOfNextMonth];
+            NSArray* thisMonthExpenseTransactionsInFocusCategory = [thisMonthExpenseTransactions filteredArrayUsingPredicate:predicate];
+            
+            totals = [self getSubCategoryTotalsForTransactions:thisMonthExpenseTransactionsInFocusCategory];
+        }
+        
+        return totals;
+    }
+    else if (pieChart == self.expensePieChartAllTime)
+    {
+        NSArray* totals = [[NSArray alloc] init];
+        
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            // Get category totals for transactions all time
+            totals = [self getCategoryTotalsForTransactions:[self getExpenseTransactionsFromStartDate:nil toEndDate:nil]];
+        }
+        else if (pieChart.context == &pieChartSubCategoryContext)
+        {
+            // Get sub-category totals for transactions of all time that belong to the focus category
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", self.focusCategory];
+            NSArray* allTimeExpenseTransactions = [self getExpenseTransactionsFromStartDate:nil toEndDate:nil];
+            NSArray* allTimeExpenseTransactionsInFocusCategory = [allTimeExpenseTransactions filteredArrayUsingPredicate:predicate];
+            
+            totals = [self getSubCategoryTotalsForTransactions:allTimeExpenseTransactionsInFocusCategory];
+        }
+        
+        return totals;
+    }
+    // INCOME
+    else if (pieChart == self.incomePieChart)
+    {
+        NSMutableArray* totals = [[NSMutableArray alloc] init];
+        
+//        // Get array of unique category titles for this month's expenses
+//        NSArray* categoryTitles = [self.incomeResultsThisMonth valueForKeyPath:@"@distinctUnionOfObjects.subCategory.category.title"];
+//        
+//        for(NSString* categoryTitle in categoryTitles)
+//        {
+//            // Get array of transactions for each category, by category title
+//            predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", categoryTitle];
+//            NSArray* filteredTransactions = [self.incomeResultsThisMonth filteredArrayUsingPredicate:predicate];
+//            
+//            // Store the sum of values of those transactions to the array
+//            [totals addObject:[filteredTransactions valueForKeyPath:@"@sum.value"]];
+//        }
+        
+        return totals;
+    }
+    else
+    {
+        return [NSArray arrayWithObject:[NSNumber numberWithFloat:0.0]];
+    }
+}
+
+-(NSArray*)titleArrayForPieChart:(spnPieChart*)pieChart
+{
+    // EXPENSE
+    if (pieChart == self.expensePieChartThisMonth)
+    {
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            // Get category totals for transactions this month
+            return [self getCategoryTitlesForTransactions:[self getExpenseTransactionsFromStartDate:self.firstDayOfThisMonth toEndDate:self.firstDayOfNextMonth]];
+        }
+        else if (pieChart.context == &pieChartSubCategoryContext)
+        {
+            // Get sub-category titles for transactions this month that belong to the focus category
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", self.focusCategory];
+            NSArray* thisMonthExpenseTransactions = [self getExpenseTransactionsFromStartDate:self.firstDayOfThisMonth toEndDate:self.firstDayOfNextMonth];
+            NSArray* thisMonthExpenseTransactionsInFocusCategory = [thisMonthExpenseTransactions filteredArrayUsingPredicate:predicate];
+            
+            return [self getSubCategoryTitlesForTransactions:thisMonthExpenseTransactionsInFocusCategory];
+        }
+    }
+    // EXPENSE
+    else if (pieChart == self.expensePieChartAllTime)
+    {
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            // Get category totals for transactions this month
+            return [self getCategoryTitlesForTransactions:[self getExpenseTransactionsFromStartDate:nil toEndDate:nil]];
+        }
+        else if (pieChart.context == &pieChartSubCategoryContext)
+        {
+            // Get sub-category titles for transactions this month that belong to the focus category
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", self.focusCategory];
+            NSArray* allTimeExpenseTransactions = [self getExpenseTransactionsFromStartDate:self.firstDayOfThisMonth toEndDate:self.firstDayOfNextMonth];
+            NSArray* allTimeExpenseTransactionsInFocusCategory = [allTimeExpenseTransactions filteredArrayUsingPredicate:predicate];
+            
+            return [self getSubCategoryTitlesForTransactions:allTimeExpenseTransactionsInFocusCategory];
+        }
+    }
+    // INCOME
+    else if (pieChart == self.incomePieChart)
+    {
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            return [self.incomeResultsThisMonth valueForKeyPath:@"@distinctUnionOfObjects.subCategory.category.title"];
+        }
+        else if (pieChart.context == &pieChartSubCategoryContext)
+        {
+            return [self.incomeResultsThisMonth valueForKeyPath:@"@distinctUnionOfObjects.subCategory.title"];
+        }
+    }
+    
+    // default
+    return [NSArray arrayWithObject:@""];
+}
+
+-(void)pieChart:(spnPieChart*)pieChart entryWasSelectedAtIndex:(NSUInteger)idx
+{
+    if (pieChart == self.expensePieChartThisMonth)
+    {
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            self.focusCategory = [[self getCategoryTitlesForTransactions:[self getExpenseTransactionsFromStartDate:self.firstDayOfThisMonth toEndDate:self.firstDayOfNextMonth]] objectAtIndex:idx];
+        }
+    }
+    else if (pieChart == self.expensePieChartAllTime)
+    {
+        if (pieChart.context == &pieChartCategoryContext)
+        {
+            self.focusCategory = [[self getCategoryTitlesForTransactions:[self getExpenseTransactionsFromStartDate:nil toEndDate:nil]] objectAtIndex:idx];
+        }
+    }
+    else if (pieChart == self.incomePieChart)
+    {
+        self.focusCategory = [[self.incomeResultsThisMonth valueForKeyPath:@"@distinctUnionOfObjects.subCategory.category.title"] objectAtIndex:idx];
+    }
+    else
+    {
+        
+    }
+    
+    // change context to sub-category
+    pieChart.context = &pieChartSubCategoryContext;
+}
 
 
 @end
