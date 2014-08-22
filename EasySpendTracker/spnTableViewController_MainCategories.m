@@ -82,6 +82,8 @@
     spnTableViewController_SubCategories* subCategoryTableViewController = [[spnTableViewController_SubCategories alloc] initWithStyle:UITableViewStyleGrouped];
     [subCategoryTableViewController setTitle:[category title]];
     [subCategoryTableViewController setCategoryTitle:[category title]];
+    [subCategoryTableViewController setStartDate:self.startDate];
+    [subCategoryTableViewController setEndDate:self.endDate];
     [subCategoryTableViewController setManagedObjectContext:self.managedObjectContext];
     
     [[self navigationController] pushViewController:subCategoryTableViewController animated:YES];

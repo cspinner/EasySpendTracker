@@ -22,8 +22,8 @@ const NSArray* pieSliceFills;
 // call me
 -(id)init
 {
-    if ( (self = [super init]) ) {
-        self.title   = @"Simple Pie Chart";
+    if ( (self = [super init]) )
+    {
         self.section = @"Pie Charts";
         
         pieSliceFills = [NSArray arrayWithObjects:
@@ -76,7 +76,7 @@ const NSArray* pieSliceFills;
     return self;
 }
 
-// called by super
+// called by self and super
 -(void)generateData
 {
     self.plotData = [self.delegate dataArrayForPieChart:self];
@@ -88,7 +88,7 @@ const NSArray* pieSliceFills;
 {
     CGRect bounds = layerHostingView.bounds;
     CGFloat plotAreaHeight = bounds.size.height;
-    CGFloat plotAreaWidth = bounds.size.width / 2;
+    CGFloat plotAreaWidth = bounds.size.width;
 
     CPTGraph *graph = [[CPTXYGraph alloc] initWithFrame:bounds];
     [self addGraph:graph toHostingView:layerHostingView];
@@ -104,31 +104,30 @@ const NSArray* pieSliceFills;
     [self setTitleDefaultsForGraph:graph withBounds:bounds];
 
     // Add pie chart
-    CPTPieChart *piePlot = [[CPTPieChart alloc] init];
-    piePlot.dataSource = self;
-    piePlot.pieRadius  = MIN(0.9 * plotAreaHeight / 2.0,
+    self.pieChart = [[CPTPieChart alloc] init];
+    self.pieChart.dataSource = self;
+    self.pieChart.pieRadius  = MIN(0.9 * plotAreaHeight / 2.0,
                              0.9 * plotAreaWidth / 2.0);
-    piePlot.identifier = self.title;
-    piePlot.startAngle = M_PI_4;
-    piePlot.sliceDirection = CPTPieDirectionCounterClockwise;
-    piePlot.centerAnchor = CGPointMake((plotAreaWidth / bounds.size.width) / 2, 0.5);
+    self.pieChart.identifier = self.title;
+    self.pieChart.startAngle = M_PI_4;
+    self.pieChart.sliceDirection = CPTPieDirectionCounterClockwise;
+    self.pieChart.centerAnchor = CGPointMake(0.5, 0.97*(plotAreaHeight - self.pieChart.pieRadius)/plotAreaHeight);
 
-    piePlot.delegate = self;
-    [graph addPlot:piePlot];
+    self.pieChart.delegate = self;
+    [graph addPlot:self.pieChart];
 
     // Add legend
     CPTLegend *theLegend = [CPTLegend legendWithGraph:graph];
-    theLegend.numberOfColumns = 1;
-//    theLegend.numberOfRows = 4;
+    theLegend.numberOfColumns = 2;
     theLegend.entryPaddingBottom = 0.0;
     theLegend.entryPaddingTop = 0.0;
-    theLegend.entryPaddingLeft = 0.0;
+    theLegend.entryPaddingLeft = 10.0;
     theLegend.entryPaddingRight = 0.0;
     theLegend.delegate = self;
 
     graph.legend = theLegend;
-    graph.legendAnchor = CPTRectAnchorLeft;
-    graph.legendDisplacement = CGPointMake(plotAreaWidth, 0.0);
+    graph.legendAnchor = CPTRectAnchorBottomLeft;
+    graph.legendDisplacement = CGPointMake(0.0, 0.0);
 }
 
 //<CPTPieChartDelegate> methods
@@ -141,10 +140,15 @@ const NSArray* pieSliceFills;
 
     [self generateData];
     [plot reloadData];
+    
+    if ([self.delegate respondsToSelector:@selector(pieChart:reloadedPlot:)])
+    {
+        [self.delegate pieChart:self reloadedPlot:plot];
+    }
 }
 
 //<CPTLegendDelegate> methods
--(void)legend:(CPTLegend *)legend legendEntryForPlot:(CPTPlot *)plot wasSelectedAtIndex:(NSUInteger)idx;
+-(void)legend:(CPTLegend *)legend legendEntryForPlot:(CPTPieChart *)plot wasSelectedAtIndex:(NSUInteger)idx;
 {
     if ([self.delegate respondsToSelector:@selector(pieChart:entryWasSelectedAtIndex:)])
     {
@@ -153,6 +157,11 @@ const NSArray* pieSliceFills;
     
     [self generateData];
     [plot reloadData];
+    
+    if ([self.delegate respondsToSelector:@selector(pieChart:reloadedPlot:)])
+    {
+        [self.delegate pieChart:self reloadedPlot:plot];
+    }
 }
 
 //<CPTPlotDataSource> methods
@@ -169,7 +178,27 @@ const NSArray* pieSliceFills;
 //<CPTPieChartDataSource>> methods
 -(NSString*)legendTitleForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)idx
 {
-    return [self.titleData objectAtIndex:idx];
+    // restrict so too many categories won't become unmanageable
+//    if (idx < 32)
+    {
+        NSString* title = [self.titleData objectAtIndex:idx];
+        
+        //truncate to 17 chars + ...
+        if (title.length > 20)
+        {
+            NSString* truncatedTitle = [[self.titleData objectAtIndex:idx] substringToIndex:17];
+            truncatedTitle = [truncatedTitle stringByAppendingString:@"..."];
+            return truncatedTitle;
+        }
+        else
+        {
+            return title;
+        }
+    }
+//    else
+//    {
+//        return nil;
+//    }
 }
 
 -(CPTFill *)sliceFillForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)idx

@@ -28,4 +28,7 @@
 @property NSString* entityName;
 @property NSPredicate* predicate;
 
+@property NSDate* startDate;
+@property NSDate* endDate;
+
 @end

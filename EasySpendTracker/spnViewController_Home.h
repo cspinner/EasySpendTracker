@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "spnPieChart.h"
 
-@interface spnViewController_Home : UIViewController <UITextViewDelegate, spnPieChartDelegate>
+@interface spnViewController_Home : UIViewController <UITextViewDelegate>
 
 @property NSManagedObjectContext* managedObjectContext;
 

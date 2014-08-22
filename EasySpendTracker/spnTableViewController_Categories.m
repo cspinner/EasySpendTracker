@@ -94,7 +94,37 @@
     
     // Assign the sort descriptor to the fetch request
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    [fetchRequest setPredicate:self.predicate];
+    
+    NSMutableArray* predicateArray = [[NSMutableArray alloc] init];
+    
+    // Create a predicate that accepts transactions from a specified start date
+    if (self.startDate != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(lastModifiedDate >= %@)", self.startDate];
+        
+        [predicateArray addObject:predicate];
+    }
+    
+    // Create a predicate that accepts transactions that come before a specified end date
+    if (self.endDate != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(lastModifiedDate < %@)", self.endDate];
+        
+        [predicateArray addObject:predicate];
+    }
+    
+    // Create a predicate for the category title
+    if (self.predicate != nil)
+    {
+        [predicateArray addObject:self.predicate];
+    }
+    
+    // Combine the predicates if any were created
+    if (predicateArray.count > 0)
+    {
+        [fetchRequest setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:predicateArray]];
+    }
+    
     [fetchRequest setFetchBatchSize:20];
     
     [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@", self.entityName]];

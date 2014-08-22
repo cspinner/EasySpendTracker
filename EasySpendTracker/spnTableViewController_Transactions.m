@@ -121,8 +121,38 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     // Assign the sort descriptor to the fetch request
     [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
     
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title LIKE %@", self.categoryTitle];
-    [fetchRequest setPredicate:predicate];
+    NSMutableArray* predicateArray = [[NSMutableArray alloc] init];
+    
+    // Create a predicate that accepts transactions from a specified start date
+    if (self.startDate != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date >= %@)", self.startDate];
+        
+        [predicateArray addObject:predicate];
+    }
+    
+    // Create a predicate that accepts transactions that come before a specified end date
+    if (self.endDate != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date < %@)", self.endDate];
+        
+        [predicateArray addObject:predicate];
+    }
+    
+    // Create a predicate for the category title
+    if (self.categoryTitle != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title LIKE %@", self.categoryTitle];
+        
+        [predicateArray addObject:predicate];
+    }
+    
+    // Combine the predicates if any were created
+    if (predicateArray.count > 0)
+    {
+        [fetchRequest setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:predicateArray]];
+    }
+
     [fetchRequest setFetchBatchSize:20];
     
     [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];

@@ -18,6 +18,7 @@
 
 @optional
 -(void)pieChart:(spnPieChart*)pieChart entryWasSelectedAtIndex:(NSUInteger)idx;
+-(void)pieChart:(spnPieChart*)pieChart reloadedPlot:(CPTPieChart *)plot;
 
 @end
 
@@ -27,6 +28,7 @@
 
 @property id<spnPieChartDelegate> delegate;
 @property void * context;
+@property CPTPieChart* pieChart;
 
 @end
 

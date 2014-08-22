@@ -79,12 +79,16 @@ static spnSpendTracker *sharedSpendTracker = nil;
 - (void)initCategoriesViewCntrl
 {
     [self.categoryTableViewController setTitle:@"Categories"];
+    [self.allTransTableViewController setStartDate:nil];
+    [self.allTransTableViewController setEndDate:nil];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
 }
 
 - (void)initTransactionsViewCntrl
 {
     [self.allTransTableViewController setTitle:@"All Transactions"];
+    [self.allTransTableViewController setStartDate:nil];
+    [self.allTransTableViewController setEndDate:nil];
     [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
     [self.allTransTableViewController setCategoryTitle:@"*"];
 }
