@@ -59,14 +59,7 @@ int pieChartSubCategoryContext;
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
-    self.pieChartCntrl = [[spnPieChart alloc] initWithContext:&pieChartCategoryContext];
-    self.pieChartCntrl.delegate = self;
-
-    // retrieve list of values and names as the data source
-    NSArray* transactions = [self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:self.excludeCategories];
-    [self updateCategoryValuesAndNamesForTransactions:transactions forKeyPath:[NSString stringWithFormat:@"subCategory.category.title"]];
-    
-    [self updateSourceDataForPieChart:self.pieChartCntrl];
+    [self reloadData];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
 }
@@ -78,9 +71,21 @@ int pieChartSubCategoryContext;
     [self.tableView reloadData];
 }
 
--(UIImage*)pieChartImage
+-(void)reloadData
 {
-    return nil;
+    self.pieChartCntrl = [[spnPieChart alloc] initWithContext:&pieChartCategoryContext];
+    self.pieChartCntrl.delegate = self;
+    
+    // retrieve list of values and names as the data source
+    NSArray* transactions = [self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:self.excludeCategories];
+    [self updateCategoryValuesAndNamesForTransactions:transactions forKeyPath:[NSString stringWithFormat:@"subCategory.category.title"]];
+    
+    [self updateSourceDataForPieChart:self.pieChartCntrl];
+}
+
+-(UIImage*)pieChartImageWithFrame:(CGRect)frame
+{
+    return [self.pieChartCntrl imageWithFrame:frame];
 }
 
 // <UITableViewDataSource> methods
@@ -118,17 +123,19 @@ int pieChartSubCategoryContext;
             
             CGRect bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width);
             
-            //    NSArray* renderInViewParms = [NSArray arrayWithObjects:cell, [CPTTheme themeNamed:kCPTPlainWhiteTheme], YES, nil];
+            
             //
             //    // Schedule the call to view the pie chart after 250 msec - this allows any previous animation to complete
             //    [self.pieChart performSelector:@selector(renderInView:withTheme:animated:) withObject:renderInViewParms afterDelay:0.250f];
-            //cell.backgroundColor = [UIColor blueColor];
-            cell.contentView.backgroundColor = [UIColor greenColor];
             
             UIView* pieChartView = [[UIView alloc] initWithFrame:bounds];
-            //pieChartView.backgroundColor = [UIColor redColor];
             
-            [self.pieChartCntrl renderInView:pieChartView withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] animated:YES];
+            NSArray* renderInViewParms = [NSArray arrayWithObjects:pieChartView, [CPTTheme themeNamed:kCPTPlainWhiteTheme], [NSNumber numberWithBool:NO], [NSNumber numberWithBool:YES], nil];
+            
+            [self.pieChartCntrl renderInView:pieChartView withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] forPreview:NO animated:YES];
+            
+//            [self.pieChartCntrl performSelector:@selector(renderInView:) withObject:renderInViewParms afterDelay:1.0f];
+//            [self.pieChartCntrl renderInView:pieChartView withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] forPreviewN:[NSNumber numberWithBool:NO] animatedN:[NSNumber numberWithBool:YES]];
             
             // Create new height that accounts for the legend view - assume two columns and 24 pix per entry
             CGFloat newHeight = pieChartView.bounds.size.height + LEGEND_AREA_HEIGHT(self.pieChartNames.count);

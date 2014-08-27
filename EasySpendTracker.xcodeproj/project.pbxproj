@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B0C678419A7B8E300D358E0 /* spnTableViewController_Summary.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */; };
 		3B1D7BD51991C68E00A8B533 /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B1D7BD41991C68E00A8B533 /* libCorePlot-CocoaTouch.a */; };
 		3B1D7BD71991C7B300A8B533 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B1D7BD61991C7B300A8B533 /* QuartzCore.framework */; };
 		3B2C9BA91984067000384B00 /* SpnCategoryMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BA81984067000384B00 /* SpnCategoryMO.m */; };
@@ -32,7 +33,6 @@
 		3B61713417EDED6800FBF39F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711817EDED6800FBF39F /* CoreData.framework */; };
 		3B61713C17EDED6800FBF39F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B61713A17EDED6800FBF39F /* InfoPlist.strings */; };
 		3B61713E17EDED6800FBF39F /* EasySpendTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61713D17EDED6800FBF39F /* EasySpendTrackerTests.m */; };
-		3B61714B17EE226900FBF39F /* spnViewController_Home.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61714A17EE226900FBF39F /* spnViewController_Home.m */; };
 		3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */; };
 		3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61716017F518C300FBF39F /* UIViewController+addTransactionHandles.m */; };
 		3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61716717F621D200FBF39F /* spnSpendTracker.m */; };
@@ -66,6 +66,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3B0C678219A7B8E300D358E0 /* spnTableViewController_Summary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Summary.h; sourceTree = "<group>"; };
+		3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Summary.m; sourceTree = "<group>"; };
 		3B1D7B861991C68E00A8B533 /* CorePlot-CocoaTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CorePlot-CocoaTouch.h"; sourceTree = "<group>"; };
 		3B1D7B871991C68E00A8B533 /* CPTAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPTAnimation.h; sourceTree = "<group>"; };
 		3B1D7B881991C68E00A8B533 /* CPTAnimationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPTAnimationOperation.h; sourceTree = "<group>"; };
@@ -181,8 +183,6 @@
 		3B61713917EDED6800FBF39F /* EasySpendTrackerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "EasySpendTrackerTests-Info.plist"; sourceTree = "<group>"; };
 		3B61713B17EDED6800FBF39F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3B61713D17EDED6800FBF39F /* EasySpendTrackerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EasySpendTrackerTests.m; sourceTree = "<group>"; };
-		3B61714917EE226900FBF39F /* spnViewController_Home.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Home.h; sourceTree = "<group>"; };
-		3B61714A17EE226900FBF39F /* spnViewController_Home.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnViewController_Home.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		3B61715717F3D9D700FBF39F /* spnTableViewController_Categories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Categories.h; sourceTree = "<group>"; };
 		3B61715817F3D9D700FBF39F /* spnTableViewController_Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Categories.m; sourceTree = "<group>"; };
 		3B61715F17F518C300FBF39F /* UIViewController+addTransactionHandles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+addTransactionHandles.h"; sourceTree = "<group>"; };
@@ -475,8 +475,8 @@
 				3B2C9BBC1985EF3800384B00 /* Transaction */,
 				3B2C9BBB1985EF1400384B00 /* Category */,
 				3B2C9BBA1985EEF000384B00 /* Helpers */,
-				3B61714917EE226900FBF39F /* spnViewController_Home.h */,
-				3B61714A17EE226900FBF39F /* spnViewController_Home.m */,
+				3B0C678219A7B8E300D358E0 /* spnTableViewController_Summary.h */,
+				3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */,
 				3B93B19F19A13E5F00A16006 /* spnTableViewController_PieChart.h */,
 				3B93B1A019A13E5F00A16006 /* spnTableViewController_PieChart.m */,
 			);
@@ -681,6 +681,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B0C678419A7B8E300D358E0 /* spnTableViewController_Summary.m in Sources */,
 				3B2C9BAF1984067000384B00 /* SpnTransactionMO.m in Sources */,
 				3B2C9BB91984834000384B00 /* spnTableViewController_SubCategorySelect.m in Sources */,
 				3BDB000B1819D70100876590 /* SpnCategory.m in Sources */,
@@ -700,7 +701,6 @@
 				3B94A55419641F24004EB00B /* spnTableViewController_RecurSelect.m in Sources */,
 				3B771A121975DF4900CF556F /* spnTableViewController_Transaction.m in Sources */,
 				3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */,
-				3B61714B17EE226900FBF39F /* spnViewController_Home.m in Sources */,
 				3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */,
 				3B722F5F1999ABE70056959F /* spnPieChart.m in Sources */,
 				3B61721217FCD3BD00FBF39F /* spnTableViewController_Expense.m in Sources */,
@@ -828,8 +828,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
 				INFOPLIST_FILE = "EasySpendTracker/EasySpendTracker-Info.plist";
@@ -840,7 +840,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "A28144CF-96EE-4D66-A88A-527289D4FC7C";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -850,8 +850,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
 				INFOPLIST_FILE = "EasySpendTracker/EasySpendTracker-Info.plist";
@@ -862,7 +862,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "A28144CF-96EE-4D66-A88A-527289D4FC7C";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

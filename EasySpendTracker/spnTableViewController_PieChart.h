@@ -18,6 +18,7 @@
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
 
--(UIImage*)pieChartImage;
+-(void)reloadData;
+-(UIImage*)pieChartImageWithFrame:(CGRect)frame;
 
 @end

@@ -7,7 +7,7 @@
 //
 
 #import "spnSpendTracker.h"
-#import "spnViewController_Home.h"
+#import "spnTableViewController_Summary.h"
 #import "spnTableViewController_MainCategories.h"
 #import "spnTableViewController_Transactions.h"
 #import "SpnRecurrence.h"
@@ -15,7 +15,7 @@
 @interface spnSpendTracker ()
 
 @property UITabBarController* mainTabBarController;
-@property spnViewController_Home* homeViewController;
+@property spnTableViewController_Summary* summaryViewController;
 @property spnTableViewController_MainCategories* categoryTableViewController;
 @property spnTableViewController_Transactions* allTransTableViewController;
 
@@ -38,8 +38,8 @@ static spnSpendTracker *sharedSpendTracker = nil;
     // View Controllers
     self.mainTabBarController = [[UITabBarController alloc] init];
     
-    self.homeViewController = [[spnViewController_Home alloc] init];
-    [self initHomeViewCntrl];
+    self.summaryViewController = [[spnTableViewController_Summary alloc] init];
+    [self initSummaryViewCntrl];
     
     self.categoryTableViewController = [[spnTableViewController_MainCategories alloc] initWithStyle:UITableViewStyleGrouped];
     [self initCategoriesViewCntrl];
@@ -48,14 +48,14 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self initTransactionsViewCntrl];
     
     // Navigation Controllers
-    UINavigationController* homeNavController = [[UINavigationController alloc] initWithRootViewController:self.homeViewController];
+    UINavigationController* summaryNavController = [[UINavigationController alloc] initWithRootViewController:self.summaryViewController];
     UINavigationController* categoryTableNavController = [[UINavigationController alloc] initWithRootViewController:self.categoryTableViewController];
     UINavigationController* allTransTableNavController = [[UINavigationController alloc] initWithRootViewController:self.allTransTableViewController];
-    NSArray* navControllerArray = [NSArray arrayWithObjects:homeNavController, categoryTableNavController, allTransTableNavController, nil];
+    NSArray* navControllerArray = [NSArray arrayWithObjects:summaryNavController, categoryTableNavController, allTransTableNavController, nil];
     
-    // Setup Home Tab
-    UITabBarItem* homeTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:nil tag:0];
-    homeNavController.tabBarItem = homeTabBarItem;
+    // Setup Summary Tab
+    UITabBarItem* summaryTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Summary" image:nil tag:0];
+    summaryNavController.tabBarItem = summaryTabBarItem;
     
     // Setup Categories Tab
     UITabBarItem* catTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Categories" image:nil tag:1];
@@ -70,17 +70,17 @@ static spnSpendTracker *sharedSpendTracker = nil;
     self.rootViewController = self.mainTabBarController;
 }
 
-- (void)initHomeViewCntrl
+- (void)initSummaryViewCntrl
 {
-    [self.homeViewController setTitle:@"Summary"];
-    [self.homeViewController setManagedObjectContext:self.managedObjectContext];
+    [self.summaryViewController setTitle:@"Summary"];
+    [self.summaryViewController setManagedObjectContext:self.managedObjectContext];
 }
 
 - (void)initCategoriesViewCntrl
 {
     [self.categoryTableViewController setTitle:@"Categories"];
-    [self.allTransTableViewController setStartDate:nil];
-    [self.allTransTableViewController setEndDate:nil];
+    [self.categoryTableViewController setStartDate:nil];
+    [self.categoryTableViewController setEndDate:nil];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
 }
 

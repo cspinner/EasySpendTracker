@@ -30,11 +30,11 @@
 @property (nonatomic, retain) NSString *section;
 @property (nonatomic, retain) NSString *title;
 
--(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated;
+-(void)renderInView:(NSArray *)params;
+-(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated;
+-(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated;
 
--(UIImage *)image;
-
--(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated;
+-(UIImage *)imageWithFrame:(CGRect)frame;
 
 -(void)setTitleDefaultsForGraph:(CPTGraph *)graph withBounds:(CGRect)bounds;
 

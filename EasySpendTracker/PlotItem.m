@@ -83,16 +83,16 @@
     graph.titlePlotAreaFrameAnchor = CPTRectAnchorTop;
 }
 
--(UIImage *)image
+-(UIImage *)imageWithFrame:(CGRect)frame
 {
     if ( cachedImage == nil )
     {
-        CGRect imageFrame = CGRectMake(0, 0, 400, 300);
+        CGRect imageFrame = frame;
         UIView *imageView = [[UIView alloc] initWithFrame:imageFrame];
         [imageView setOpaque:YES];
         [imageView setUserInteractionEnabled:NO];
 
-        [self renderInView:imageView withTheme:nil animated:NO];
+        [self renderInView:imageView withTheme:nil forPreview:YES animated:NO];
 
         CGSize boundsSize = imageView.bounds.size;
 
@@ -142,7 +142,12 @@
     }
 }
 
--(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated
+-(void)renderInView:(NSArray*)params
+{
+    [self renderInView:params[0] withTheme:params[1] forPreview:[params[2] boolValue] animated:[params[3] boolValue]];
+}
+
+-(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated
 {
     [self killGraph];
 
@@ -155,10 +160,10 @@
 
     [hostingView addSubview:defaultLayerHostingView];
     [self generateData];
-    [self renderInLayer:defaultLayerHostingView withTheme:theme animated:animated];
+    [self renderInLayer:defaultLayerHostingView withTheme:theme forPreview:forPreview animated:animated];
 }
 
--(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated
+-(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated
 {
     NSLog(@"PlotItem:renderInLayer: Override me");
 }

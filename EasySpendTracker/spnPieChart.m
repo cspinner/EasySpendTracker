@@ -7,6 +7,7 @@
 //
 
 #import "spnPieChart.h"
+#import "math.h"
 
 @interface spnPieChart ()
 
@@ -15,7 +16,10 @@
 
 @end
 
+#define DegreesToRadians(DEG) (DEG*((M_PI)/180))
+
 const NSArray* pieSliceFills;
+BOOL isPreview;
 
 @implementation spnPieChart
 
@@ -62,6 +66,8 @@ const NSArray* pieSliceFills;
                          // Pastel Pink2
                          [CPTFill fillWithColor:[CPTColor colorWithComponentRed:255.0/255.0 green:209.0/255.0 blue:220.0/255.0 alpha:1.0]],
                          nil];
+        
+        isPreview = false;
             
     }
 
@@ -84,8 +90,10 @@ const NSArray* pieSliceFills;
 }
 
 // called by super
--(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme animated:(BOOL)animated
+-(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated
 {
+    isPreview = forPreview;
+    
     CGRect bounds = layerHostingView.bounds;
     CGFloat plotAreaHeight = bounds.size.height;
     CGFloat plotAreaWidth = bounds.size.width;
@@ -107,26 +115,71 @@ const NSArray* pieSliceFills;
     self.pieChart = [[CPTPieChart alloc] init];
     self.pieChart.dataSource = self;
     self.pieChart.pieRadius  = MIN(0.9 * plotAreaHeight / 2.0,
-                             0.9 * plotAreaWidth / 2.0);
+                                   0.9 * plotAreaWidth / 2.0);
     self.pieChart.identifier = self.title;
-    self.pieChart.startAngle = M_PI_4;
+    self.pieChart.startAngle = 0.0;
     self.pieChart.sliceDirection = CPTPieDirectionCounterClockwise;
-    self.pieChart.centerAnchor = CGPointMake(0.5, 0.97*(plotAreaHeight - self.pieChart.pieRadius)/plotAreaHeight);
+    
+    if (forPreview == YES)
+    {
+        self.pieChart.centerAnchor = CGPointMake((1-0.97*(plotAreaWidth - self.pieChart.pieRadius)/plotAreaWidth), 0.97*(plotAreaHeight - self.pieChart.pieRadius)/plotAreaHeight);
+    }
+    else
+    {
+        self.pieChart.centerAnchor = CGPointMake(0.5, 0.97*(plotAreaHeight - self.pieChart.pieRadius)/plotAreaHeight);
 
+        CABasicAnimation *animScale = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+        [animScale setDuration:0.5f];
+        
+        animScale.toValue = [NSNumber numberWithFloat:1.0f];
+        animScale.fromValue = [NSNumber numberWithFloat:0.0f];
+        animScale.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        animScale.removedOnCompletion = NO;
+        animScale.fillMode = kCAFillModeForwards;
+        
+//        CABasicAnimation *animRotate = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+        CABasicAnimation *animRotate = [CABasicAnimation animationWithKeyPath:@"startAngle"];
+        [animRotate setDuration:1.0f];
+        
+        animRotate.toValue = [NSNumber numberWithFloat:0.0f];
+        animRotate.fromValue = [NSNumber numberWithFloat:DegreesToRadians(360)];
+        animRotate.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        animRotate.removedOnCompletion = NO;
+        animRotate.fillMode = kCAFillModeForwards;
+        
+        [self.pieChart addAnimation:animScale forKey:@"grow"];
+        [self.pieChart addAnimation:animRotate forKey:@"rotate"];
+
+    }
+    
     self.pieChart.delegate = self;
     [graph addPlot:self.pieChart];
 
     // Add legend
     CPTLegend *theLegend = [CPTLegend legendWithGraph:graph];
-    theLegend.numberOfColumns = 2;
-    theLegend.entryPaddingBottom = 0.0;
-    theLegend.entryPaddingTop = 0.0;
-    theLegend.entryPaddingLeft = 10.0;
-    theLegend.entryPaddingRight = 0.0;
+    
+    if (forPreview == YES)
+    {
+        theLegend.numberOfColumns = 1;
+        theLegend.entryPaddingBottom = 0.0;
+        theLegend.entryPaddingTop = 0.0;
+        theLegend.entryPaddingLeft = 0.0;
+        theLegend.entryPaddingRight = 50.0;
+        graph.legendAnchor = CPTRectAnchorRight;
+    }
+    else
+    {
+        theLegend.numberOfColumns = 2;
+        theLegend.entryPaddingBottom = 0.0;
+        theLegend.entryPaddingTop = 0.0;
+        theLegend.entryPaddingLeft = 10.0;
+        theLegend.entryPaddingRight = 0.0;
+        graph.legendAnchor = CPTRectAnchorBottomLeft;
+    }
+    
     theLegend.delegate = self;
 
     graph.legend = theLegend;
-    graph.legendAnchor = CPTRectAnchorBottomLeft;
     graph.legendDisplacement = CGPointMake(0.0, 0.0);
 }
 
@@ -178,8 +231,8 @@ const NSArray* pieSliceFills;
 //<CPTPieChartDataSource>> methods
 -(NSString*)legendTitleForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)idx
 {
-    // restrict so too many categories won't become unmanageable
-//    if (idx < 32)
+    // restrict so too many categories won't become unmanageable in a preview
+    if (((idx < 4) && isPreview) || !isPreview)
     {
         NSString* title = [self.titleData objectAtIndex:idx];
         
@@ -195,10 +248,10 @@ const NSArray* pieSliceFills;
             return title;
         }
     }
-//    else
-//    {
-//        return nil;
-//    }
+    else
+    {
+        return nil;
+    }
 }
 
 -(CPTFill *)sliceFillForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)idx
