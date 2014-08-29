@@ -122,21 +122,11 @@ int pieChartSubCategoryContext;
             UITableViewCell* cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
             
             CGRect bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width);
-            
-            
-            //
-            //    // Schedule the call to view the pie chart after 250 msec - this allows any previous animation to complete
-            //    [self.pieChart performSelector:@selector(renderInView:withTheme:animated:) withObject:renderInViewParms afterDelay:0.250f];
-            
+    
             UIView* pieChartView = [[UIView alloc] initWithFrame:bounds];
-            
-            NSArray* renderInViewParms = [NSArray arrayWithObjects:pieChartView, [CPTTheme themeNamed:kCPTPlainWhiteTheme], [NSNumber numberWithBool:NO], [NSNumber numberWithBool:YES], nil];
-            
+     
             [self.pieChartCntrl renderInView:pieChartView withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] forPreview:NO animated:YES];
-            
-//            [self.pieChartCntrl performSelector:@selector(renderInView:) withObject:renderInViewParms afterDelay:1.0f];
-//            [self.pieChartCntrl renderInView:pieChartView withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] forPreviewN:[NSNumber numberWithBool:NO] animatedN:[NSNumber numberWithBool:YES]];
-            
+               
             // Create new height that accounts for the legend view - assume two columns and 24 pix per entry
             CGFloat newHeight = pieChartView.bounds.size.height + LEGEND_AREA_HEIGHT(self.pieChartNames.count);
             [pieChartView setFrame:CGRectMake(0, 0, self.view.bounds.size.width, newHeight)];
@@ -384,10 +374,11 @@ int pieChartSubCategoryContext;
         // Create and Push transaction detail view controller
         spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
         [transactionsTableViewController setTitle:[subCategory title]];
+        [transactionsTableViewController setCategoryTitle:[category title]];
+        [transactionsTableViewController setSubCategoryTitle:[subCategory title]];
         [transactionsTableViewController setStartDate:self.startDate];
         [transactionsTableViewController setEndDate:self.endDate];
         [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-        [transactionsTableViewController setCategoryTitle:subCategory.title];
         
         [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
     }

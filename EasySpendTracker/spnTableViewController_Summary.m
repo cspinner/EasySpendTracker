@@ -28,6 +28,8 @@
 
 @end
 
+#define PIE_CHART_HEIGHT 100.0
+
 enum
 {
     ROW_SUMMARY,
@@ -82,13 +84,12 @@ enum
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-    [self updatePieCharts];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self updatePieCharts];
     [self.tableView reloadData];
 }
 
@@ -142,6 +143,71 @@ enum
     [self.pieChartTableAllTimeIncome reloadData];
 }
 
+-(void)configureCell:(UITableViewCell*)cell cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    switch (indexPath.row)
+    {
+        case ROW_SUMMARY:
+        {
+            UILabel* textLabel = (UILabel*)[cell viewWithTag:1];
+            
+            [textLabel setText:@"Summary Stuff goes here - TBD"];
+        }
+            break;
+            
+        case ROW_THIS_MONTH_EXPENSE:
+        {
+            // Gather chart preview
+            UIImage* previewImage = [self.pieChartTableThisMonthExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+            
+            // get imageContainerView => imageView
+            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+            
+            imageView.image = previewImage;
+        }
+            break;
+            
+        case ROW_THIS_MONTH_INCOME:
+        {
+            // Gather chart preview
+            UIImage* previewImage = [self.pieChartTableThisMonthIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+            
+            // get imageContainerView => imageView
+            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+            
+            imageView.image = previewImage;
+        }
+            break;
+            
+        case ROW_ALL_TIME_EXPENSE:
+        {
+            // Gather chart preview
+            UIImage* previewImage = [self.pieChartTableAllTimeExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+            
+            // get imageContainerView => imageView
+            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+            
+            imageView.image = previewImage;
+        }
+            break;
+            
+        case ROW_ALL_TIME_INCOME:
+        {
+            // Gather chart preview
+            UIImage* previewImage = [self.pieChartTableAllTimeIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+            
+            // get imageContainerView => imageView
+            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+            
+            imageView.image = previewImage;
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
 // <UITableViewDataSource> methods
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -158,7 +224,8 @@ enum
             {
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
-                [textLabel setText:@"Summary Stuff goes here - TBD"];
+                textLabel.tag = 1;
+    
                 [cell addSubview:textLabel];
             }
                 break;
@@ -168,13 +235,15 @@ enum
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
                 [textLabel setText:@"This Month's Expenses:"];
+                textLabel.tag = 1;
                 
-                // Gather chart preview
-                UIImage* previewImage = [self.pieChartTableThisMonthExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, 100.0)];
-                UIImageView* imageView = [[UIImageView alloc] initWithImage:previewImage];
+                // Gather chart preview container
+                UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+                imageView.tag = 1;
                 
                 UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
                 [imageContainerView addSubview:imageView];
+                imageContainerView.tag = 2;
                 
                 [cell addSubview:textLabel];
                 [cell addSubview:imageContainerView];
@@ -187,13 +256,15 @@ enum
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
                 [textLabel setText:@"This Month's Income:"];
+                textLabel.tag = 1;
                 
-                // Gather chart preview
-                UIImage* previewImage = [self.pieChartTableThisMonthIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, 100.0)];
-                UIImageView* imageView = [[UIImageView alloc] initWithImage:previewImage];
+                // Gather chart preview container
+                UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+                imageView.tag = 1;
                 
                 UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
                 [imageContainerView addSubview:imageView];
+                imageContainerView.tag = 2;
                 
                 [cell addSubview:textLabel];
                 [cell addSubview:imageContainerView];
@@ -205,13 +276,15 @@ enum
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
                 [textLabel setText:@"All Time Expenses:"];
+                textLabel.tag = 1;
                 
-                // Gather chart preview
-                UIImage* previewImage = [self.pieChartTableAllTimeExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, 100.0)];
-                UIImageView* imageView = [[UIImageView alloc] initWithImage:previewImage];
+                // Gather chart preview container
+                UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+                imageView.tag = 1;
                 
                 UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
                 [imageContainerView addSubview:imageView];
+                imageContainerView.tag = 2;
                 
                 [cell addSubview:textLabel];
                 [cell addSubview:imageContainerView];
@@ -224,13 +297,15 @@ enum
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
                 [textLabel setText:@"All Time Income:"];
+                textLabel.tag = 1;
                 
-                // Gather chart preview
-                UIImage* previewImage = [self.pieChartTableAllTimeIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, 100.0)];
-                UIImageView* imageView = [[UIImageView alloc] initWithImage:previewImage];
+                // Gather chart preview container
+                UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+                imageView.tag = 1;
                 
                 UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
                 [imageContainerView addSubview:imageView];
+                imageContainerView.tag = 2;
                 
                 [cell addSubview:textLabel];
                 [cell addSubview:imageContainerView];
@@ -243,6 +318,9 @@ enum
                 break;
         }
     }
+    
+    // Configure cell contents
+    [self configureCell:cell cellForRowAtIndexPath:indexPath];
     
     return cell;
 }

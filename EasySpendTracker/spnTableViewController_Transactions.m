@@ -142,7 +142,15 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     // Create a predicate for the category title
     if (self.categoryTitle != nil)
     {
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title LIKE %@", self.categoryTitle];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title LIKE %@", self.categoryTitle];
+        
+        [predicateArray addObject:predicate];
+    }
+    
+    // Create a predicate for the subCategory title
+    if (self.subCategoryTitle != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title LIKE %@", self.subCategoryTitle];
         
         [predicateArray addObject:predicate];
     }

@@ -83,7 +83,8 @@
     [transactionsTableViewController setStartDate:self.startDate];
     [transactionsTableViewController setEndDate:self.endDate];
     [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-    [transactionsTableViewController setCategoryTitle:subCategory.title];
+    [transactionsTableViewController setSubCategoryTitle:subCategory.title];
+    [transactionsTableViewController setCategoryTitle:self.categoryTitle];
     
     [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
 }
