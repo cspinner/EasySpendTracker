@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
-#import "spnTableViewController_Transaction.h"
+#import "spnViewController_Transaction.h"
 #import "UIView+spnViewCtgy.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "SpnRecurrence.h"
@@ -15,37 +15,35 @@
 #import "spnTableViewController_RecurSelect.h"
 #import "spnTableViewController_MainCategorySelect.h"
 #import "spnTableViewController_SubCategorySelect.h"
+#import "AutoFillTableViewController.h"
 
-@interface spnTableViewController_Transaction ()
+@interface spnViewController_Transaction ()
+
+@property AutoFillTableViewController *autoFillTableViewController;
+@property UITableView* tableView;
 
 @end
 
-@implementation spnTableViewController_Transaction
+@implementation spnViewController_Transaction
 
 static int mainCategorySetContext;
 static int subCategorySetContext;
-
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+    SEL userDidTapSelector = sel_registerName("userDidTap");
+    
     // Taps outside active text views/fields dismiss the keyboard
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
-                                   initWithTarget:self.view
-                                   action:@selector(dismissKeyboard)];
+                                   initWithTarget:self
+                                   action:userDidTapSelector];
     
     [tap setDelegate:self];
     [tap setCancelsTouchesInView:NO];
     [self.view addGestureRecognizer:tap];
+    [self.tableView addGestureRecognizer:tap];
     
     // Initialize frequency based on recurrence
     if (self.transaction.recurrence)
@@ -55,14 +53,66 @@ static int subCategorySetContext;
     
     self.frequencyWasUpdated = false;
     
+    self.tableView = [[UITableView alloc] initWithFrame:[[UIScreen mainScreen] bounds] style:UITableViewStyleGrouped];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    
+    // Fetch merchants from the past 3 months
+    NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionMO"];
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSMutableArray* merchantArray;
+    NSError* error;
+    
+    // This day 3 months ago
+    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
+    [tempComponents setMonth:-3];
+    NSDate* thisDayThreeMonthsAgo = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
+    
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", thisDayThreeMonthsAgo];
+    fetchRequest.predicate = predicate;
+    merchantArray = [NSMutableArray arrayWithArray: [self.managedObjectContext executeFetchRequest:fetchRequest error:&error]];
+    merchantArray = [merchantArray valueForKeyPath:@"@distinctUnionOfObjects.merchant"];
+    
+    self.autoFillTableViewController = [[AutoFillTableViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    [self.autoFillTableViewController createTableViewWithYPosition:@200];
+    [self addChildViewController:self.autoFillTableViewController];
+    self.autoFillTableViewController.sourceData = merchantArray;
+    self.autoFillTableViewController.delegate = self;
+  
+    [self.view addSubview:self.tableView];
+    [self.view addSubview:self.autoFillTableViewController.tableView];
+    [self.view bringSubviewToFront:self.autoFillTableViewController.tableView];
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if (self.autoFillTableViewController.tableView.hidden == NO)
+    {
+        // Don't allow the gesture recognizer to consume the touch to the autocomplete table
+        CGPoint touchPoint = [touch locationInView:self.autoFillTableViewController.tableView];
+        
+        UIView* receiverDescendantView = [self.autoFillTableViewController.tableView hitTest:touchPoint withEvent:nil];
+        
+        // Returns no if we tapped a row in the Auto fill table view
+        return (receiverDescendantView == nil);
+    }
+    else
+    {
+        return YES;
+    }
+}
+
+- (void)userDidTap
+{
+    [self.view performSelector:@selector(dismissKeyboard)];
+    
+    self.autoFillTableViewController.tableView.hidden = YES;
 }
 
 - (void)doneButtonClicked: (id)sender
@@ -241,7 +291,11 @@ static int subCategorySetContext;
                 [textField setTag:MERCHANT_VIEW_TAG];
                 [textField setText:[self.transaction merchant]];
                 [textField setDelegate:self];
+                [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
                 [cell addSubview:textField];
+                
+                // Allow the autofiller to update this text field.
+                self.autoFillTableViewController.textField = textField;
                 
                 // Maintain the view controller's property
                 [self setMerchant:textField.text];
@@ -609,6 +663,17 @@ static int subCategorySetContext;
         }
             break;
             
+        case MERCHANT_VIEW_TAG:
+        {
+            NSString *substring = [NSString stringWithString:textField.text];
+            substring = [substring stringByReplacingCharactersInRange:range withString:string];
+
+            [self.autoFillTableViewController searchAutocompleteEntriesWithSubstring:substring];
+            
+            return YES;
+        }
+            break;
+            
         default:
             return YES;
             break;
@@ -623,6 +688,7 @@ static int subCategorySetContext;
         {
             // Maintain the view controller's property
             [self setMerchant:textField.text];
+            self.autoFillTableViewController.tableView.hidden = YES;
         }
             break;
             
@@ -906,6 +972,15 @@ static int subCategorySetContext;
     
     // The updates to the data supporting the table are complete
     [self.tableView reloadData];
+}
+
+//<AutoFillDelegate> methods
+- (void)autoFillTable:(AutoFillTableViewController*)autoFillTable selectedEntry:(NSString*)entry
+{
+    if (autoFillTable == self.autoFillTableViewController)
+    {
+        self.merchant = entry;
+    }
 }
 
 @end

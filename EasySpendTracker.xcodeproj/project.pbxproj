@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3B0C678419A7B8E300D358E0 /* spnTableViewController_Summary.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */; };
+		3B0C679319B10CC300D358E0 /* AutoFillTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B0C679219B10CC300D358E0 /* AutoFillTableViewController.m */; };
 		3B1D7BD51991C68E00A8B533 /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B1D7BD41991C68E00A8B533 /* libCorePlot-CocoaTouch.a */; };
 		3B1D7BD71991C7B300A8B533 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B1D7BD61991C7B300A8B533 /* QuartzCore.framework */; };
 		3B2C9BA91984067000384B00 /* SpnCategoryMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BA81984067000384B00 /* SpnCategoryMO.m */; };
@@ -18,7 +19,7 @@
 		3B2C9BB91984834000384B00 /* spnTableViewController_SubCategorySelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BB81984834000384B00 /* spnTableViewController_SubCategorySelect.m */; };
 		3B2C9BBF1985EFA800384B00 /* spnTableViewController_MainCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BBE1985EFA800384B00 /* spnTableViewController_MainCategories.m */; };
 		3B2C9BC21985EFB900384B00 /* spnTableViewController_SubCategories.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BC11985EFB900384B00 /* spnTableViewController_SubCategories.m */; };
-		3B4E201819492ED300D79FFB /* spnTableViewController_Income.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */; };
+		3B4E201819492ED300D79FFB /* spnViewController_Income.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4E201619492ED300D79FFB /* spnViewController_Income.m */; };
 		3B61711317EDED6800FBF39F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711217EDED6800FBF39F /* Foundation.framework */; };
 		3B61711517EDED6800FBF39F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711417EDED6800FBF39F /* CoreGraphics.framework */; };
 		3B61711717EDED6800FBF39F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B61711617EDED6800FBF39F /* UIKit.framework */; };
@@ -39,11 +40,11 @@
 		3B61716E17F761D600FBF39F /* UIView+spnViewCtgy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61716D17F761D600FBF39F /* UIView+spnViewCtgy.m */; };
 		3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */; };
 		3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720E17F916A100FBF39F /* spnTransactionCellView.m */; };
-		3B61721217FCD3BD00FBF39F /* spnTableViewController_Expense.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61721117FCD3BD00FBF39F /* spnTableViewController_Expense.m */; };
+		3B61721217FCD3BD00FBF39F /* spnViewController_Expense.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */; };
 		3B722F5E1999ABE70056959F /* PlotItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B722F5A1999ABE70056959F /* PlotItem.m */; };
 		3B722F5F1999ABE70056959F /* spnPieChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B722F5B1999ABE70056959F /* spnPieChart.m */; };
 		3B771A0F197170B200CF556F /* SpnRecurrence.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A0E197170B200CF556F /* SpnRecurrence.m */; };
-		3B771A121975DF4900CF556F /* spnTableViewController_Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A111975DF4900CF556F /* spnTableViewController_Transaction.m */; };
+		3B771A121975DF4900CF556F /* spnViewController_Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A111975DF4900CF556F /* spnViewController_Transaction.m */; };
 		3B771A151979CC4600CF556F /* SpnRecurrenceMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */; };
 		3B771A18197AD7C600CF556F /* spnTableViewController_CategorySelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A17197AD7C600CF556F /* spnTableViewController_CategorySelect.m */; };
 		3B771A1C197B61EF00CF556F /* EasySpendTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A1A197B61EF00CF556F /* EasySpendTracker.xcdatamodeld */; };
@@ -68,6 +69,8 @@
 /* Begin PBXFileReference section */
 		3B0C678219A7B8E300D358E0 /* spnTableViewController_Summary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Summary.h; sourceTree = "<group>"; };
 		3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Summary.m; sourceTree = "<group>"; };
+		3B0C679119B10CC300D358E0 /* AutoFillTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoFillTableViewController.h; sourceTree = "<group>"; };
+		3B0C679219B10CC300D358E0 /* AutoFillTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoFillTableViewController.m; sourceTree = "<group>"; };
 		3B1D7B861991C68E00A8B533 /* CorePlot-CocoaTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CorePlot-CocoaTouch.h"; sourceTree = "<group>"; };
 		3B1D7B871991C68E00A8B533 /* CPTAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPTAnimation.h; sourceTree = "<group>"; };
 		3B1D7B881991C68E00A8B533 /* CPTAnimationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPTAnimationOperation.h; sourceTree = "<group>"; };
@@ -164,8 +167,8 @@
 		3B2C9BBE1985EFA800384B00 /* spnTableViewController_MainCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_MainCategories.m; sourceTree = "<group>"; };
 		3B2C9BC01985EFB900384B00 /* spnTableViewController_SubCategories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_SubCategories.h; sourceTree = "<group>"; };
 		3B2C9BC11985EFB900384B00 /* spnTableViewController_SubCategories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_SubCategories.m; sourceTree = "<group>"; };
-		3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnTableViewController_Income.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		3B4E201719492ED300D79FFB /* spnTableViewController_Income.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Income.h; sourceTree = "<group>"; };
+		3B4E201619492ED300D79FFB /* spnViewController_Income.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnViewController_Income.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		3B4E201719492ED300D79FFB /* spnViewController_Income.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Income.h; sourceTree = "<group>"; };
 		3B61710F17EDED6800FBF39F /* EasySpendTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasySpendTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B61711217EDED6800FBF39F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3B61711417EDED6800FBF39F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -195,16 +198,16 @@
 		3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnTableViewController_Transactions.m; sourceTree = "<group>"; };
 		3B61720D17F916A100FBF39F /* spnTransactionCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTransactionCellView.h; sourceTree = "<group>"; };
 		3B61720E17F916A100FBF39F /* spnTransactionCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTransactionCellView.m; sourceTree = "<group>"; };
-		3B61721017FCD3BD00FBF39F /* spnTableViewController_Expense.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = spnTableViewController_Expense.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		3B61721117FCD3BD00FBF39F /* spnTableViewController_Expense.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnTableViewController_Expense.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		3B61721017FCD3BD00FBF39F /* spnViewController_Expense.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = spnViewController_Expense.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnViewController_Expense.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		3B722F5A1999ABE70056959F /* PlotItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlotItem.m; sourceTree = "<group>"; };
 		3B722F5B1999ABE70056959F /* spnPieChart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnPieChart.m; sourceTree = "<group>"; };
 		3B722F5C1999ABE70056959F /* PlotItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlotItem.h; sourceTree = "<group>"; };
 		3B722F5D1999ABE70056959F /* spnPieChart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnPieChart.h; sourceTree = "<group>"; };
 		3B771A0D197170B200CF556F /* SpnRecurrence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnRecurrence.h; sourceTree = "<group>"; };
 		3B771A0E197170B200CF556F /* SpnRecurrence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnRecurrence.m; sourceTree = "<group>"; };
-		3B771A101975DF4900CF556F /* spnTableViewController_Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_Transaction.h; sourceTree = "<group>"; };
-		3B771A111975DF4900CF556F /* spnTableViewController_Transaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Transaction.m; sourceTree = "<group>"; };
+		3B771A101975DF4900CF556F /* spnViewController_Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Transaction.h; sourceTree = "<group>"; };
+		3B771A111975DF4900CF556F /* spnViewController_Transaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_Transaction.m; sourceTree = "<group>"; };
 		3B771A131979CC4600CF556F /* SpnRecurrenceMO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnRecurrenceMO.h; sourceTree = "<group>"; };
 		3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnRecurrenceMO.m; sourceTree = "<group>"; };
 		3B771A16197AD7C600CF556F /* spnTableViewController_CategorySelect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_CategorySelect.h; sourceTree = "<group>"; };
@@ -380,12 +383,12 @@
 			children = (
 				3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */,
 				3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */,
-				3B771A101975DF4900CF556F /* spnTableViewController_Transaction.h */,
-				3B771A111975DF4900CF556F /* spnTableViewController_Transaction.m */,
-				3B61721017FCD3BD00FBF39F /* spnTableViewController_Expense.h */,
-				3B61721117FCD3BD00FBF39F /* spnTableViewController_Expense.m */,
-				3B4E201719492ED300D79FFB /* spnTableViewController_Income.h */,
-				3B4E201619492ED300D79FFB /* spnTableViewController_Income.m */,
+				3B771A101975DF4900CF556F /* spnViewController_Transaction.h */,
+				3B771A111975DF4900CF556F /* spnViewController_Transaction.m */,
+				3B61721017FCD3BD00FBF39F /* spnViewController_Expense.h */,
+				3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */,
+				3B4E201719492ED300D79FFB /* spnViewController_Income.h */,
+				3B4E201619492ED300D79FFB /* spnViewController_Income.m */,
 			);
 			name = Transaction;
 			sourceTree = "<group>";
@@ -574,6 +577,8 @@
 		3BDBFFFC1818ACE000876590 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				3B0C679119B10CC300D358E0 /* AutoFillTableViewController.h */,
+				3B0C679219B10CC300D358E0 /* AutoFillTableViewController.m */,
 				3B722F581999A94B0056959F /* Graphing */,
 				3BDBFFFD1818AD4D00876590 /* spnUtils.h */,
 				3BDBFFFE1818AD4D00876590 /* spnUtils.m */,
@@ -692,18 +697,18 @@
 				3B771A18197AD7C600CF556F /* spnTableViewController_CategorySelect.m in Sources */,
 				3B61716E17F761D600FBF39F /* UIView+spnViewCtgy.m in Sources */,
 				3B771A0F197170B200CF556F /* SpnRecurrence.m in Sources */,
-				3B4E201819492ED300D79FFB /* spnTableViewController_Income.m in Sources */,
+				3B4E201819492ED300D79FFB /* spnViewController_Income.m in Sources */,
 				3BDB00191819DA5F00876590 /* SpnTransaction.m in Sources */,
 				3B61712117EDED6800FBF39F /* main.m in Sources */,
 				3BDBFFFF1818AD4D00876590 /* spnUtils.m in Sources */,
 				3B771A151979CC4600CF556F /* SpnRecurrenceMO.m in Sources */,
 				3B722F5E1999ABE70056959F /* PlotItem.m in Sources */,
 				3B94A55419641F24004EB00B /* spnTableViewController_RecurSelect.m in Sources */,
-				3B771A121975DF4900CF556F /* spnTableViewController_Transaction.m in Sources */,
+				3B771A121975DF4900CF556F /* spnViewController_Transaction.m in Sources */,
 				3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */,
 				3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */,
 				3B722F5F1999ABE70056959F /* spnPieChart.m in Sources */,
-				3B61721217FCD3BD00FBF39F /* spnTableViewController_Expense.m in Sources */,
+				3B61721217FCD3BD00FBF39F /* spnViewController_Expense.m in Sources */,
 				3B771A1C197B61EF00CF556F /* EasySpendTracker.xcdatamodeld in Sources */,
 				3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */,
 				3B2C9BA91984067000384B00 /* SpnCategoryMO.m in Sources */,
@@ -712,6 +717,7 @@
 				3B2C9BBF1985EFA800384B00 /* spnTableViewController_MainCategories.m in Sources */,
 				3B2C9BB2198406B000384B00 /* SpnSubCategory.m in Sources */,
 				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
+				3B0C679319B10CC300D358E0 /* AutoFillTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

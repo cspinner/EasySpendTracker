@@ -6,15 +6,15 @@
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "spnTableViewController_Income.h"
+#import "spnViewController_Income.h"
 #import "SpnCategory.h"
 #import "SpnSubCategory.h"
 
-@interface spnTableViewController_Income ()
+@interface spnViewController_Income ()
 
 @end
 
-@implementation spnTableViewController_Income
+@implementation spnViewController_Income
 
 #define DEFAULT_CATEGORY_TITLE @"Income"
 #define DEFAULT_SUB_CATEGORY_TITLE @"Miscellaneous"

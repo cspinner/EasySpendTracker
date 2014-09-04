@@ -8,8 +8,8 @@
 
 #import "UIViewController+addTransactionHandles.h"
 #import "spnSpendTracker.h"
-#import "spnTableViewController_Expense.h"
-#import "spnTableViewController_Income.h"
+#import "spnViewController_Expense.h"
+#import "spnViewController_Income.h"
 #import "SpnTransaction.h"
 
 @implementation UIViewController (addTransactionHandles)
@@ -46,7 +46,7 @@
             [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
             [newTransaction setType:[NSNumber numberWithInt:EXPENSE_TRANSACTION_TYPE]];
             
-            spnTableViewController_Expense* addViewController = [[spnTableViewController_Expense alloc] initWithStyle:UITableViewStyleGrouped];
+            spnViewController_Expense* addViewController = [[spnViewController_Expense alloc] init];
             [addViewController setTitle:@"Add Expense"];
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
@@ -73,7 +73,7 @@
             [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
             [newTransaction setType:[NSNumber numberWithInt:INCOME_TRANSACTION_TYPE]];
             
-            spnTableViewController_Income* addViewController = [[spnTableViewController_Income alloc] initWithStyle:UITableViewStyleGrouped];
+            spnViewController_Income* addViewController = [[spnViewController_Income alloc] init];
             [addViewController setTitle:@"Add Income"];
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];

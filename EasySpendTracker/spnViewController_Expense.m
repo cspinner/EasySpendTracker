@@ -6,15 +6,15 @@
 //  Copyright (c) 2013 Christopher Spinner. All rights reserved.
 //
 
-#import "spnTableViewController_Expense.h"
+#import "spnViewController_Expense.h"
 #import "SpnCategory.h"
 #import "SpnSubCategory.h"
 
-@interface spnTableViewController_Expense ()
+@interface spnViewController_Expense ()
 
 @end
 
-@implementation spnTableViewController_Expense
+@implementation spnViewController_Expense
 
 #define DEFAULT_CATEGORY_TITLE @"Uncategorized"
 #define DEFAULT_SUB_CATEGORY_TITLE @"Miscellaneous"

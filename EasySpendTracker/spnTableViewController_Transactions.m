@@ -10,8 +10,8 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "UIView+spnViewCtgy.h"
 #import "spnTransactionCellView.h"
-#import "spnTableViewController_Expense.h"
-#import "spnTableViewController_Income.h"
+#import "spnViewController_Expense.h"
+#import "spnViewController_Income.h"
 #import "SpnTransaction.h"
 
 @interface spnTableViewController_Transactions ()
@@ -95,6 +95,25 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     [self.tableView setTableHeaderView:self.searchBar];
     
     [self.tableView reloadData];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    // Scroll to the row nearest to the present date - assumes transactions are presorted by newest to oldest
+    NSDate* todaysDate = [NSDate date];
+    for (SpnTransaction* transaction in [self.fetchedResultsController fetchedObjects])
+    {
+        NSComparisonResult dateCompareResult = [todaysDate compare:transaction.date];
+        
+        if ((dateCompareResult == NSOrderedSame) ||
+            (dateCompareResult == NSOrderedDescending))
+        {
+            [self.tableView scrollToRowAtIndexPath:[self.fetchedResultsController indexPathForObject:transaction] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+            break;
+        }
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -279,7 +298,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     // Create and Push transaction detail view controller
     if(transaction.type.integerValue == EXPENSE_TRANSACTION_TYPE)
     {
-        spnTableViewController_Expense* transactionTableViewController = [[spnTableViewController_Expense alloc] initWithStyle:UITableViewStyleGrouped];
+        spnViewController_Expense* transactionTableViewController = [[spnViewController_Expense alloc] init];
         
         transactionTableViewController.title = @"Transaction";
         transactionTableViewController.managedObjectContext = self.managedObjectContext;
@@ -299,7 +318,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
     else // INCOME_TRANSACTION_TYPE
     {
-        spnTableViewController_Income* transactionTableViewController = [[spnTableViewController_Income alloc] initWithStyle:UITableViewStyleGrouped];
+        spnViewController_Income* transactionTableViewController = [[spnViewController_Income alloc] init];
         
         transactionTableViewController.title = @"Transaction";
         transactionTableViewController.managedObjectContext = self.managedObjectContext;

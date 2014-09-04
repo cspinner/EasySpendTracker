@@ -11,8 +11,9 @@
 #import "spnTableViewController_RecurSelect.h"
 #import "spnTableViewController_MainCategorySelect.h"
 #import "spnTableViewController_SubCategorySelect.h"
+#import "AutoFillTableViewController.h"
 
-@interface spnTableViewController_Transaction : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, spnViewController_RecurSelectDelegate, spnViewController_CategorySelectDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate>
+@interface spnViewController_Transaction : UIViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, spnViewController_RecurSelectDelegate, spnViewController_CategorySelectDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate, AutoFillDelegate>
 
 // Table section indexes
 typedef NS_ENUM(NSInteger, SpnTransactionViewCntlSectionIndexType)
@@ -77,5 +78,6 @@ enum
 @property NSDate* date;
 @property NSString* notes;
 @property NSDateComponents* frequency;
+
 
 @end

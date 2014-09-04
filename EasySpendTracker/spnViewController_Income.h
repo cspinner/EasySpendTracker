@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "spnTableViewController_Transaction.h"
+#import "spnViewController_Transaction.h"
 
-@interface spnTableViewController_Expense : spnTableViewController_Transaction
+@interface spnViewController_Income : spnViewController_Transaction
 
 @end

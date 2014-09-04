@@ -18,9 +18,6 @@
 @property NSDate* firstDayOfThisMonth;
 @property NSDate* firstDayOfNextMonth;
 
-@property NSArray *expenseResultsThisMonth;
-@property NSArray *incomeResultsThisMonth;
-
 @property spnTableViewController_PieChart* pieChartTableThisMonthExpenses;
 @property spnTableViewController_PieChart* pieChartTableThisMonthIncome;
 @property spnTableViewController_PieChart* pieChartTableAllTimeExpenses;
@@ -149,9 +146,36 @@ enum
     {
         case ROW_SUMMARY:
         {
+            NSArray *expenseResultsThisMonth;
+            NSArray *incomeResultsThisMonth;
+            NSArray *expenseResultsLastMonth;
+            NSArray *incomeResultsLastMonth;
+            NSNumber* expenseTotalThisMonth;
+            NSNumber* incomeTotalThisMonth;
+            NSError* error;
+            
             UILabel* textLabel = (UILabel*)[cell viewWithTag:1];
             
-            [textLabel setText:@"Summary Stuff goes here - TBD"];
+            NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionMO"];
+            NSPredicate* predicate;
+            
+            // Get all expense results from this month
+            predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title LIKE %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfThisMonth, self.firstDayOfNextMonth];
+            fetchRequest.predicate = predicate;
+            
+            expenseResultsThisMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+            expenseTotalThisMonth = [expenseResultsThisMonth valueForKeyPath:@"@sum.value"];
+            
+            // Get all income results from this month
+            predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title LIKE %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfThisMonth, self.firstDayOfNextMonth];
+            fetchRequest.predicate = predicate;
+            
+            incomeResultsThisMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+            incomeTotalThisMonth = [incomeResultsThisMonth valueForKeyPath:@"@sum.value"];
+            
+            
+            
+            [textLabel setText:[NSString stringWithFormat:@"Income: $%.2f - Expenses: $%.2f = Balance: $%.2f", incomeTotalThisMonth.floatValue, expenseTotalThisMonth.floatValue, (incomeTotalThisMonth.floatValue - expenseTotalThisMonth.floatValue)]];
         }
             break;
             
@@ -225,6 +249,7 @@ enum
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
                 textLabel.tag = 1;
+                textLabel.adjustsFontSizeToFitWidth = YES;
     
                 [cell addSubview:textLabel];
             }
