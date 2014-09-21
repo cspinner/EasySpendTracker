@@ -12,6 +12,7 @@
 #import "SpnCategory.h"
 #import "SpnSubCategory.h"
 #import "spnTableViewController_PieChart.h"
+#import "spnTableViewController_LinePlot.h"
 
 @interface spnTableViewController_Summary ()
 
@@ -22,10 +23,14 @@
 @property spnTableViewController_PieChart* pieChartTableThisMonthIncome;
 @property spnTableViewController_PieChart* pieChartTableAllTimeExpenses;
 @property spnTableViewController_PieChart* pieChartTableAllTimeIncome;
+@property spnTableViewController_LinePlot* linePlot;
+
+@property NSMutableDictionary* chartImageCache;
 
 @end
 
 #define PIE_CHART_HEIGHT 100.0
+#define LINE_PLOT_HEIGHT 200.0
 
 enum
 {
@@ -34,6 +39,7 @@ enum
     ROW_THIS_MONTH_INCOME,
     ROW_ALL_TIME_EXPENSE,
     ROW_ALL_TIME_INCOME,
+    ROW_LINE,
     ROW_COUNT
 };
 
@@ -75,7 +81,9 @@ enum
     // First day of the next month
     self.firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
     
-    [self updatePieCharts];
+    self.chartImageCache = [[NSMutableDictionary alloc] init];
+    
+//    [self updatePieCharts];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -86,7 +94,7 @@ enum
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self updatePieCharts];
+    [self initCharts];
     [self.tableView reloadData];
 }
 
@@ -96,7 +104,7 @@ enum
     // Dispose of any resources that can be recreated.
 }
 
--(void)updatePieCharts
+-(void)initCharts
 {
     NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnCategoryMO"];
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"NOT(title MATCHES[cd] %@)", @"Income"];
@@ -110,7 +118,6 @@ enum
     self.pieChartTableThisMonthExpenses.endDate = self.firstDayOfNextMonth;
     self.pieChartTableThisMonthExpenses.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
     self.pieChartTableThisMonthExpenses.managedObjectContext = self.managedObjectContext;
-    [self.pieChartTableThisMonthExpenses reloadData];
     
     // This Month - Income
     self.pieChartTableThisMonthIncome = [[spnTableViewController_PieChart alloc] initWithStyle:UITableViewStyleGrouped];
@@ -119,7 +126,6 @@ enum
     self.pieChartTableThisMonthIncome.endDate = self.firstDayOfNextMonth;
     self.pieChartTableThisMonthIncome.excludeCategories = [[self.managedObjectContext executeFetchRequest:fetchRequest error:&error] valueForKey:@"title"];
     self.pieChartTableThisMonthIncome.managedObjectContext = self.managedObjectContext;
-    [self.pieChartTableThisMonthIncome reloadData];
     
     // All Time - Expenses
     self.pieChartTableAllTimeExpenses = [[spnTableViewController_PieChart alloc] initWithStyle:UITableViewStyleGrouped];
@@ -128,7 +134,6 @@ enum
     self.pieChartTableAllTimeExpenses.endDate = nil;
     self.pieChartTableAllTimeExpenses.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
     self.pieChartTableAllTimeExpenses.managedObjectContext = self.managedObjectContext;
-    [self.pieChartTableAllTimeExpenses reloadData];
     
     // All Time - Income
     self.pieChartTableAllTimeIncome = [[spnTableViewController_PieChart alloc] initWithStyle:UITableViewStyleGrouped];
@@ -137,10 +142,16 @@ enum
     self.pieChartTableAllTimeIncome.endDate = nil;
     self.pieChartTableAllTimeIncome.excludeCategories = [[self.managedObjectContext executeFetchRequest:fetchRequest error:&error] valueForKey:@"title"];
     self.pieChartTableAllTimeIncome.managedObjectContext = self.managedObjectContext;
-    [self.pieChartTableAllTimeIncome reloadData];
+    
+    // Line Plot
+    self.linePlot = [[spnTableViewController_LinePlot alloc] initWithStyle:UITableViewStyleGrouped];
+    self.linePlot.title = @"Line Plot";
+    self.linePlot.startDate = nil;
+    self.linePlot.endDate = nil;
+    self.linePlot.managedObjectContext = self.managedObjectContext;
 }
 
--(void)configureCell:(UITableViewCell*)cell cellForRowAtIndexPath:(NSIndexPath *)indexPath
+-(void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath *)indexPath
 {
     switch (indexPath.row)
     {
@@ -181,49 +192,166 @@ enum
             
         case ROW_THIS_MONTH_EXPENSE:
         {
-            // Gather chart preview
-            UIImage* previewImage = [self.pieChartTableThisMonthExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
-            
-            // get imageContainerView => imageView
-            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
-            
-            imageView.image = previewImage;
+//            // get imageContainerView => imageView
+//            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//            
+//            // assign the previously obtained chart preview to the cell - if it doesn't exist, nil will be assigned
+//            imageView.image = [self.chartImageCache objectForKey:@(ROW_THIS_MONTH_EXPENSE)];
+//            
+//            // dispatch a concurrent task to recompute a preview image
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                UIImage* previewImage = [self.pieChartTableThisMonthExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+//                
+//                // Now that the image was computed, add a task to the main run loop to assign the image to the cell.
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    // Obtain a handle to the cell to update
+//                    UITableViewCell *updateCell = [self.tableView cellForRowAtIndexPath:indexPath];
+//                    
+//                    // It may be nil if it has scrolled off screen, so protect against that
+//                    if (updateCell)
+//                    {
+//                        // get imageContainerView => imageView
+//                        UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//                        
+//                        imageView.image = previewImage;
+//                        
+//                        // save the image to the cache
+//                        [self.chartImageCache setObject:previewImage forKey:@(ROW_THIS_MONTH_EXPENSE)];
+//                    }
+//                });
+//            });
         }
             break;
             
         case ROW_THIS_MONTH_INCOME:
         {
-            // Gather chart preview
-            UIImage* previewImage = [self.pieChartTableThisMonthIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
-            
-            // get imageContainerView => imageView
-            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
-            
-            imageView.image = previewImage;
+//            // get imageContainerView => imageView
+//            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//            
+//            // assign the previously obtained chart preview to the cell - if it doesn't exist, nil will be assigned
+//            imageView.image = [self.chartImageCache objectForKey:@(ROW_THIS_MONTH_INCOME)];
+//            
+//            // dispatch a concurrent task to recompute a preview image
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                UIImage* previewImage = [self.pieChartTableThisMonthIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+//                
+//                // Now that the image was computed, add a task to the main run loop to assign the image to the cell.
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    // Obtain a handle to the cell to update
+//                    UITableViewCell *updateCell = [self.tableView cellForRowAtIndexPath:indexPath];
+//                    
+//                    // It may be nil if it has scrolled off screen, so protect against that
+//                    if (updateCell)
+//                    {
+//                        // get imageContainerView => imageView
+//                        UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//                        
+//                        imageView.image = previewImage;
+//                        
+//                        // save the image to the cache
+//                        [self.chartImageCache setObject:previewImage forKey:@(ROW_THIS_MONTH_INCOME)];
+//                    }
+//                });
+//            });
         }
             break;
             
         case ROW_ALL_TIME_EXPENSE:
         {
-            // Gather chart preview
-            UIImage* previewImage = [self.pieChartTableAllTimeExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
-            
-            // get imageContainerView => imageView
-            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
-            
-            imageView.image = previewImage;
+//            // get imageContainerView => imageView
+//            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//            
+//            // assign the previously obtained chart preview to the cell - if it doesn't exist, nil will be assigned
+//            imageView.image = [self.chartImageCache objectForKey:@(ROW_ALL_TIME_EXPENSE)];
+//            
+//            // dispatch a concurrent task to recompute a preview image
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                UIImage* previewImage = [self.pieChartTableAllTimeExpenses pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+//                
+//                // Now that the image was computed, add a task to the main run loop to assign the image to the cell.
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    // Obtain a handle to the cell to update
+//                    UITableViewCell *updateCell = [self.tableView cellForRowAtIndexPath:indexPath];
+//                    
+//                    // It may be nil if it has scrolled off screen, so protect against that
+//                    if (updateCell)
+//                    {
+//                        // get imageContainerView => imageView
+//                        UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//                        
+//                        imageView.image = previewImage;
+//                        
+//                        // save the image to the cache
+//                        [self.chartImageCache setObject:previewImage forKey:@(ROW_ALL_TIME_EXPENSE)];
+//                    }
+//                });
+//            });
         }
             break;
             
         case ROW_ALL_TIME_INCOME:
         {
-            // Gather chart preview
-            UIImage* previewImage = [self.pieChartTableAllTimeIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+//            // get imageContainerView => imageView
+//            UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//            
+//            // assign the previously obtained chart preview to the cell - if it doesn't exist, nil will be assigned
+//            imageView.image = [self.chartImageCache objectForKey:@(ROW_ALL_TIME_INCOME)];
+//            
+//            // dispatch a concurrent task to recompute a preview image
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                UIImage* previewImage = [self.pieChartTableAllTimeIncome pieChartImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
+//                
+//                // Now that the image was computed, add a task to the main run loop to assign the image to the cell.
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    // Obtain a handle to the cell to update
+//                    UITableViewCell *updateCell = [self.tableView cellForRowAtIndexPath:indexPath];
+//                    
+//                    // It may be nil if it has scrolled off screen, so protect against that
+//                    if (updateCell)
+//                    {
+//                        // get imageContainerView => imageView
+//                        UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+//                        
+//                        imageView.image = previewImage;
+//                        
+//                        // save the image to the cache
+//                        [self.chartImageCache setObject:previewImage forKey:@(ROW_ALL_TIME_INCOME)];
+//                    }
+//                });
+//            });
+        }
+            break;
             
+        case ROW_LINE:
+        {
             // get imageContainerView => imageView
             UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+
+            // assign the previously obtained chart preview to the cell - if it doesn't exist, nil will be assigned
+            imageView.image = [self.chartImageCache objectForKey:@(ROW_LINE)];
             
-            imageView.image = previewImage;
+            // dispatch a concurrent task to recompute a preview image
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                UIImage* previewImage = [self.linePlot linePlotImageWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT)];
+                
+                // Now that the image was computed, add a task to the main run loop to assign the image to the cell.
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Obtain a handle to the cell to update
+                    UITableViewCell *updateCell = [self.tableView cellForRowAtIndexPath:indexPath];
+                    
+                    // It may be nil if it has scrolled off screen, so protect against that
+                    if (updateCell)
+                    {
+                        // get imageContainerView => imageView
+                        UIImageView* imageView = (UIImageView*)[[cell viewWithTag:2] viewWithTag:1];
+                        
+                        imageView.image = previewImage;
+                        
+                        // save the image to the cache
+                        [self.chartImageCache setObject:previewImage forKey:@(ROW_LINE)];
+                    }
+                });
+            });
         }
             break;
             
@@ -235,7 +363,7 @@ enum
 // <UITableViewDataSource> methods
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray* reuseIdentifier = [NSArray arrayWithObjects:@"summaryCell", @"thisMonthExpenseCell", @"thisMonthIncomeCell", @"allTimeMonthExpenseCell", @"allTimeIncomeCell", nil];
+    NSArray* reuseIdentifier = [NSArray arrayWithObjects:@"summaryCell", @"thisMonthExpenseCell", @"thisMonthIncomeCell", @"allTimeMonthExpenseCell", @"allTimeIncomeCell", @"lineCell", nil];
     
     UITableViewCell* cell = [self.tableView dequeueReusableCellWithIdentifier:reuseIdentifier[indexPath.row]];
     if (cell == nil)
@@ -336,6 +464,26 @@ enum
                 [cell addSubview:imageContainerView];
             }
                 break;
+                
+            case ROW_LINE:
+            {
+                // Create text label
+                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
+                [textLabel setText:@"Line Plot:"];
+                textLabel.tag = 1;
+                
+                // Gather chart preview container
+                UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT)];
+                imageView.tag = 1;
+                
+                UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
+                [imageContainerView addSubview:imageView];
+                imageContainerView.tag = 2;
+                
+                [cell addSubview:textLabel];
+                [cell addSubview:imageContainerView];
+            }
+                break;
 
 
                 
@@ -345,7 +493,7 @@ enum
     }
     
     // Configure cell contents
-    [self configureCell:cell cellForRowAtIndexPath:indexPath];
+    [self configureCell:cell atIndexPath:indexPath];
     
     return cell;
 }
@@ -377,10 +525,11 @@ enum
     // Must be in the same order as row enums
     NSArray* rowHeight = [NSArray arrayWithObjects:
                           [NSNumber numberWithFloat:44],
-                          [NSNumber numberWithFloat:144],
-                          [NSNumber numberWithFloat:144],
-                          [NSNumber numberWithFloat:144],
-                          [NSNumber numberWithFloat:144],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
+                          [NSNumber numberWithFloat:LINE_PLOT_HEIGHT+44],
                           nil];
     
     return (CGFloat)[rowHeight[indexPath.row] floatValue];
@@ -406,6 +555,7 @@ enum
             [[self navigationController] pushViewController:self.pieChartTableAllTimeIncome animated:YES];
             break;
             
+        case ROW_LINE:
         default:
             break;
     }

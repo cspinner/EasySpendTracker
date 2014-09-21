@@ -59,8 +59,6 @@ int pieChartSubCategoryContext;
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
-    [self reloadData];
-    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
 }
 
@@ -76,15 +74,16 @@ int pieChartSubCategoryContext;
     self.pieChartCntrl = [[spnPieChart alloc] initWithContext:&pieChartCategoryContext];
     self.pieChartCntrl.delegate = self;
     
-    // retrieve list of values and names as the data source
-    NSArray* transactions = [self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:self.excludeCategories];
-    [self updateCategoryValuesAndNamesForTransactions:transactions forKeyPath:[NSString stringWithFormat:@"subCategory.category.title"]];
+//    // retrieve list of values and names as the data source
+//    NSArray* transactions = [self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:self.excludeCategories];
+//    [self updateCategoryValuesAndNamesForTransactions:transactions forKeyPath:[NSString stringWithFormat:@"subCategory.category.title"]];
     
     [self updateSourceDataForPieChart:self.pieChartCntrl];
 }
 
 -(UIImage*)pieChartImageWithFrame:(CGRect)frame
 {
+    [self reloadData];
     return [self.pieChartCntrl imageWithFrame:frame];
 }
 
@@ -100,7 +99,7 @@ int pieChartSubCategoryContext;
             if (self.focusCategory == nil)
             {
                 // Set category count
-                [cell.textLabel setText:[NSString stringWithFormat:@"%ld Categories", self.pieChartValues.count]];
+                [cell.textLabel setText:[NSString stringWithFormat:@"%lu Categories", (unsigned long)self.pieChartValues.count]];
             }
             else
             {

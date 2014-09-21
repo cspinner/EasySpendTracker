@@ -20,7 +20,6 @@
     CPTGraphHostingView *defaultLayerHostingView;
 
     NSMutableArray *graphs;
-    NSString *section;
     NSString *title;
     UIImage *cachedImage;
 }

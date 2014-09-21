@@ -28,8 +28,6 @@ BOOL isPreview;
 {
     if ( (self = [super init]) )
     {
-        self.section = @"Pie Charts";
-        
         pieSliceFills = [NSArray arrayWithObjects:
                          // Dark Pastel Blue
                          [CPTFill fillWithColor:[CPTColor colorWithComponentRed:119.0/255.0 green:158.0/255.0 blue:203.0/255.0 alpha:1.0]],

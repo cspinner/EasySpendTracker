@@ -99,20 +99,27 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    static BOOL isFirstAppearance = YES;
+    
     [super viewDidAppear:animated];
     
-    // Scroll to the row nearest to the present date - assumes transactions are presorted by newest to oldest
-    NSDate* todaysDate = [NSDate date];
-    for (SpnTransaction* transaction in [self.fetchedResultsController fetchedObjects])
+    if (isFirstAppearance)
     {
-        NSComparisonResult dateCompareResult = [todaysDate compare:transaction.date];
-        
-        if ((dateCompareResult == NSOrderedSame) ||
-            (dateCompareResult == NSOrderedDescending))
+        // Scroll to the row nearest to the present date - assumes transactions are presorted by newest to oldest
+        NSDate* todaysDate = [NSDate date];
+        for (SpnTransaction* transaction in [self.fetchedResultsController fetchedObjects])
         {
-            [self.tableView scrollToRowAtIndexPath:[self.fetchedResultsController indexPathForObject:transaction] atScrollPosition:UITableViewScrollPositionTop animated:YES];
-            break;
+            NSComparisonResult dateCompareResult = [todaysDate compare:transaction.date];
+            
+            if ((dateCompareResult == NSOrderedSame) ||
+                (dateCompareResult == NSOrderedDescending))
+            {
+                [self.tableView scrollToRowAtIndexPath:[self.fetchedResultsController indexPathForObject:transaction] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+                break;
+            }
         }
+        
+        isFirstAppearance = NO;
     }
 }
 

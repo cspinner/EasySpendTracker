@@ -167,6 +167,28 @@ enum
     return count;
 }
 
+- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    switch (indexPath.section)
+    {
+        case EXISTING_SECTION_IDX:
+        {
+            [cell.textLabel setText:[[self.categoryTitleDictionaryArray objectAtIndex:indexPath.row] objectForKey:@"title"]];
+        }
+            break;
+            
+        case CREATE_SECTION_IDX:
+        {
+            UITextField* textField = (UITextField*)[cell viewWithTag:MANUAL_INPUT_VIEW_TAG];
+            [textField setText:self.categoryTitleManualInput];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.tableView == tableView)
@@ -182,8 +204,6 @@ enum
                 {
                     // Create cell if reuse cell doesn't exist.
                     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:[self.cellReuseIdentifier valueForKey:[NSString stringWithFormat:@"%ld", indexPath.section]]];
-                    
-                    [cell.textLabel setText:[[self.categoryTitleDictionaryArray objectAtIndex:indexPath.row] objectForKey:@"title"]];
                 }
                     break;
                     
@@ -200,8 +220,7 @@ enum
                     [textField setInputView:UIKeyboardTypeDefault];
                     [textField setReturnKeyType:UIReturnKeyDone];
                     [textField setDelegate:self];
-                    [textField setText:self.categoryTitleManualInput];
-                    
+
                     [cell addSubview:textField];
                 }
                     break;
@@ -210,6 +229,8 @@ enum
                     break;
             }
         }
+        
+        [self configureCell:cell atIndexPath:indexPath];
         
         return cell;
     }

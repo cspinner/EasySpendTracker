@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3B0C678419A7B8E300D358E0 /* spnTableViewController_Summary.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */; };
 		3B0C679319B10CC300D358E0 /* AutoFillTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B0C679219B10CC300D358E0 /* AutoFillTableViewController.m */; };
+		3B19C2BF19BD303100B3B317 /* spnLinePlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B19C2BE19BD303100B3B317 /* spnLinePlot.m */; };
+		3B19C2C219BD3B5E00B3B317 /* spnTableViewController_LinePlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B19C2C119BD3B5E00B3B317 /* spnTableViewController_LinePlot.m */; };
 		3B1D7BD51991C68E00A8B533 /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B1D7BD41991C68E00A8B533 /* libCorePlot-CocoaTouch.a */; };
 		3B1D7BD71991C7B300A8B533 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B1D7BD61991C7B300A8B533 /* QuartzCore.framework */; };
 		3B2C9BA91984067000384B00 /* SpnCategoryMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B2C9BA81984067000384B00 /* SpnCategoryMO.m */; };
@@ -71,6 +73,10 @@
 		3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_Summary.m; sourceTree = "<group>"; };
 		3B0C679119B10CC300D358E0 /* AutoFillTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoFillTableViewController.h; sourceTree = "<group>"; };
 		3B0C679219B10CC300D358E0 /* AutoFillTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoFillTableViewController.m; sourceTree = "<group>"; };
+		3B19C2BD19BD303100B3B317 /* spnLinePlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnLinePlot.h; sourceTree = "<group>"; };
+		3B19C2BE19BD303100B3B317 /* spnLinePlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnLinePlot.m; sourceTree = "<group>"; };
+		3B19C2C019BD3B5E00B3B317 /* spnTableViewController_LinePlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_LinePlot.h; sourceTree = "<group>"; };
+		3B19C2C119BD3B5E00B3B317 /* spnTableViewController_LinePlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_LinePlot.m; sourceTree = "<group>"; };
 		3B1D7B861991C68E00A8B533 /* CorePlot-CocoaTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CorePlot-CocoaTouch.h"; sourceTree = "<group>"; };
 		3B1D7B871991C68E00A8B533 /* CPTAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPTAnimation.h; sourceTree = "<group>"; };
 		3B1D7B881991C68E00A8B533 /* CPTAnimationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPTAnimationOperation.h; sourceTree = "<group>"; };
@@ -482,6 +488,8 @@
 				3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */,
 				3B93B19F19A13E5F00A16006 /* spnTableViewController_PieChart.h */,
 				3B93B1A019A13E5F00A16006 /* spnTableViewController_PieChart.m */,
+				3B19C2C019BD3B5E00B3B317 /* spnTableViewController_LinePlot.h */,
+				3B19C2C119BD3B5E00B3B317 /* spnTableViewController_LinePlot.m */,
 			);
 			name = ViewContollers;
 			sourceTree = "<group>";
@@ -528,8 +536,10 @@
 		3B722F581999A94B0056959F /* Graphing */ = {
 			isa = PBXGroup;
 			children = (
-				3B722F5B1999ABE70056959F /* spnPieChart.m */,
+				3B19C2BD19BD303100B3B317 /* spnLinePlot.h */,
+				3B19C2BE19BD303100B3B317 /* spnLinePlot.m */,
 				3B722F5D1999ABE70056959F /* spnPieChart.h */,
+				3B722F5B1999ABE70056959F /* spnPieChart.m */,
 				3B722F591999A9960056959F /* Shared */,
 			);
 			name = Graphing;
@@ -687,12 +697,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3B0C678419A7B8E300D358E0 /* spnTableViewController_Summary.m in Sources */,
+				3B19C2BF19BD303100B3B317 /* spnLinePlot.m in Sources */,
 				3B2C9BAF1984067000384B00 /* SpnTransactionMO.m in Sources */,
 				3B2C9BB91984834000384B00 /* spnTableViewController_SubCategorySelect.m in Sources */,
 				3BDB000B1819D70100876590 /* SpnCategory.m in Sources */,
 				3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */,
 				3B2C9BAC1984067000384B00 /* SpnSubCategoryMO.m in Sources */,
 				3B2C9BB5198482E500384B00 /* spnTableViewController_MainCategorySelect.m in Sources */,
+				3B19C2C219BD3B5E00B3B317 /* spnTableViewController_LinePlot.m in Sources */,
 				3B61712517EDED6800FBF39F /* spnAppDelegate.m in Sources */,
 				3B771A18197AD7C600CF556F /* spnTableViewController_CategorySelect.m in Sources */,
 				3B61716E17F761D600FBF39F /* UIView+spnViewCtgy.m in Sources */,

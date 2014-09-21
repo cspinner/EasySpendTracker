@@ -12,7 +12,6 @@
 
 @synthesize defaultLayerHostingView;
 @synthesize graphs;
-@synthesize section;
 @synthesize title;
 
 -(id)init
@@ -21,7 +20,6 @@
     {
         defaultLayerHostingView = nil;
         graphs                  = [[NSMutableArray alloc] init];
-        section                 = nil;
         title                   = nil;
     }
 
