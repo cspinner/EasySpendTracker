@@ -15,8 +15,6 @@
 
 @end
 
-BOOL isPreview;
-
 @implementation spnLinePlot
 
 // call me
@@ -24,8 +22,7 @@ BOOL isPreview;
 {
     if ( (self = [super init]) )
     {
-        isPreview = false;
-        
+  
     }
     
     return self;
@@ -49,8 +46,6 @@ BOOL isPreview;
 // called by super
 -(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated
 {
-    isPreview = forPreview;
-    
     CGRect bounds = layerHostingView.bounds;
     
     CPTGraph *graph = [[CPTXYGraph alloc] initWithFrame:bounds];
@@ -73,8 +68,8 @@ BOOL isPreview;
     }
     
     // Determine the maximum Y value for the plot
-    Float32 f32MaxY = [[YPoints valueForKeyPath:@"@max.self"] floatValue];
-    Float32 yMax = 100.0;
+    CGFloat f32MaxY = [[YPoints valueForKeyPath:@"@max.self"] floatValue];
+    CGFloat yMax = 100.0;
     BOOL maxFound = NO;
     while (!maxFound)
     {

@@ -16,10 +16,6 @@
 -(NSArray*)dataArrayForLinePlot:(spnLinePlot*)linePlot; // Array of {CPTScatterPlotFieldX, CPTScatterPlotFieldY}
 -(NSArray*)xLabelArrayForLinePlot:(spnLinePlot*)linePlot; // Array of NSStrings
 
-//@optional
-//-(void)pieChart:(spnPieChart*)pieChart entryWasSelectedAtIndex:(NSUInteger)idx;
-//-(void)pieChart:(spnPieChart*)pieChart reloadedPlot:(CPTPieChart *)plot;
-
 @end
 
 @interface spnLinePlot : PlotItem <CPTPlotSpaceDelegate, CPTScatterPlotDelegate, CPTPlotDataSource>
@@ -28,6 +24,5 @@
 
 @property id<spnLinePlotDelegate> delegate;
 @property void * context;
-@property CPTScatterPlot* linePlot;
 
 @end
