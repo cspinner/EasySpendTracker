@@ -117,11 +117,6 @@ NSArray* strFreqArray;
         self.basis = [NSNumber numberWithInteger:self.frequency.day];
         self.strFrequency = strFreqArray[DAYS_PICKER_ROW];
     }
-    else if (self.frequency.week > 0)
-    {
-        self.basis = [NSNumber numberWithInteger:self.frequency.week];
-        self.strFrequency = strFreqArray[WEEKS_PICKER_ROW];
-    }
     else if (self.frequency.month > 0)
     {
         self.basis = [NSNumber numberWithInteger:self.frequency.month];
@@ -131,6 +126,11 @@ NSArray* strFreqArray;
     {
         self.basis = [NSNumber numberWithInteger:self.frequency.year];
         self.strFrequency = strFreqArray[YEARS_PICKER_ROW];
+    }
+    else if (self.frequency.weekOfYear > 0)
+    {
+        self.basis = [NSNumber numberWithInteger:self.frequency.weekOfYear];
+        self.strFrequency = strFreqArray[WEEKS_PICKER_ROW];
     }
     else
     {
@@ -143,23 +143,21 @@ NSArray* strFreqArray;
 - (void)updateFrequency
 {
     // First reinitialize the frequence structure
-    //[self.frequency setEra:0];
+    [self.frequency setEra:0];
     [self.frequency setYear:0];
     [self.frequency setMonth:0];
     [self.frequency setDay:0];
     [self.frequency setHour:0];
     [self.frequency setMinute:0];
     [self.frequency setSecond:0];
-    [self.frequency setWeek:0];
-    //[self.frequency setWeekday:0];
-    //[self.frequency setWeekdayOrdinal:0];
-    //[self.frequency setQuarter:0];
-    //[self.frequency setCalendar:0];
-    //[self.frequency setTimeZone:0];
-    //[self.frequency setWeekOfMonth:0];
-    //[self.frequency setWeekOfYear:0];
-    //[self.frequency setYearForWeekOfYear:0];
-    //[self.frequency setLeapMonth:0];
+    [self.frequency setNanosecond:0];
+    [self.frequency setWeekday:0];
+    [self.frequency setWeekdayOrdinal:0];
+    [self.frequency setQuarter:0];
+    [self.frequency setWeekOfMonth:0];
+    [self.frequency setWeekOfYear:0];
+    [self.frequency setYearForWeekOfYear:0];
+    [self.frequency setLeapMonth:NO];
 
     if ([self.strFrequency isEqualToString:strFreqArray[DAYS_PICKER_ROW]])
     {
@@ -167,7 +165,7 @@ NSArray* strFreqArray;
     }
     else if ([self.strFrequency isEqualToString:strFreqArray[WEEKS_PICKER_ROW]])
     {
-        [self.frequency setWeek:self.basis.integerValue];
+        [self.frequency setWeekOfYear:self.basis.integerValue];
     }
     else if ([self.strFrequency isEqualToString:strFreqArray[MONTHS_PICKER_ROW]])
     {

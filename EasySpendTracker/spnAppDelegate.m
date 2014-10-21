@@ -34,6 +34,7 @@
     // main data object (singleton)
     spnSpendTracker* spendTracker = [spnSpendTracker sharedManager];
     spendTracker.managedObjectContext = context;
+    [spendTracker updateAllRecurrences];
     [spendTracker initViews];
     
     self.window.rootViewController = spendTracker.rootViewController;
@@ -62,7 +63,6 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    [[spnSpendTracker sharedManager] updateAllRecurrences];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -169,6 +169,7 @@
 // Returns the URL to the application's Documents directory.
 - (NSURL *)applicationDocumentsDirectory
 {
+    NSLog(@"%@",[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory  inDomains:NSUserDomainMask] lastObject]);
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 

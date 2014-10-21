@@ -25,6 +25,7 @@
 @end
 
 #define CELL_HEIGHT 44.0
+#define FETCH_LIMIT 250
 
 const float epsilon = 0.000001;
 
@@ -77,7 +78,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     self.searchResults = [[NSMutableArray alloc] initWithCapacity:0];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
-    
+
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error])
     {
@@ -187,7 +188,8 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
         [fetchRequest setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:predicateArray]];
     }
 
-    [fetchRequest setFetchBatchSize:20];
+    [fetchRequest setFetchBatchSize:FETCH_LIMIT];
+    [fetchRequest setFetchLimit:FETCH_LIMIT];
     
     [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
     
@@ -195,6 +197,31 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     [_fetchedResultsController setDelegate:self];
     
     return _fetchedResultsController;
+}
+
+// this method is called to load more transactions when the user scrolls to the last row
+- (void)loadMoreTransactions
+{
+    // If we fetched exactly the number of entries as the fetch limit, there's probably more to fetch
+    if (self.fetchedResultsController.fetchRequest.fetchLimit == [[self.fetchedResultsController fetchedObjects] count])
+    {
+        // First clear the cache from the FRC
+        [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
+        
+        // Set the new fetch limit to the present limit plus another FETCH_LIMIT
+        NSUInteger newFetchLimit = self.fetchedResultsController.fetchRequest.fetchLimit + FETCH_LIMIT;
+        [self.fetchedResultsController.fetchRequest setFetchLimit:newFetchLimit];
+        
+        NSError *error;
+        if (![self.fetchedResultsController performFetch:&error])
+        {
+            // Update to handle the error appropriately.
+            NSLog(@"Transaction Fetch Error: %@, %@", error, [error userInfo]);
+            exit(-1);
+        }
+        
+        [self.tableView reloadData];
+    }
 }
 
 - (void)configureCell:(spnTransactionCellView*)cell withObject:(id)object
@@ -223,6 +250,12 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     if (self.tableView == tableView)
     {
         [self configureCell:cell withObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        
+        if ((indexPath.section == ([self numberOfSectionsInTableView:tableView] - 1)) &&
+            (indexPath.row == ([tableView numberOfRowsInSection:indexPath.section] - 1)))
+        {
+            [self loadMoreTransactions];
+        }
     }
     else // self.searchDisplayController.searchResultsTableView
     {
@@ -409,6 +442,10 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
             
         case NSFetchedResultsChangeDelete:
             [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeMove:
+        case NSFetchedResultsChangeUpdate:
             break;
     }
 }

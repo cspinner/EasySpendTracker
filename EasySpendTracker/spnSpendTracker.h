@@ -16,5 +16,6 @@
 + (spnSpendTracker*)sharedManager;
 - (void)initViews;
 - (void)updateAllRecurrences;
+- (void)saveContext:(NSManagedObjectContext*)managedObjectContext;
 
 @end

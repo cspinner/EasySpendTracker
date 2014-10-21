@@ -140,11 +140,6 @@
     }
 }
 
--(void)renderInView:(NSArray*)params
-{
-    [self renderInView:params[0] withTheme:params[1] forPreview:[params[2] boolValue] animated:[params[3] boolValue]];
-}
-
 -(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated
 {
     [self killGraph];

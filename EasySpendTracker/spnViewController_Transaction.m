@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Christopher Spinner. All rights reserved.
 //
 
+#import "spnSpendTracker.h"
 #import "spnViewController_Transaction.h"
 #import "UIView+spnViewCtgy.h"
 #import "UIViewController+addTransactionHandles.h"
@@ -168,7 +169,7 @@ static int subCategorySetContext;
             [recurrence setRecurrenceForTransaction:self.transaction withFrequency:self.frequency withAction:RECUR_ACTION_CREATE];
             
             // Save and dismiss/pop
-            [self saveContext:self.managedObjectContext];
+            [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
             
             [self dismissViewControllerAnimated:YES completion:nil];
             [self.navigationController popViewControllerAnimated:YES];
@@ -206,7 +207,7 @@ static int subCategorySetContext;
         else
         {
             // Save and dismiss/pop
-            [self saveContext:self.managedObjectContext];
+            [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
             
             [self dismissViewControllerAnimated:YES completion:nil];
             [self.navigationController popViewControllerAnimated:YES];
@@ -749,10 +750,6 @@ static int subCategorySetContext;
     {
         strFrequency = @"Day";
     }
-    else if (frequency.week > 0)
-    {
-        strFrequency = @"Week";
-    }
     else if (frequency.month > 0)
     {
         strFrequency = @"Month";
@@ -760,6 +757,10 @@ static int subCategorySetContext;
     else if (frequency.year > 0)
     {
         strFrequency = @"Year";
+    }
+    else if (frequency.weekOfYear > 0)
+    {
+        strFrequency = @"Week";
     }
     else
     {
@@ -781,10 +782,6 @@ static int subCategorySetContext;
     {
         basis = [NSNumber numberWithInteger:frequency.day];
     }
-    else if (frequency.week > 0)
-    {
-        basis = [NSNumber numberWithInteger:frequency.week];
-    }
     else if (frequency.month > 0)
     {
         basis = [NSNumber numberWithInteger:frequency.month];
@@ -792,6 +789,10 @@ static int subCategorySetContext;
     else if (frequency.year > 0)
     {
         basis = [NSNumber numberWithInteger:frequency.year];
+    }
+    else if (frequency.weekOfYear > 0)
+    {
+        basis = [NSNumber numberWithInteger:frequency.weekOfYear];
     }
     else
     {
@@ -845,7 +846,7 @@ static int subCategorySetContext;
             [self.transaction.recurrence setRecurrenceForTransaction:self.transaction withFrequency:self.transaction.recurrence.frequency withAction:action];
             
             // Save and pop
-            [self saveContext:self.managedObjectContext];
+            [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
             [self.navigationController popViewControllerAnimated:YES];
         }
             break;
@@ -869,7 +870,7 @@ static int subCategorySetContext;
                     [recurrence setRecurrenceForTransaction:copiedTransaction withFrequency:self.frequency withAction:RECUR_ACTION_CREATE];
                     
                     // Save and pop
-                    [self saveContext:self.managedObjectContext];
+                    [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
                     [self.navigationController popViewControllerAnimated:YES];
                 }
                     break;
@@ -920,7 +921,7 @@ static int subCategorySetContext;
             [self.transaction.recurrence setRecurrenceForTransaction:self.transaction withFrequency:self.transaction.recurrence.frequency withAction:action];
             
             // Save and pop
-            [self saveContext:self.managedObjectContext];
+            [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
             [self.navigationController popViewControllerAnimated:YES];
         }
             break;
@@ -936,7 +937,7 @@ static int subCategorySetContext;
                     [self.managedObjectContext deleteObject:self.transaction];
                     
                     // Save and dismiss/pop
-                    [self saveContext:self.managedObjectContext];
+                    [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
                     [self.navigationController popViewControllerAnimated:YES];
                 }
                     break;

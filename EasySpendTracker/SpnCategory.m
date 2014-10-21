@@ -23,7 +23,7 @@ static int subCategoriesObservanceContext;
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(title MATCHES[cd] %@)", categoryName];
     [fetchRequest setPredicate:predicate];
     
-    NSMutableArray *mutableFetchResults = [[managedObjectContext                                                executeFetchRequest:fetchRequest error:&error] mutableCopy];
+    NSMutableArray *mutableFetchResults = [[managedObjectContext executeFetchRequest:fetchRequest error:&error] mutableCopy];
     
     if (mutableFetchResults == nil)
     {

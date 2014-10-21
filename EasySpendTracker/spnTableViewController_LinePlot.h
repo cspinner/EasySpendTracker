@@ -9,16 +9,31 @@
 #import <UIKit/UIKit.h>
 #import "spnLinePlot.h"
 
-@interface spnTableViewController_LinePlot : UITableViewController <spnLinePlotDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface spnTableViewController_LinePlot : UITableViewController <spnLinePlotDelegate, UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate>
 
-@property spnLinePlot* linePlotCntrl;
+typedef NS_ENUM(NSInteger, LinePlotTableType)
+{
+    LINE_PLOT_TABLE_TYPE_CAT,
+    LINE_PLOT_TABLE_TYPE_SUBCAT
+};
+
+@property LinePlotTableType linePlotTableType;
+
+@property spnLinePlot* allCategoriesPlotLinePlotCntrl;
 @property NSDate* startDate;
 @property NSDate* endDate;
 @property NSArray* excludeCategories;
+@property NSArray* includeCategories;
+@property NSArray* includeSubCategories;
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
+@property NSString* entityName; // Must be "SpnCategoryMO" or "SpnSubCategoryMO"
+@property NSMutableArray* frcPredicateArray; // Predicates for the table view's fetched results controller
 
--(void)reloadData;
--(UIImage*)linePlotImageWithFrame:(CGRect)frame;
+@property CGRect imageFrame;
+@property UIImage* linePlotImage;
+
+-(NSFetchedResultsController*)fetchedResultsController;
+-(void)reloadAllCategoriesPlotData;
 
 @end

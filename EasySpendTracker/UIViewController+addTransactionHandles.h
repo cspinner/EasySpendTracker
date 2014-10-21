@@ -18,6 +18,5 @@ enum
 };
 
 - (void)spnAddButtonClicked: (id)sender;
-- (void)saveContext:(NSManagedObjectContext*)managedObjectContext;
 
 @end

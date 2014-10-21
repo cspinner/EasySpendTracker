@@ -8,19 +8,35 @@
 
 #import "spnTableViewController_LinePlot.h"
 #import "UIViewController+addTransactionHandles.h"
-#import "spnLinePlot.h"
-//#import "spnTableViewController_SubCategories.h"
-//#import "spnTableViewController_Transactions.h"
-//#import "SpnCategory.h"
-//#import "SpnSubCategory.h"
+#import "spnTransactionFetchOp.h"
+#import "spnLineChartProcessDataOp.h"
 
 @interface spnTableViewController_LinePlot ()
 
+@property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
+
+// the queue to run operations
+@property (nonatomic, strong) NSOperationQueue* queue;
+
 // These two are sorted together
-@property NSArray* linePlotXYValues;
-@property NSArray* linePlotXLabels;
+@property NSMutableArray* allCategoriesPlotXYValues;
+@property NSMutableArray* allCategoriesPlotXLabels;
+
+// Local Line Plots and data
+@property NSMutableArray* categoryLinePlots;
+@property NSMutableArray* categoriesPlotXYValues; // array of arrays
+@property NSMutableArray* categoriesPlotXLabels; // array of arrays
 
 @end
+
+#define LINE_PLOT_HEIGHT 200.0
+
+enum
+{
+    CELL_CHART_TAG_LABEL = 1,
+    CELL_CHART_TAG_PLOT,
+    CELL_CHART_TAG_ACTIVITY
+};
 
 @implementation spnTableViewController_LinePlot
 
@@ -29,6 +45,8 @@
     self = [super initWithStyle:style];
     if (self) {
         // Custom initialization
+        // Create the operation queue that will run any operations
+        self.queue = [[NSOperationQueue alloc] init];
     }
     return self;
 }
@@ -41,370 +59,394 @@
     self.tableView.dataSource = self;
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
+    
+    NSError *error;
+    if (![self.fetchedResultsController performFetch:&error])
+    {
+        // Update to handle the error appropriately.
+        NSLog(@"Transaction Fetch Error: %@, %@", error, [error userInfo]);
+        exit(-1);
+    }
+    
+    // Init the line plot and data/label arrays
+    NSUInteger capacity = [self.fetchedResultsController fetchedObjects].count;
+    self.categoryLinePlots = [[NSMutableArray alloc] initWithCapacity:capacity];
+    self.categoriesPlotXYValues = [[NSMutableArray alloc] initWithCapacity:capacity];
+    self.categoriesPlotXLabels = [[NSMutableArray alloc] initWithCapacity:capacity];
+    
+    // Add initialized objects
+    for (NSUInteger i = 0; i < capacity; i++)
+    {
+        spnLinePlot* plot = [[spnLinePlot alloc] init];
+        plot.delegate = self;
+        
+        [self.categoryLinePlots addObject:plot];
+        [self.categoriesPlotXYValues addObject:[[NSMutableArray alloc] init]];
+        [self.categoriesPlotXLabels addObject:[[NSMutableArray alloc] init]];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
     [self.tableView reloadData];
 }
 
--(void)reloadData
+// Must be overridden by subclass
+- (NSFetchedResultsController*)fetchedResultsController
 {
-//    self.pieChartCntrl = [[spnLinePlot alloc] initWithContext:&pieChartCategoryContext];
-    self.linePlotCntrl = [[spnLinePlot alloc] initWithContext:nil];
-    self.linePlotCntrl.delegate = self;
-    
-    // retrieve list of values as the data source:
-    NSMutableArray* XYValues = [[NSMutableArray alloc] init];
-
-    // Get list of transactions for the specified date range, excluding the specified categories
-    NSMutableArray* transactions = [[self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:self.excludeCategories] mutableCopy];
-    
-    // Get array of section names for those transactions in the sorted order
-    NSMutableArray* uniqueSectionNames = [[transactions valueForKeyPath:@"@distinctUnionOfObjects.sectionName"] mutableCopy];
-
-    [uniqueSectionNames sortUsingComparator:^NSComparisonResult(id obj1, id obj2){
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setLocale:[NSLocale currentLocale]];
-        [dateFormatter setDateStyle: NSDateFormatterMediumStyle];
-        
-        NSDate* date1 = [dateFormatter dateFromString:obj1];
-        NSDate* date2 = [dateFormatter dateFromString:obj2];
-        
-        return [date1 compare:date2];
-    }];
-    
-    // Sum the transactions for each section
-    NSUInteger x = 0;
-    NSNumber* cumulativeValue = [NSNumber numberWithFloat:0.0f];
-    for (NSString* sectionName in uniqueSectionNames)
+    // Return the instance if it already exists
+    if (_fetchedResultsController != nil)
     {
-        NSPredicate* sectionPredicate = [NSPredicate predicateWithFormat:@"sectionName MATCHES[cd] %@", sectionName];
-        NSArray* transactionsInSection = [transactions filteredArrayUsingPredicate:sectionPredicate];
-        
-        NSNumber* valueOfSection = [transactionsInSection valueForKeyPath:@"@sum.value"];
-        
-        cumulativeValue = [NSNumber numberWithFloat:cumulativeValue.floatValue + valueOfSection.floatValue];
-        
-//        [XYValues addObject:@{ @(CPTScatterPlotFieldX): sectionName, @(CPTScatterPlotFieldY): valueOfSection}];
-        [XYValues addObject:@{ @(CPTScatterPlotFieldX): @(x), @(CPTScatterPlotFieldY): cumulativeValue}];
-        x++;
+        return _fetchedResultsController;
     }
     
-    self.linePlotXYValues = [NSArray arrayWithArray:XYValues];
+    // Otherwise, initialize the instance and then return it:
     
-//    [self updateSourceDataForLinePlot:self.linePlotCntrl];
+    // Create fetch request and fetch controller
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:self.entityName];
+    
+    NSSortDescriptor *sortCategoriesByDate = [[NSSortDescriptor alloc] initWithKey:@"lastModifiedDate" ascending:NO];
+    
+    // Assign the sort descriptor to the fetch request
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortCategoriesByDate, nil]];
+    
+    // Combine the predicates if any were created
+    if ((self.frcPredicateArray != nil) && (self.frcPredicateArray.count > 0))
+    {
+        [fetchRequest setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:self.frcPredicateArray]];
+    }
+    
+    NSString* cacheName = [NSString stringWithFormat:@"LinePlotCache%@", self.entityName];
+    [NSFetchedResultsController deleteCacheWithName:cacheName];
+    
+    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"title" cacheName:cacheName];
+    [_fetchedResultsController setDelegate:self];
+    
+    return _fetchedResultsController;
 }
 
--(UIImage*)linePlotImageWithFrame:(CGRect)frame
+-(void)reloadAllCategoriesPlotData
 {
-    [self reloadData];
-    return [self.linePlotCntrl imageWithFrame:frame];
+    self.allCategoriesPlotLinePlotCntrl = [[spnLinePlot alloc] init];
+    self.allCategoriesPlotLinePlotCntrl.delegate = self;
+    self.allCategoriesPlotXYValues = [[NSMutableArray alloc] init];
+    self.allCategoriesPlotXLabels = [[NSMutableArray alloc] init];
+    
+    [self updateSourceDataForLinePlot:self.allCategoriesPlotLinePlotCntrl atIndexPath:nil withValues:self.allCategoriesPlotXYValues withLabels:self.allCategoriesPlotXLabels];
+}
+
+-(void)reloadDataForPlot:(spnLinePlot*)plot atIndexPath:(NSIndexPath*)indexPath valuesToLoad:(NSMutableArray*)values labelsToLoad:(NSMutableArray*)labels
+{
+    [self updateSourceDataForLinePlot:plot atIndexPath:indexPath withValues:values withLabels:labels];
+}
+
+-(void)updateSourceDataForLinePlot:(spnLinePlot*)linePlot atIndexPath:(NSIndexPath*)indexPath withValues:(NSMutableArray*)values withLabels:(NSMutableArray*)labels
+{
+    spnTransactionFetchOp* fetchOperation;
+    spnLineChartProcessDataOp* processDataOperation;
+    
+    // Need to create a week reference of self to avoid retain loop when accessing self within the block.
+    __unsafe_unretained typeof(self) weakSelf = self;
+    processDataOperation = [[spnLineChartProcessDataOp alloc] init];
+    processDataOperation.transactionIDs = nil; // set in fetchOperation's completion block
+    processDataOperation.persistentStoreCoordinator = [self.managedObjectContext persistentStoreCoordinator];
+    processDataOperation.dataReturnBlock = ^(NSMutableArray* linePlotXYValues, NSMutableArray* linePlotXLabels) {
+        
+        [values addObjectsFromArray:[[NSMutableArray alloc] initWithArray:linePlotXYValues copyItems:YES]];
+        [labels addObjectsFromArray:[[NSMutableArray alloc] initWithArray:linePlotXLabels copyItems:YES]];
+    };
+    processDataOperation.completionBlock = ^(void) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            if (linePlot == weakSelf.allCategoriesPlotLinePlotCntrl)
+            {
+                // Retrieve pie chart image once data processing is complete
+                weakSelf.linePlotImage = [linePlot imageWithFrame:weakSelf.imageFrame];
+            }
+            else
+            {
+                // Obtain the view in which to render the plot
+                UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
+                UIView* plotContainerView = [cell viewWithTag:CELL_CHART_TAG_PLOT];
+                
+                // Render the line plot
+                UIImageView* imageView = [[UIImageView alloc] initWithImage:[linePlot imageWithFrame:plotContainerView.frame]];
+                [plotContainerView addSubview:imageView];
+                
+                // Stop/hide the activity wheel
+                UIActivityIndicatorView* activityView = (UIActivityIndicatorView*)[cell viewWithTag:CELL_CHART_TAG_ACTIVITY];
+                [activityView stopAnimating];
+            }
+        });
+    };
+    
+    fetchOperation = [[spnTransactionFetchOp alloc] init];
+    fetchOperation.startDate = self.startDate;
+    fetchOperation.endDate = self.endDate;
+    fetchOperation.persistentStoreCoordinator = [self.managedObjectContext persistentStoreCoordinator];
+    
+    if (linePlot == weakSelf.allCategoriesPlotLinePlotCntrl)
+    {
+        fetchOperation.excludeCategories = self.excludeCategories;
+        fetchOperation.includeCategories = self.includeCategories;
+        fetchOperation.includeSubCategories = self.includeSubCategories;
+    }
+    else
+    {
+        id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[indexPath.section];
+        
+        fetchOperation.excludeCategories = nil;
+        
+        // Configure filter categories based on table type
+        if (self.linePlotTableType == LINE_PLOT_TABLE_TYPE_CAT)
+        {
+            fetchOperation.includeCategories = [NSArray arrayWithObject:sectionInfo.name];
+            fetchOperation.includeSubCategories = nil;
+        }
+        else if (self.linePlotTableType == LINE_PLOT_TABLE_TYPE_SUBCAT)
+        {
+            fetchOperation.includeCategories = nil;
+            fetchOperation.includeSubCategories = [NSArray arrayWithObject:sectionInfo.name];
+        }
+        else
+        {
+            fetchOperation.includeCategories = nil;
+            fetchOperation.includeSubCategories = nil;
+        }
+    }
+    
+    fetchOperation.dataReturnBlock = ^(NSMutableArray* objectIDs, NSError* error) {
+        
+        processDataOperation.transactionIDs = objectIDs;
+    };
+    
+    // Process data operation depends on the fetch operation
+    [processDataOperation addDependency:fetchOperation];
+    
+    // start the operations
+    [self.queue addOperation:fetchOperation];
+    [self.queue addOperation:processDataOperation];
+}
+
+- (void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    // Load the specified data for the specified plot
+    [self reloadDataForPlot:self.categoryLinePlots[indexPath.section] atIndexPath:indexPath valuesToLoad:self.categoriesPlotXYValues[indexPath.section] labelsToLoad:self.categoriesPlotXLabels[indexPath.section]];
+    
+    UILabel* textLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
+    id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[indexPath.section];
+    [textLabel setText:sectionInfo.name];
+    
+    // start activity wheel
+    UIActivityIndicatorView* activityView = (UIActivityIndicatorView*)[cell viewWithTag:CELL_CHART_TAG_ACTIVITY];
+    [activityView startAnimating];
 }
 
 // <UITableViewDataSource> methods
-//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    switch (indexPath.row)
-//    {
-//        case PIECHART_TABLE_TEXT_ROW:
-//        {
-//            UITableViewCell* cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
-//            
-//            if (self.focusCategory == nil)
-//            {
-//                // Set category count
-//                [cell.textLabel setText:[NSString stringWithFormat:@"%ld Categories", self.pieChartValues.count]];
-//            }
-//            else
-//            {
-//                // Set focus category name
-//                [cell.textLabel setText:self.focusCategory];
-//                
-//                // Add chevron button
-//                [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-//            }
-//            
-//            [cell.detailTextLabel setText:[NSString stringWithFormat:@"$%.2f", [[self.pieChartValues valueForKeyPath:@"@sum.self"] floatValue]]];
-//            
-//            return cell;
-//        }
-//            break;
-//            
-//        case PIECHART_TABLE_PLOT_ROW:
-//        {
-//            UITableViewCell* cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-//            
-//            CGRect bounds = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width);
-//            
-//            UIView* pieChartView = [[UIView alloc] initWithFrame:bounds];
-//            
-//            [self.linePlotCntrl renderInView:pieChartView withTheme:[CPTTheme themeNamed:kCPTPlainWhiteTheme] forPreview:NO animated:YES];
-//            
-//            // Create new height that accounts for the legend view - assume two columns and 24 pix per entry
-//            CGFloat newHeight = pieChartView.bounds.size.height + LEGEND_AREA_HEIGHT(self.pieChartNames.count);
-//            [pieChartView setFrame:CGRectMake(0, 0, self.view.bounds.size.width, newHeight)];
-//            self.pieChartCntrl.pieChart.centerAnchor = CGPointMake(0.5, (newHeight - (self.pieChartCntrl.pieChart.pieRadius+10.0))/newHeight);
-//            
-//            [cell addSubview:pieChartView];
-//            
-//            return cell;
-//        }
-//            break;
-//            
-//        default:
-//            return nil;
-//            break;
-//    }
-//}
-//
-//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-//{
-//    return PIECHART_TABLE_ROW_COUNT;
-//}
-//
-//- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    // The table view should not be re-orderable.
-//    return NO;
-//}
-//
-//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-//{
-//    return 1;
-//}
-
-// <UITableViewDelegate> methods
-//- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    return UITableViewCellEditingStyleNone;
-//}
-//
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    switch (indexPath.row)
-//    {
-//        case PIECHART_TABLE_TEXT_ROW:
-//        {
-//            if (self.focusCategory != nil)
-//            {
-//                // Get reference to selected item
-//                SpnCategory* category = [SpnCategory fetchCategoryWithName:self.focusCategory inManagedObjectContext:self.managedObjectContext];
-//                
-//                // Create and Push transaction detail view controller
-//                spnTableViewController_SubCategories* subCategoryTableViewController = [[spnTableViewController_SubCategories alloc] initWithStyle:UITableViewStyleGrouped];
-//                [subCategoryTableViewController setTitle:[category title]];
-//                [subCategoryTableViewController setCategoryTitle:[category title]];
-//                [subCategoryTableViewController setStartDate:self.startDate];
-//                [subCategoryTableViewController setEndDate:self.endDate];
-//                [subCategoryTableViewController setManagedObjectContext:self.managedObjectContext];
-//                
-//                [[self navigationController] pushViewController:subCategoryTableViewController animated:YES];
-//            }
-//        }
-//            break;
-//            
-//        default:
-//            break;
-//    }
-//}
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-//{
-//    return 0.001;
-//}
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    switch (indexPath.row)
-//    {
-//        case PIECHART_TABLE_PLOT_ROW:
-//            return self.view.bounds.size.width+LEGEND_AREA_HEIGHT(self.pieChartNames.count);
-//            break;
-//            
-//        case PIECHART_TABLE_TEXT_ROW:
-//        default:
-//            return 44.0;
-//            break;
-//    }
-//}
-//
--(NSArray*)getTransactionsFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate excludingCategories:(NSArray*)exclusionCategories
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSError* error;
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnTransactionMO"];
+    static NSString* reuseIdentifier = @"LinePlotCell";
     
-    NSMutableArray* predicateArray = [[NSMutableArray alloc] init];
+    UITableViewCell* cell = [self.tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
     
-    // Create a predicate that excludes transactions from the specified categories
-    if ((exclusionCategories != nil) && (exclusionCategories.count > 0))
+    if (cell == nil)
     {
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title IN %@)", exclusionCategories];
-        
-        [predicateArray addObject:predicate];
-    }
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
 
-    // Create a predicate that accepts transactions from a specified start date
-    if (startDate != nil)
-    {
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date >= %@)", startDate];
+        // Create text label
+        UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
+        textLabel.tag = CELL_CHART_TAG_LABEL;
         
-        [predicateArray addObject:predicate];
+        // Plot view
+        UIView* linePlotView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT)];
+        linePlotView.tag = CELL_CHART_TAG_PLOT;
+        
+        UIActivityIndicatorView* activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        [activityView setFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, [self tableView:self.tableView heightForRowAtIndexPath:indexPath])];
+        [activityView setHidesWhenStopped:YES];
+        activityView.tag = CELL_CHART_TAG_ACTIVITY;
+        
+        [cell addSubview:textLabel];
+        [cell addSubview:linePlotView];
+        [cell addSubview:activityView];
+        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     }
     
-    // Create a predicate that accepts transactions that come before a specified end date
-    if (endDate != nil)
-    {
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(date < %@)", endDate];
-        
-        [predicateArray addObject:predicate];
-    }
+    // Configure cell contents
+    [self configureCell:cell atIndexPath:indexPath];
     
-    // Combine the predicates if any were created
-    if (predicateArray.count > 0)
-    {
-        [fetchRequest setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:predicateArray]];
-    }
+    return cell;
+}
 
-    return [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
+    
+    return [sectionInfo numberOfObjects];
 }
 //
-//-(void)sortArraysTogetherBasedOnArray:(NSMutableArray**)numberArray secondArray:(NSMutableArray**)secondArray
+//- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 //{
-//    // Create permutation array
-//    NSMutableArray *p = [NSMutableArray arrayWithCapacity:(*numberArray).count];
-//    
-//    // Create array of numbers 0 - n
-//    for (NSUInteger i = 0 ; i < (*numberArray).count; i++)
-//    {
-//        [p addObject:[NSNumber numberWithInteger:i]];
-//    }
-//    
-//    // Rearrange the 0 - n array based on the desired order of numberArray
-//    [p sortUsingComparator:^NSComparisonResult(id obj1, id obj2)
-//     {
-//         // Sort routine wants to sort objects in ascending order, so our comparator needs to return the opposite to force it to sort in descending order.
-//         if (NSOrderedAscending == [[(*numberArray) objectAtIndex:[obj1 integerValue]] compare:[(*numberArray) objectAtIndex:[obj2 integerValue]]])
-//         {
-//             return NSOrderedDescending;
-//         }
-//         
-//         if (NSOrderedDescending == [[(*numberArray) objectAtIndex:[obj1 integerValue]] compare:[(*numberArray) objectAtIndex:[obj2 integerValue]]])
-//         {
-//             return NSOrderedAscending;
-//         }
-//         
-//         return NSOrderedSame;
-//     }];
-//    
-//    // Create array objects to hold the sorted arrays
-//    NSMutableArray *sortedFirst = [NSMutableArray arrayWithCapacity:(*numberArray).count];
-//    NSMutableArray *sortedSecond = [NSMutableArray arrayWithCapacity:(*numberArray).count];
-//    
-//    // Enumerate through the rearranged 0 - n array. This is the order that both arrays will need.
-//    [p enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
-//     {
-//         NSUInteger pos = [obj intValue];
-//         [sortedFirst addObject:[(*numberArray) objectAtIndex:pos]];
-//         [sortedSecond addObject:[(*secondArray) objectAtIndex:pos]];
-//     }];
-//    
-//    *numberArray = [[NSMutableArray alloc] initWithArray:sortedFirst copyItems:YES];
-//    *secondArray = [[NSMutableArray alloc] initWithArray:sortedSecond copyItems:YES];
-//}
-//
-//-(void)updateCategoryValuesAndNamesForTransactions:(NSArray*)transactions forKeyPath:(NSString*)keyPath
-//{
-//    NSMutableArray* valuesArray = [[NSMutableArray alloc] init];
-//    
-//    // Get array of unique category titles
-//    NSMutableArray* namesArray = [transactions valueForKeyPath:[NSString stringWithFormat:@"@distinctUnionOfObjects.%@", keyPath]];
-//    
-//    for(NSString* categoryTitle in namesArray)
-//    {
-//        // Get array of transactions for each category, by category title
-//        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"%K MATCHES[cd] %@", keyPath, categoryTitle];
-//        NSArray* filteredTransactions = [transactions filteredArrayUsingPredicate:predicate];
+//    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
 //        
-//        // Store the sum of values of those transactions to the array
-//        [valuesArray addObject:[filteredTransactions valueForKeyPath:@"@sum.value"]];
-//    }
-//    
-//    [self sortArraysTogetherBasedOnArray:&valuesArray secondArray:&namesArray];
-//    
-//    self.pieChartValues = [[NSMutableArray alloc] initWithArray:valuesArray copyItems:YES];
-//    self.pieChartNames = [[NSMutableArray alloc] initWithArray:namesArray copyItems:YES];
+//    return [sectionInfo name];
 //}
 
--(void)updateSourceDataForLinePlot:(spnLinePlot*)linePlot
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (linePlot.context == nil)
-    {
-//        NSArray* transactions = [self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:self.excludeCategories];
-//        [self updateCategoryValuesAndNamesForTransactions:transactions forKeyPath:[NSString stringWithFormat:@"subCategory.category.title"]];
-    }
-//    else if (pieChart.context == &pieChartSubCategoryContext)
-//    {
-//        NSArray* transactions = [self getTransactionsFromStartDate:self.startDate toEndDate:self.endDate excludingCategories:nil];
-//        
-//        // Narrow transactions by focus category
-//        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title MATCHES[cd] %@", self.focusCategory];
-//        NSArray* filteredTransactions = [transactions filteredArrayUsingPredicate:predicate];
-//        
-//        [self updateCategoryValuesAndNamesForTransactions:filteredTransactions forKeyPath:[NSString stringWithFormat:@"subCategory.title"]];
-//    }
+    // The table view should not be re-orderable.
+    return NO;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    return [[self.fetchedResultsController sections] count];
+}
+
+//<UITableViewDelegate> methods
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleNone;
+}
+
+//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+//{
+//    UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, [self tableView:tableView heightForHeaderInSection:section])];
+//    UILabel* headerLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, headerView.frame.size.width, headerView.frame.size.height)];
+//    
+//    // Set text based on section index
+//    [headerLabel setText:[NSString stringWithFormat:@"%@:", [self tableView:self.tableView titleForHeaderInSection:section]]];
+//    [headerLabel setFont:[UIFont systemFontOfSize:12]];
+//    [headerLabel setTextColor:[UIColor grayColor]];
+//    
+//    [headerView addSubview:headerLabel];
+//    
+//    return headerView;
+//}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+//    return 25;
+    return 0.001;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 0.001;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return (LINE_PLOT_HEIGHT+44);
+}
+
+// <NSFetchedResultsControllerDelegate> methods
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
+{
+    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
+    [self.tableView beginUpdates];
+}
+
+- (void)controller:(NSFetchedResultsController*)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath*)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
+{
+    UITableView *tableView = self.tableView;
     
+    switch(type)
+    {
+        case NSFetchedResultsChangeInsert:
+            [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeUpdate:
+            [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:newIndexPath];
+            break;
+            
+        case NSFetchedResultsChangeMove:
+            [tableView deleteRowsAtIndexPaths:[NSArray
+                                               arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tableView insertRowsAtIndexPaths:[NSArray
+                                               arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+    }
+}
+
+- (void)controller:(NSFetchedResultsController*)controller didChangeSection:(id)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
+{
+    switch(type)
+    {
+        case NSFetchedResultsChangeInsert:
+            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeMove:
+        case NSFetchedResultsChangeUpdate:
+            break;
+    }
+}
+
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
+    // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
+    [self.tableView endUpdates];
 }
 
 //<spnLinePlotDelegate> methods>
 -(NSArray*)dataArrayForLinePlot:(spnLinePlot *)linePlot
 {
-    return self.linePlotXYValues;
+    if (linePlot == self.allCategoriesPlotLinePlotCntrl)
+    {
+        return self.allCategoriesPlotXYValues;
+    }
+    else
+    {
+        NSInteger i = 0;
+        for (spnLinePlot* plot in self.categoryLinePlots)
+        {
+            if (linePlot == plot)
+            {
+                return self.categoriesPlotXYValues[i];
+            }
+            i++;
+        }
+    }
+    
+    return nil; // shouldn't get here
 }
 
 -(NSArray*)xLabelArrayForLinePlot:(spnLinePlot *)linePlot
 {
-    return self.linePlotXLabels;
+    if (linePlot == self.allCategoriesPlotLinePlotCntrl)
+    {
+        return self.allCategoriesPlotXLabels;
+    }
+    else
+    {
+        NSInteger i = 0;
+        for (spnLinePlot* plot in self.categoryLinePlots)
+        {
+            if (linePlot == plot)
+            {
+                return self.categoriesPlotXLabels[i];
+            }
+            i++;
+        }
+    }
+    
+    return nil; // shouldn't get here
 }
 
-//-(void)pieChart:(spnLinePlot*)pieChart entryWasSelectedAtIndex:(NSUInteger)idx
-//{
-//    if (pieChart.context == &pieChartCategoryContext)
-//    {
-//        // Assert focus category for sub-category view
-//        self.focusCategory = [self.pieChartNames objectAtIndex:idx];
-//        
-//        // change context to sub-category
-//        pieChart.context = &pieChartSubCategoryContext;
-//        
-//        [self updateSourceDataForPieChart:pieChart];
-//    }
-//    else if (pieChart.context == &pieChartSubCategoryContext)
-//    {
-//        // Get reference to selected item
-//        SpnCategory* category = [SpnCategory fetchCategoryWithName:self.focusCategory inManagedObjectContext:self.managedObjectContext];
-//        SpnSubCategory* subCategory = [category fetchSubCategoryWithName:[self.pieChartNames objectAtIndex:idx] inManagedObjectContext:self.managedObjectContext];
-//        
-//        // Create and Push transaction detail view controller
-//        spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
-//        [transactionsTableViewController setTitle:[subCategory title]];
-//        [transactionsTableViewController setCategoryTitle:[category title]];
-//        [transactionsTableViewController setSubCategoryTitle:[subCategory title]];
-//        [transactionsTableViewController setStartDate:self.startDate];
-//        [transactionsTableViewController setEndDate:self.endDate];
-//        [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-//        
-//        [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
-//    }
-//}
 
-//-(void)linePlot:(spnLinePlot*)linePlot reloadedPlot:(CPTPieChart *)plot
-//{
-//    // Plot data was reloaded - so refresh table
-//    [self.tableView reloadData];
-//}
 
 
 @end
