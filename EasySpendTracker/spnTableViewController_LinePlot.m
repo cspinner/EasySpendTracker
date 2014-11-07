@@ -161,8 +161,17 @@ enum
             
             if (linePlot == weakSelf.allCategoriesPlotLinePlotCntrl)
             {
-                // Retrieve pie chart image once data processing is complete
-                weakSelf.linePlotImage = [linePlot imageWithFrame:weakSelf.imageFrame];
+                if (labels.count > 0)
+                {
+                    // Retrieve pie chart image once data processing is complete
+                    weakSelf.linePlotImage = [linePlot imageWithFrame:weakSelf.imageFrame];
+                }
+                else
+                {
+                    // Nothing to show
+                    weakSelf.linePlotImage = nil;
+                }
+                
             }
             else
             {

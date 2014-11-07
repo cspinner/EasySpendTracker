@@ -52,6 +52,8 @@
 		3B61721217FCD3BD00FBF39F /* spnViewController_Expense.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */; };
 		3B722F5E1999ABE70056959F /* PlotItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B722F5A1999ABE70056959F /* PlotItem.m */; };
 		3B722F5F1999ABE70056959F /* spnPieChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B722F5B1999ABE70056959F /* spnPieChart.m */; };
+		3B72B70219F706F500E6F88F /* spnTableViewController_BarPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B72B70119F706F500E6F88F /* spnTableViewController_BarPlot.m */; };
+		3B72B71219FD55E700E6F88F /* spnBarPlotProcessDataOp.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B72B71119FD55E700E6F88F /* spnBarPlotProcessDataOp.m */; };
 		3B771A0F197170B200CF556F /* SpnRecurrence.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A0E197170B200CF556F /* SpnRecurrence.m */; };
 		3B771A121975DF4900CF556F /* spnViewController_Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A111975DF4900CF556F /* spnViewController_Transaction.m */; };
 		3B771A151979CC4600CF556F /* SpnRecurrenceMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */; };
@@ -232,6 +234,10 @@
 		3B722F5B1999ABE70056959F /* spnPieChart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnPieChart.m; sourceTree = "<group>"; };
 		3B722F5C1999ABE70056959F /* PlotItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlotItem.h; sourceTree = "<group>"; };
 		3B722F5D1999ABE70056959F /* spnPieChart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnPieChart.h; sourceTree = "<group>"; };
+		3B72B70019F706F500E6F88F /* spnTableViewController_BarPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_BarPlot.h; sourceTree = "<group>"; };
+		3B72B70119F706F500E6F88F /* spnTableViewController_BarPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_BarPlot.m; sourceTree = "<group>"; };
+		3B72B71019FD55E700E6F88F /* spnBarPlotProcessDataOp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnBarPlotProcessDataOp.h; sourceTree = "<group>"; };
+		3B72B71119FD55E700E6F88F /* spnBarPlotProcessDataOp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnBarPlotProcessDataOp.m; sourceTree = "<group>"; };
 		3B771A0D197170B200CF556F /* SpnRecurrence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnRecurrence.h; sourceTree = "<group>"; };
 		3B771A0E197170B200CF556F /* SpnRecurrence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpnRecurrence.m; sourceTree = "<group>"; };
 		3B771A101975DF4900CF556F /* spnViewController_Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Transaction.h; sourceTree = "<group>"; };
@@ -432,6 +438,8 @@
 				3B2E91C919D3B331006B8DBE /* spnPieChartProcessDataOp.m */,
 				3B2E91D719D8A248006B8DBE /* spnLineChartProcessDataOp.h */,
 				3B2E91D819D8A248006B8DBE /* spnLineChartProcessDataOp.m */,
+				3B72B71019FD55E700E6F88F /* spnBarPlotProcessDataOp.h */,
+				3B72B71119FD55E700E6F88F /* spnBarPlotProcessDataOp.m */,
 			);
 			name = Operations;
 			sourceTree = "<group>";
@@ -536,6 +544,8 @@
 				3B2E91DB19E69A02006B8DBE /* spnTableViewController_LinePlot_Cat.m */,
 				3B2E91DD19E69A13006B8DBE /* spnTableViewController_LinePlot_SubCat.h */,
 				3B2E91DE19E69A13006B8DBE /* spnTableViewController_LinePlot_SubCat.m */,
+				3B72B70019F706F500E6F88F /* spnTableViewController_BarPlot.h */,
+				3B72B70119F706F500E6F88F /* spnTableViewController_BarPlot.m */,
 			);
 			name = ViewContollers;
 			sourceTree = "<group>";
@@ -761,6 +771,7 @@
 				3B2E91D319D75E5E006B8DBE /* spnTableViewController_PieChart_Cat.m in Sources */,
 				3B2E91D619D75F32006B8DBE /* spnTableViewController_PieChart_SubCat.m in Sources */,
 				3B771A18197AD7C600CF556F /* spnTableViewController_CategorySelect.m in Sources */,
+				3B72B71219FD55E700E6F88F /* spnBarPlotProcessDataOp.m in Sources */,
 				3B61716E17F761D600FBF39F /* UIView+spnViewCtgy.m in Sources */,
 				3B771A0F197170B200CF556F /* SpnRecurrence.m in Sources */,
 				3B4E201819492ED300D79FFB /* spnViewController_Income.m in Sources */,
@@ -785,6 +796,7 @@
 				3B2C9BBF1985EFA800384B00 /* spnTableViewController_MainCategories.m in Sources */,
 				3B2C9BB2198406B000384B00 /* SpnSubCategory.m in Sources */,
 				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
+				3B72B70219F706F500E6F88F /* spnTableViewController_BarPlot.m in Sources */,
 				3B0C679319B10CC300D358E0 /* AutoFillTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

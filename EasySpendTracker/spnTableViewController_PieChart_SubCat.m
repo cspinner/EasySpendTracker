@@ -126,10 +126,13 @@
     self.processDataOperation.completionBlock = ^(void) {
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            // Update pie chart table cell
-            NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
-            UITableViewCell* cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
-            [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
+            if (weakSelf.pieChartNames.count > 0)
+            {
+                // Update pie chart table cell
+                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                UITableViewCell* cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
+                [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
+            }
         });
     };
     

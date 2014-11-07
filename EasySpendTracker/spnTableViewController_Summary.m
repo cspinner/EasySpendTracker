@@ -13,29 +13,34 @@
 #import "SpnSubCategory.h"
 #import "spnTableViewController_PieChart_Cat.h"
 #import "spnTableViewController_LinePlot_Cat.h"
+#import "spnTableViewController_BarPlot.h"
 
 @interface spnTableViewController_Summary ()
 
 @property NSDate* thisMonthLastYear;
+@property NSDate* firstDayOfThreeMonthsAgo;
 @property NSDate* firstDayOfThisMonth;
 @property NSDate* firstDayOfNextMonth;
 
+@property spnTableViewController_BarPlot* barPlotCashFlowByMonth;
 @property spnTableViewController_PieChart_Cat* pieChartTableThisMonthExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableThisMonthIncomeExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableAllTimeExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableAllTimeIncomeExpenses;
-@property spnTableViewController_LinePlot_Cat* categoryLinePlotTableView;
+@property spnTableViewController_LinePlot_Cat* linePlotAllExpenses;
 
+@property NSArray* chartImageDefaults;
 @property NSMutableArray* chartImageCache;
 
 @end
 
+#define BAR_PLOT_HEIGHT 200.0
 #define PIE_CHART_HEIGHT 100.0
 #define LINE_PLOT_HEIGHT 200.0
 
 enum
 {
-    ROW_SUMMARY,
+    ROW_CASH_FLOW,
     ROW_THIS_MONTH_EXPENSE,
     ROW_THIS_MONTH_INCOME_EXPENSE,
     ROW_ALL_TIME_EXPENSE,
@@ -99,11 +104,17 @@ int observeChartPreviewContext;
     // First day of the next month
     self.firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
     
+    dateComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self.firstDayOfThisMonth];
+    [tempComponents setMonth:-3];
+    [tempComponents setDay:0];
+    [tempComponents setYear:0];
+    
+    self.firstDayOfThreeMonthsAgo = [calendar dateByAddingComponents:tempComponents toDate:[calendar dateFromComponents:dateComponents] options:0];
     
     
-    self.chartImageCache = [[NSMutableArray alloc] initWithObjects:[UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Line_Plot"], nil];
+    self.chartImageDefaults = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"Empty_Bar_Plot"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Line_Plot"], nil];
+    self.chartImageCache = [[NSMutableArray alloc] initWithArray:self.chartImageDefaults copyItems:YES];
     
-//    [self updatePieCharts];
     [self initCharts];
 }
 
@@ -126,6 +137,14 @@ int observeChartPreviewContext;
 
 -(void)initCharts
 {
+    // Last 4 month's cash flow
+    self.barPlotCashFlowByMonth = [[spnTableViewController_BarPlot alloc] initWithStyle:UITableViewStyleGrouped];
+    self.barPlotCashFlowByMonth.title = @"Cash Flow";
+    self.barPlotCashFlowByMonth.startDate = self.firstDayOfThreeMonthsAgo;
+    self.barPlotCashFlowByMonth.endDate = self.firstDayOfNextMonth;
+    self.barPlotCashFlowByMonth.managedObjectContext = self.managedObjectContext;
+    [self.barPlotCashFlowByMonth addObserver:self forKeyPath:@"barPlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    
     // This Month - Expenses
     self.pieChartTableThisMonthExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
     self.pieChartTableThisMonthExpenses.title = @"This Month's Expenses";
@@ -163,15 +182,15 @@ int observeChartPreviewContext;
     [self.pieChartTableAllTimeIncomeExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
     
     // Line Plot
-    self.categoryLinePlotTableView = [[spnTableViewController_LinePlot_Cat alloc] initWithStyle:UITableViewStyleGrouped];
-    self.categoryLinePlotTableView.title = @"Spending - Last 12 Months";
-    self.categoryLinePlotTableView.startDate = self.thisMonthLastYear;
-    self.categoryLinePlotTableView.endDate = nil;
-    self.categoryLinePlotTableView.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
-    self.categoryLinePlotTableView.includeCategories = nil;
-    self.categoryLinePlotTableView.managedObjectContext = self.managedObjectContext;
-    self.categoryLinePlotTableView.entityName = @"SpnCategoryMO";
-    [self.categoryLinePlotTableView addObserver:self forKeyPath:@"linePlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    self.linePlotAllExpenses = [[spnTableViewController_LinePlot_Cat alloc] initWithStyle:UITableViewStyleGrouped];
+    self.linePlotAllExpenses.title = @"Spending - Last 12 Months";
+    self.linePlotAllExpenses.startDate = self.thisMonthLastYear;
+    self.linePlotAllExpenses.endDate = nil;
+    self.linePlotAllExpenses.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
+    self.linePlotAllExpenses.includeCategories = nil;
+    self.linePlotAllExpenses.managedObjectContext = self.managedObjectContext;
+    self.linePlotAllExpenses.entityName = @"SpnCategoryMO";
+    [self.linePlotAllExpenses addObserver:self forKeyPath:@"linePlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -182,7 +201,26 @@ int observeChartPreviewContext;
         UIImage* previewImage;
         NSInteger row = 0;
         
-        if (object == self.pieChartTableThisMonthExpenses)
+        if (object == self.barPlotCashFlowByMonth)
+        {
+            switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
+            {
+                case NSKeyValueChangeSetting:
+                {
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_CASH_FLOW inSection:0]];
+                    previewImage = self.barPlotCashFlowByMonth.barPlotImage;
+                    row = ROW_CASH_FLOW;
+                }
+                    break;
+                    
+                case NSKeyValueChangeReplacement:
+                case NSKeyValueChangeInsertion:
+                case NSKeyValueChangeRemoval:
+                default:
+                    break;
+            }
+        }
+        else if (object == self.pieChartTableThisMonthExpenses)
         {
             switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
             {
@@ -258,14 +296,14 @@ int observeChartPreviewContext;
                     break;
             }
         }
-        else if (object == self.categoryLinePlotTableView)
+        else if (object == self.linePlotAllExpenses)
         {
             switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
             {
                 case NSKeyValueChangeSetting:
                 {
                     cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_LINE inSection:0]];
-                    previewImage = self.categoryLinePlotTableView.linePlotImage;
+                    previewImage = self.linePlotAllExpenses.linePlotImage;
                     row = ROW_LINE;
                 }
                     break;
@@ -280,6 +318,18 @@ int observeChartPreviewContext;
         
         if ([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue] == NSKeyValueChangeSetting)
         {
+            // If the preview image wasn't updated
+            if (previewImage == nil)
+            {
+                // The preview image would be nil if there are no transactions to draw an image. For this case, just use the canned image.
+                previewImage = self.chartImageDefaults[row];
+                self.chartImageCache[row] = previewImage;
+            }
+            
+            // get imageContainerView => cachedImageView
+            UIImageView* cachedImageView = (UIImageView*)[cell viewWithTag:CELL_CHART_TAG_CACHED_IMG];
+            cachedImageView.alpha = 1.0;
+            
             // get imageContainerView => imageView
             UIImageView* imageView = (UIImageView*)[cell viewWithTag:CELL_CHART_TAG_IMG];
             imageView.image = previewImage;
@@ -287,8 +337,18 @@ int observeChartPreviewContext;
             
             // fancy image fade in with cached image fade out
             [UIView animateWithDuration:0.5 animations:^(void){
-                
+                // Fade in the new image
                 imageView.alpha = 1.0;
+                
+            } completion:^(BOOL finished){
+                // Next fade out the old image
+                if (finished)
+                {
+                    [UIView animateWithDuration:0.5 animations:^(void){
+                        
+                        cachedImageView.alpha = 0.0;
+                    }];
+                }
             }];
             
             // Stop spinning wheel animation now that image is loaded
@@ -305,96 +365,11 @@ int observeChartPreviewContext;
 -(void)configureCell:(UITableViewCell*)cell atIndexPath:(NSIndexPath *)indexPath
 {
     // Depending on the row, we might need to load a chart:
-    // this will dispatch a concurrent task to recompute a preview image - KVO is used to detect when this is complete
-    switch (indexPath.row)
-    {
-        case ROW_THIS_MONTH_EXPENSE:
-        {
-            self.pieChartTableThisMonthExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
-            [self.pieChartTableThisMonthExpenses reloadData];
-            
-            UILabel* textLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
-            [textLabel setText:@"This Month's Expenses:"];
-        }
-            break;
-            
-        case ROW_THIS_MONTH_INCOME_EXPENSE:
-        {
-            self.pieChartTableThisMonthIncomeExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
-            [self.pieChartTableThisMonthIncomeExpenses reloadData];
-            
-            UILabel* textLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
-            [textLabel setText:@"This Month's Income/Expenses:"];
-        }
-            break;
-            
-        case ROW_ALL_TIME_EXPENSE:
-        {
-            self.pieChartTableAllTimeExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
-            [self.pieChartTableAllTimeExpenses reloadData];
-            
-            UILabel* textLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
-            [textLabel setText:@"All Time Expenses:"];
-        }
-            break;
-            
-        case ROW_ALL_TIME_INCOME_EXPENSE:
-        {
-            self.pieChartTableAllTimeIncomeExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
-            [self.pieChartTableAllTimeIncomeExpenses reloadData];
-            
-            UILabel* textLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
-            [textLabel setText:@"All Time Income/Expenses:"];
-        }
-            break;
-            
-        case ROW_LINE:
-        {
-            self.categoryLinePlotTableView.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT);
-            [self.categoryLinePlotTableView reloadAllCategoriesPlotData];
-            
-            UILabel* textLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
-            [textLabel setText:@"Spending - Last 12 Months:"];
-        }
-            break;
-            
-        default:
-            break;
-    }
     
+    // Assign cached image first:
     switch (indexPath.row)
     {
-        case ROW_SUMMARY:
-        {
-            NSArray *expenseResultsThisMonth;
-            NSArray *incomeResultsThisMonth;
-            NSNumber* expenseTotalThisMonth;
-            NSNumber* incomeTotalThisMonth;
-            NSError* error;
-            
-            UILabel* textLabel = (UILabel*)[cell viewWithTag:1];
-            
-            NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionMO"];
-            NSPredicate* predicate;
-            
-            // Get all expense results from this month
-            predicate = [NSPredicate predicateWithFormat:@"NOT(subCategory.category.title LIKE %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfThisMonth, self.firstDayOfNextMonth];
-            fetchRequest.predicate = predicate;
-            
-            expenseResultsThisMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-            expenseTotalThisMonth = [expenseResultsThisMonth valueForKeyPath:@"@sum.value"];
-            
-            // Get all income results from this month
-            predicate = [NSPredicate predicateWithFormat:@"(subCategory.category.title LIKE %@) AND (date >= %@) AND (date < %@)", @"Income", self.firstDayOfThisMonth, self.firstDayOfNextMonth];
-            fetchRequest.predicate = predicate;
-            
-            incomeResultsThisMonth = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-            incomeTotalThisMonth = [incomeResultsThisMonth valueForKeyPath:@"@sum.value"];
-            
-            [textLabel setText:[NSString stringWithFormat:@"Income: $%.2f - Expenses: $%.2f = Balance: $%.2f", incomeTotalThisMonth.floatValue, expenseTotalThisMonth.floatValue, (incomeTotalThisMonth.floatValue - expenseTotalThisMonth.floatValue)]];
-        }
-            break;
-            
+        case ROW_CASH_FLOW:
         case ROW_THIS_MONTH_EXPENSE:
         case ROW_THIS_MONTH_INCOME_EXPENSE:
         case ROW_ALL_TIME_EXPENSE:
@@ -406,6 +381,7 @@ int observeChartPreviewContext;
             
             // assign the previously obtained chart preview to the cell
             cachedImageView.image = self.chartImageCache[indexPath.row];
+            cachedImageView.alpha = 1.0;
             
             UIActivityIndicatorView* activityView = (UIActivityIndicatorView*)[cell viewWithTag:CELL_CHART_TAG_ACTIVITY];
             [activityView startAnimating];
@@ -420,7 +396,17 @@ int observeChartPreviewContext;
 // <UITableViewDataSource> methods
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray* reuseIdentifier = [NSArray arrayWithObjects:@"summaryCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"linePlotCell", nil];
+    NSArray* reuseIdentifier = [NSArray arrayWithObjects:@"barPlotCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"linePlotCell", nil];
+    
+    // Must be in the same order as row enum
+    NSArray* headerText = [NSArray arrayWithObjects:
+                           @"CASH FLOW",
+                           @"EXPENSES - THIS MONTH",
+                           @"INCOME/EXPENSES - THIS MONTH",
+                           @"EXPENSES - ALL TIME",
+                           @"INCOME/EXPENSES - ALL TIME",
+                           @"EXPENSES - LAST 12 MONTHS",
+                           nil];
     
     UITableViewCell* cell = [self.tableView dequeueReusableCellWithIdentifier:reuseIdentifier[indexPath.row]];
     if (cell == nil)
@@ -429,14 +415,32 @@ int observeChartPreviewContext;
         
         switch (indexPath.row)
         {
-            case ROW_SUMMARY:
+            case ROW_CASH_FLOW:
             {
                 // Create text label
-                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
+                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 25.0)];
                 textLabel.tag = CELL_CHART_TAG_LABEL;
-                textLabel.adjustsFontSizeToFitWidth = YES;
-    
+                
+                // Gather chart preview container
+                UIImageView* cachedImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, BAR_PLOT_HEIGHT)];
+                cachedImageView.tag = CELL_CHART_TAG_CACHED_IMG;
+                
+                UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, BAR_PLOT_HEIGHT)];
+                imageView.tag = CELL_CHART_TAG_IMG;
+                
+                UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 25.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
+                [imageContainerView addSubview:cachedImageView];
+                [imageContainerView addSubview:imageView];
+                
+                UIActivityIndicatorView* activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+                [activityView setFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, [self tableView:self.tableView heightForRowAtIndexPath:indexPath])];
+                [activityView setHidesWhenStopped:YES];
+                activityView.tag = CELL_CHART_TAG_ACTIVITY;
+                
                 [cell addSubview:textLabel];
+                [cell addSubview:imageContainerView];
+                [cell addSubview:activityView];
+                [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
             }
                 break;
                 
@@ -446,7 +450,7 @@ int observeChartPreviewContext;
             case ROW_ALL_TIME_INCOME_EXPENSE:
             {
                 // Create text label
-                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
+                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 25.0)];
                 textLabel.tag = CELL_CHART_TAG_LABEL;
                 
                 // Gather chart preview container
@@ -456,7 +460,7 @@ int observeChartPreviewContext;
                 UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
                 imageView.tag = CELL_CHART_TAG_IMG;
                 
-                UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
+                UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 25.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
                 [imageContainerView addSubview:cachedImageView];
                 [imageContainerView addSubview:imageView];
                 
@@ -475,7 +479,7 @@ int observeChartPreviewContext;
             case ROW_LINE:
             {
                 // Create text label
-                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 44.0)];
+                UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 25.0)];
                 textLabel.tag = CELL_CHART_TAG_LABEL;
                 
                 // Gather chart preview container
@@ -485,7 +489,7 @@ int observeChartPreviewContext;
                 UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT)];
                 imageView.tag = CELL_CHART_TAG_IMG;
                 
-                UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 44.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
+                UIView* imageContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 25.0, self.tableView.bounds.size.width, imageView.frame.size.height)];
                 [imageContainerView addSubview:cachedImageView];
                 [imageContainerView addSubview:imageView];
                 
@@ -506,6 +510,13 @@ int observeChartPreviewContext;
             default:
                 break;
         }
+        
+        
+        // Set text label based on section index
+        UILabel* headerLabel = (UILabel*)[cell viewWithTag:CELL_CHART_TAG_LABEL];
+        [headerLabel setText:headerText[indexPath.row]];
+        [headerLabel setFont:[UIFont systemFontOfSize:12]];
+        [headerLabel setTextColor:[UIColor grayColor]];
     }
     
     // Configure cell contents
@@ -530,7 +541,63 @@ int observeChartPreviewContext;
     return NO;
 }
 
+
 // <UITableViewDelegate> methods
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Now's the time to command the chart view to generate the preview image.
+    // The delay is allow the cell to become visible before the the image preview observer is triggered
+    #define PERFORM_RELOAD_DELAY 0.001
+    
+    switch (indexPath.row)
+    {
+        case ROW_CASH_FLOW:
+        {
+            self.barPlotCashFlowByMonth.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, BAR_PLOT_HEIGHT);
+            [self.barPlotCashFlowByMonth performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+            
+        case ROW_THIS_MONTH_EXPENSE:
+        {
+            self.pieChartTableThisMonthExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
+            [self.pieChartTableThisMonthExpenses performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+            
+        case ROW_THIS_MONTH_INCOME_EXPENSE:
+        {
+            self.pieChartTableThisMonthIncomeExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
+            [self.pieChartTableThisMonthIncomeExpenses performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+            
+        case ROW_ALL_TIME_EXPENSE:
+        {
+            self.pieChartTableAllTimeExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
+            [self.pieChartTableAllTimeExpenses performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+            
+        case ROW_ALL_TIME_INCOME_EXPENSE:
+        {
+            self.pieChartTableAllTimeIncomeExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
+            [self.pieChartTableAllTimeIncomeExpenses performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+            
+        case ROW_LINE:
+        {
+            self.linePlotAllExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT);
+            [self.linePlotAllExpenses performSelector:@selector(reloadAllCategoriesPlotData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+
+        default:
+            break;
+    }
+}
+
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     return UITableViewCellEditingStyleNone;
@@ -540,12 +607,12 @@ int observeChartPreviewContext;
 {
     // Must be in the same order as row enums
     NSArray* rowHeight = [NSArray arrayWithObjects:
-                          [NSNumber numberWithFloat:44],
-                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
-                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
-                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
-                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+44],
-                          [NSNumber numberWithFloat:LINE_PLOT_HEIGHT+44],
+                          [NSNumber numberWithFloat:BAR_PLOT_HEIGHT+25],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
+                          [NSNumber numberWithFloat:LINE_PLOT_HEIGHT+25],
                           nil];
     
     return (CGFloat)[rowHeight[indexPath.row] floatValue];
@@ -572,9 +639,10 @@ int observeChartPreviewContext;
             break;
             
         case ROW_LINE:
-            [[self navigationController] pushViewController:self.categoryLinePlotTableView animated:YES];
+            [[self navigationController] pushViewController:self.linePlotAllExpenses animated:YES];
             break;
             
+        case ROW_CASH_FLOW:
         default:
             break;
     }

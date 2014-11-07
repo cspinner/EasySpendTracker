@@ -14,7 +14,7 @@
 
 @required
 -(NSArray*)dataArrayForBarPlot:(spnBarPlot*)barPlot;
-//-(NSArray*)xLabelArrayForLinePlot:(spnLinePlot*)linePlot; // Array of NSStrings
+-(NSArray*)xLabelArrayForLinePlot:(spnBarPlot*)barPlot; // Array of NSStrings
 
 @end
 

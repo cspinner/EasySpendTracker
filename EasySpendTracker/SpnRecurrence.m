@@ -154,8 +154,8 @@ static int rootTransactionObservanceContext;
     
     self.nextDate = [calendar dateByAddingComponents:self.frequency toDate:transaction.date options:0];
     
-    // Copy the transaction through the end of the month
-    [self extendSeriesThroughEndOfMonth];
+    // Copy the transaction through the present date
+    [self extendSeriesThroughToday];
 }
 
 - (void) updateAllTransactionsInSeriesWith:(SpnTransaction*)transaction
@@ -231,23 +231,12 @@ static int rootTransactionObservanceContext;
     [self.managedObjectContext deleteObject:transaction];
 }
 
-- (void) extendSeriesThroughEndOfMonth
+- (void) extendSeriesThroughToday
 {
     NSCalendar* calendar = [NSCalendar currentCalendar];
     
-    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
-    [tempComponents setMonth:1];
-    
-    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
-    
-    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
-    [tempComponents setDay:1];
-    
-    // First day of the next month - this will be the end date
-    NSDate* firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
-    
-    // Continue to create recurring transactions based on the root transaction until the end of this month - TBD this comparison is subsecond granularity, check manual for options
-    while([firstDayOfNextMonth compare:self.nextDate] == NSOrderedDescending)
+    // Continue to create recurring transactions based on the root transaction until the present date - TBD this comparison is subsecond granularity, check manual for options
+    while([[NSDate date] compare:self.nextDate] == NSOrderedDescending)
     {
         // copy the root transaction
         SpnTransaction* copiedTransaction = [self.rootTransaction clone];

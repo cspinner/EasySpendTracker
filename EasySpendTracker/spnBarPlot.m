@@ -11,7 +11,7 @@
 @interface spnBarPlot ()
 
 @property NSArray *plotData;
-//@property NSArray *xLabelData; // tbd
+@property NSArray *xLabelData;
 
 @end
 
@@ -41,16 +41,13 @@
 {
     if ( self.plotData == nil )
     {
-        NSMutableArray *contentArray = [NSMutableArray array];
-        for ( NSUInteger i = 0; i < 8; i++ ) {
-            [contentArray addObject:@(10.0 * rand() / (double)RAND_MAX + 5.0)];
-        }
-        self.plotData = contentArray;
+        self.plotData = [self.delegate dataArrayForBarPlot:self];
     }
     
-//tbd
-//    self.plotData = [self.delegate dataArrayForLinePlot:self];
-//    self.xLabelData = [self.delegate xLabelArrayForLinePlot:self];
+    if ( self.xLabelData == nil )
+    {
+        self.xLabelData = [self.delegate xLabelArrayForLinePlot:self];
+    }
 }
 
 // called by super
@@ -60,56 +57,70 @@
     
     CPTGraph *graph = [[CPTXYGraph alloc] initWithFrame:bounds];
     [self addGraph:graph toHostingView:layerHostingView];
-    [self applyTheme:theme toGraph:graph withDefault:[CPTTheme themeNamed:kCPTDarkGradientTheme]];
+    [self applyTheme:theme toGraph:graph withDefault:[CPTTheme themeNamed:kCPTPlainWhiteTheme]];
     
     [self setTitleDefaultsForGraph:graph withBounds:bounds];
-    graph.plotAreaFrame.paddingLeft   += 60.0;
-    graph.plotAreaFrame.paddingTop    += 25.0;
-    graph.plotAreaFrame.paddingRight  += 20.0;
-    graph.plotAreaFrame.paddingBottom += 20.0;
+    graph.plotAreaFrame.paddingLeft   = 0.0;
+    graph.plotAreaFrame.paddingTop    = 0.0;
+    graph.plotAreaFrame.paddingRight  = 0.0;
+    graph.plotAreaFrame.paddingBottom = 40.0;
     graph.plotAreaFrame.masksToBorder  = NO;
+    graph.plotAreaFrame.borderLineStyle = nil;
     
     // Create grid line styles
-    CPTMutableLineStyle *majorGridLineStyle = [CPTMutableLineStyle lineStyle];
-    majorGridLineStyle.lineWidth = 1.0;
-    majorGridLineStyle.lineColor = [[CPTColor whiteColor] colorWithAlphaComponent:0.75];
+    CPTMutableLineStyle *majorTickLineStyle = [CPTMutableLineStyle lineStyle];
+    majorTickLineStyle.lineWidth = 1.0;
+    majorTickLineStyle.lineColor = [[CPTColor blackColor] colorWithAlphaComponent:0.75];
     
     CPTMutableLineStyle *minorGridLineStyle = [CPTMutableLineStyle lineStyle];
     minorGridLineStyle.lineWidth = 1.0;
-    minorGridLineStyle.lineColor = [[CPTColor whiteColor] colorWithAlphaComponent:0.25];
+    minorGridLineStyle.lineColor = [[CPTColor blackColor] colorWithAlphaComponent:0.0];
     
     // Create axes
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
     CPTXYAxis *x          = axisSet.xAxis;
     {
+        CPTMutableTextStyle* labelTextStyle = [[CPTMutableTextStyle alloc] init];
+        UIFont* labelFont = [UIFont systemFontOfSize:12.0];
+        labelTextStyle.fontName = labelFont.fontName;
+        labelTextStyle.fontSize = labelFont.pointSize;
+        labelTextStyle.textAlignment = CPTTextAlignmentCenter;
+        
+        NSMutableArray* customLabels = [[NSMutableArray alloc] init];
+        
+        for (NSInteger i = 0; i < self.plotData.count; i++)
+        {
+            NSString* labelText = [NSString stringWithFormat:@"%@\n$%.2f", self.xLabelData[i], [self.plotData[i] floatValue]];
+            CPTAxisLabel* label = [[CPTAxisLabel alloc] initWithText:labelText textStyle:labelTextStyle];
+            label.tickLocation = CPTDecimalFromDouble(i);
+            label.offset = 20;
+            [customLabels addObject:label];
+        }
+        
+        x.axisLabels                  = [NSSet setWithArray:customLabels];
         x.majorIntervalLength         = CPTDecimalFromInteger(1);
         x.minorTicksPerInterval       = 0;
-        x.orthogonalCoordinateDecimal = CPTDecimalFromInteger(0);
-        x.majorGridLineStyle          = majorGridLineStyle;
-        x.minorGridLineStyle          = minorGridLineStyle;
+        x.orthogonalCoordinateDecimal = CPTDecimalFromInteger(MIN([[self.plotData valueForKeyPath:@"@min.self"] integerValue], 0));
         x.axisLineStyle               = nil;
         x.majorTickLineStyle          = nil;
         x.minorTickLineStyle          = nil;
         x.labelFormatter              = nil;
+        x.labelingPolicy              = CPTAxisLabelingPolicyNone;
     }
     
     CPTXYAxis *y = axisSet.yAxis;
     {
-        y.majorIntervalLength         = CPTDecimalFromInteger(10);
-        y.minorTicksPerInterval       = 9;
         y.axisConstraints             = [CPTConstraints constraintWithLowerOffset:0.0];
         y.preferredNumberOfMajorTicks = 8;
-        y.majorGridLineStyle          = majorGridLineStyle;
-        y.minorGridLineStyle          = minorGridLineStyle;
+        y.majorGridLineStyle          = nil;
+        y.minorGridLineStyle          = nil;
         y.axisLineStyle               = nil;
-        y.majorTickLineStyle          = nil;
+        y.majorTickLineStyle          = majorTickLineStyle;
         y.minorTickLineStyle          = nil;
         y.labelOffset                 = 10.0;
         y.labelRotation               = M_PI_2;
-        y.labelingPolicy              = CPTAxisLabelingPolicyAutomatic;
-        
-        y.title       = @"Y Axis";
-        y.titleOffset = 30.0;
+        y.labelingPolicy              = CPTAxisLabelingPolicyNone;
+        y.orthogonalCoordinateDecimal = CPTDecimalFromFloat(0.0);
     }
     
     // Create a bar line style
@@ -121,7 +132,7 @@
     CPTBarPlot *barPlot = [[CPTBarPlot alloc] init];
     barPlot.lineStyle         = barLineStyle;
     barPlot.barWidth          = CPTDecimalFromFloat(0.75f); // bar is 75% of the available space
-    barPlot.barCornerRadius   = 4.0;
+    barPlot.barCornerRadius   = 14.0;
     barPlot.barsAreHorizontal = NO;
     barPlot.dataSource        = self;
     barPlot.identifier        = @"Bar Plot 1";
@@ -130,32 +141,28 @@
     
     // Plot space
     CPTMutablePlotRange *barRange = [[barPlot plotRangeEnclosingBars] mutableCopy];
-    [barRange expandRangeByFactor:CPTDecimalFromDouble(1.05)];
+    [barRange expandRangeByFactor:CPTDecimalFromDouble(1.00)];
+    
+    // Determine y-axis min and max
+    CGFloat dataMin = [[self.plotData valueForKeyPath:@"@min.self"] floatValue];
+    CGFloat dataMax = [[self.plotData valueForKeyPath:@"@max.self"] floatValue];
+    NSDecimal yMin;
+    NSDecimal yLength;
+    
+    if (dataMin < 0.0)
+    {
+        yMin = CPTDecimalFromFloat(dataMin);
+    }
+    else
+    {
+        yMin = CPTDecimalFromFloat(0.0);
+    }
+
+    yLength = CPTDecimalFromFloat(fmaxf(dataMax, 0.0) + fabsf(fminf(dataMin, 0.0)));
     
     CPTXYPlotSpace *barPlotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
     barPlotSpace.xRange = barRange;
-    barPlotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(16.0f)];
-    
-    // Add legend
-    CPTLegend *theLegend = [CPTLegend legendWithGraph:graph];
-    theLegend.fill            = [CPTFill fillWithColor:[CPTColor colorWithGenericGray:0.15]];
-    theLegend.borderLineStyle = barLineStyle;
-    theLegend.cornerRadius    = 10.0;
-    theLegend.swatchSize      = CGSizeMake(16.0, 16.0);
-    CPTMutableTextStyle *whiteTextStyle = [CPTMutableTextStyle textStyle];
-    whiteTextStyle.color    = [CPTColor whiteColor];
-    whiteTextStyle.fontSize = 12.0;
-    theLegend.textStyle     = whiteTextStyle;
-    theLegend.rowMargin     = 10.0;
-    theLegend.numberOfRows  = 1;
-    theLegend.paddingLeft   = 12.0;
-    theLegend.paddingTop    = 12.0;
-    theLegend.paddingRight  = 12.0;
-    theLegend.paddingBottom = 12.0;
-    
-    graph.legend             = theLegend;
-    graph.legendAnchor       = CPTRectAnchorBottom;
-    graph.legendDisplacement = CGPointMake(0.0, 5.0);
+    barPlotSpace.yRange = [CPTPlotRange plotRangeWithLocation:yMin length:yLength];
 }
 
 //<CPTPlotDataSource> methods
@@ -168,10 +175,12 @@
 {
     NSArray *nums = nil;
     
-    switch ( fieldEnum ) {
+    switch ( fieldEnum )
+    {
         case CPTBarPlotFieldBarLocation:
             nums = [NSMutableArray arrayWithCapacity:indexRange.length];
-            for ( NSUInteger i = indexRange.location; i < NSMaxRange(indexRange); i++ ) {
+            for ( NSUInteger i = indexRange.location; i < NSMaxRange(indexRange); i++ )
+            {
                 [(NSMutableArray *)nums addObject : @(i)];
             }
             break;
@@ -190,47 +199,19 @@
 -(CPTFill *)barFillForBarPlot:(CPTBarPlot *)barPlot recordIndex:(NSUInteger)index
 {
     CPTColor *color = nil;
-    
-    switch ( index ) {
-        case 0:
-            color = [CPTColor redColor];
-            break;
-            
-        case 1:
-            color = [CPTColor greenColor];
-            break;
-            
-        case 2:
-            color = [CPTColor blueColor];
-            break;
-            
-        case 3:
-            color = [CPTColor yellowColor];
-            break;
-            
-        case 4:
-            color = [CPTColor purpleColor];
-            break;
-            
-        case 5:
-            color = [CPTColor cyanColor];
-            break;
-            
-        case 6:
-            color = [CPTColor orangeColor];
-            break;
-            
-        case 7:
-            color = [CPTColor magentaColor];
-            break;
-            
-        default:
-            break;
+
+    if ([self.plotData[index] floatValue] >= 0.0)
+    {
+        // Pastel Green
+        color = [CPTColor colorWithComponentRed:3.0/255.0 green:192.0/255.0 blue:60.0/255.0 alpha:1.0];
+    }
+    else
+    {
+        // Pastel Red
+        color = [CPTColor colorWithComponentRed:255.0/255.0 green:105.0/255.0 blue:97.0/255.0 alpha:1.0];
     }
     
-    CPTGradient *fillGradient = [CPTGradient gradientWithBeginningColor:color endingColor:[CPTColor blackColor]];
-    
-    return [CPTFill fillWithGradient:fillGradient];
+    return [CPTFill fillWithColor:color];
 }
 
 -(NSString *)legendTitleForBarPlot:(CPTBarPlot *)barPlot recordIndex:(NSUInteger)index

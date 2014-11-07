@@ -7,7 +7,6 @@
 //
 
 #import "spnLineChartProcessDataOp.h"
-#import "spnLinePlot.h"
 
 @interface spnLineChartProcessDataOp()
 

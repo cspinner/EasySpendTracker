@@ -78,7 +78,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
 
 - (void)initCategoriesViewCntrl
 {
-    [self.categoryTableViewController setTitle:@"Categories"];
+    [self.categoryTableViewController setTitle:@"Categories This Month"];
     [self.categoryTableViewController setStartDate:nil];
     [self.categoryTableViewController setEndDate:nil];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
@@ -104,7 +104,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     NSArray *recurrencesArray = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     
     // Call the extend routine on them all. Transactions will be created through the end of the month, if they don't already exist
-    [recurrencesArray makeObjectsPerformSelector:@selector(extendSeriesThroughEndOfMonth)];
+    [recurrencesArray makeObjectsPerformSelector:@selector(extendSeriesThroughToday)];
     
     // Save changes
     [self saveContext:self.managedObjectContext];
