@@ -10,6 +10,7 @@
 #import "spnTableViewController_Summary.h"
 #import "spnTableViewController_MainCategories.h"
 #import "spnTableViewController_Transactions.h"
+#import "spnViewController_Calendar.h"
 #import "SpnRecurrence.h"
 
 @interface spnSpendTracker ()
@@ -18,6 +19,7 @@
 @property spnTableViewController_Summary* summaryViewController;
 @property spnTableViewController_MainCategories* categoryTableViewController;
 @property spnTableViewController_Transactions* allTransTableViewController;
+@property spnViewController_Calendar* calendarViewController;
 
 @end
 
@@ -47,11 +49,15 @@ static spnSpendTracker *sharedSpendTracker = nil;
     self.allTransTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
     [self initTransactionsViewCntrl];
     
+    self.calendarViewController = [[spnViewController_Calendar alloc] initWithSelectionMode:KalSelectionModeSingle];
+    [self initCalendarViewCntrl];
+    
     // Navigation Controllers
     UINavigationController* summaryNavController = [[UINavigationController alloc] initWithRootViewController:self.summaryViewController];
     UINavigationController* categoryTableNavController = [[UINavigationController alloc] initWithRootViewController:self.categoryTableViewController];
     UINavigationController* allTransTableNavController = [[UINavigationController alloc] initWithRootViewController:self.allTransTableViewController];
-    NSArray* navControllerArray = [NSArray arrayWithObjects:summaryNavController, categoryTableNavController, allTransTableNavController, nil];
+    UINavigationController* calendarNavController = [[UINavigationController alloc] initWithRootViewController:self.calendarViewController];
+    NSArray* navControllerArray = [NSArray arrayWithObjects:summaryNavController, categoryTableNavController, allTransTableNavController, calendarNavController, nil];
     
     // Setup Summary Tab
     UITabBarItem* summaryTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Summary" image:nil tag:0];
@@ -64,6 +70,10 @@ static spnSpendTracker *sharedSpendTracker = nil;
     // Setup Transactions Tab
     UITabBarItem* trnsTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Transactions" image:nil tag:2];
     allTransTableNavController.tabBarItem = trnsTabBarItem;
+    
+    // Setup Calendar Tab
+    UITabBarItem* calTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Calendar" image:nil tag:3];
+    calendarNavController.tabBarItem = calTabBarItem;
     
     // Setup Tab Bar Control - set as root view controller
     self.mainTabBarController.viewControllers = navControllerArray;
@@ -93,6 +103,12 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.allTransTableViewController setEndDate:nil];
     [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
     [self.allTransTableViewController setCategoryTitle:@"*"];
+}
+
+- (void)initCalendarViewCntrl
+{
+    [self.calendarViewController setTitle:@"Calendar View"];
+    [self.calendarViewController setManagedObjectContext:self.managedObjectContext];
 }
 
 - (void)updateAllRecurrences

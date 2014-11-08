@@ -29,7 +29,6 @@
 @property (nonatomic, retain) NSString *section;
 @property (nonatomic, retain) NSString *title;
 
--(void)renderInView:(NSArray *)params;
 -(void)renderInView:(UIView *)hostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated;
 -(void)renderInLayer:(CPTGraphHostingView *)layerHostingView withTheme:(CPTTheme *)theme forPreview:(BOOL)forPreview animated:(BOOL)animated;
 

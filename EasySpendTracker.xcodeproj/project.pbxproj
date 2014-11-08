@@ -62,6 +62,8 @@
 		3B93B1A119A13E5F00A16006 /* spnTableViewController_PieChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B93B1A019A13E5F00A16006 /* spnTableViewController_PieChart.m */; };
 		3B94A55419641F24004EB00B /* spnTableViewController_RecurSelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B94A55319641F24004EB00B /* spnTableViewController_RecurSelect.m */; };
 		3BCB7F8719F6F000005D927F /* spnBarPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BCB7F8619F6F000005D927F /* spnBarPlot.m */; };
+		3BD4130F1A0D23C10088EA61 /* libKal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BD4130C1A0D22C70088EA61 /* libKal.a */; };
+		3BD413121A0D36150088EA61 /* spnViewController_Calendar.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BD413111A0D36150088EA61 /* spnViewController_Calendar.m */; };
 		3BDB000B1819D70100876590 /* SpnCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB000A1819D70100876590 /* SpnCategory.m */; };
 		3BDB00191819DA5F00876590 /* SpnTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00181819DA5F00876590 /* SpnTransaction.m */; };
 		3BDBFFFF1818AD4D00876590 /* spnUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDBFFFE1818AD4D00876590 /* spnUtils.m */; };
@@ -75,6 +77,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3B61710E17EDED6800FBF39F;
 			remoteInfo = EasySpendTracker;
+		};
+		3BD4130B1A0D22C70088EA61 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3BD413071A0D22C70088EA61 /* Kal.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = Kal;
+		};
+		3BD4130D1A0D23B20088EA61 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3BD413071A0D22C70088EA61 /* Kal.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = Kal;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -253,6 +269,9 @@
 		3B94A55319641F24004EB00B /* spnTableViewController_RecurSelect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_RecurSelect.m; sourceTree = "<group>"; };
 		3BCB7F8519F6F000005D927F /* spnBarPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnBarPlot.h; sourceTree = "<group>"; };
 		3BCB7F8619F6F000005D927F /* spnBarPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnBarPlot.m; sourceTree = "<group>"; };
+		3BD413071A0D22C70088EA61 /* Kal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Kal.xcodeproj; path = "../Kal-master/src/Kal.xcodeproj"; sourceTree = "<group>"; };
+		3BD413101A0D36150088EA61 /* spnViewController_Calendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Calendar.h; sourceTree = "<group>"; };
+		3BD413111A0D36150088EA61 /* spnViewController_Calendar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_Calendar.m; sourceTree = "<group>"; };
 		3BDB00091819D70100876590 /* SpnCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SpnCategory.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		3BDB000A1819D70100876590 /* SpnCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SpnCategory.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		3BDB00171819DA5F00876590 /* SpnTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnTransaction.h; sourceTree = "<group>"; };
@@ -267,6 +286,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BD4130F1A0D23C10088EA61 /* libKal.a in Frameworks */,
 				3B1D7BD71991C7B300A8B533 /* QuartzCore.framework in Frameworks */,
 				3B61711517EDED6800FBF39F /* CoreGraphics.framework in Frameworks */,
 				3B61711917EDED6800FBF39F /* CoreData.framework in Frameworks */,
@@ -417,6 +437,8 @@
 		3B2C9BBC1985EF3800384B00 /* Transaction */ = {
 			isa = PBXGroup;
 			children = (
+				3BD413101A0D36150088EA61 /* spnViewController_Calendar.h */,
+				3BD413111A0D36150088EA61 /* spnViewController_Calendar.m */,
 				3B61720A17F8DAB200FBF39F /* spnTableViewController_Transactions.h */,
 				3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */,
 				3B771A101975DF4900CF556F /* spnViewController_Transaction.h */,
@@ -447,6 +469,7 @@
 		3B61710617EDED6800FBF39F = {
 			isa = PBXGroup;
 			children = (
+				3BD413071A0D22C70088EA61 /* Kal.xcodeproj */,
 				3B61711A17EDED6800FBF39F /* EasySpendTracker */,
 				3B61713717EDED6800FBF39F /* EasySpendTrackerTests */,
 				3B61711117EDED6800FBF39F /* Frameworks */,
@@ -612,6 +635,14 @@
 			name = Shared;
 			sourceTree = "<group>";
 		};
+		3BD413081A0D22C70088EA61 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3BD4130C1A0D22C70088EA61 /* libKal.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		3BDB00121819D9B100876590 /* ManagedObjects */ = {
 			isa = PBXGroup;
 			children = (
@@ -668,6 +699,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				3BD4130E1A0D23B20088EA61 /* PBXTargetDependency */,
 			);
 			name = EasySpendTracker;
 			productName = EasySpendTracker;
@@ -720,6 +752,12 @@
 			mainGroup = 3B61710617EDED6800FBF39F;
 			productRefGroup = 3B61711017EDED6800FBF39F /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3BD413081A0D22C70088EA61 /* Products */;
+					ProjectRef = 3BD413071A0D22C70088EA61 /* Kal.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				3B61710E17EDED6800FBF39F /* EasySpendTracker */,
@@ -727,6 +765,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3BD4130C1A0D22C70088EA61 /* libKal.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libKal.a;
+			remoteRef = 3BD4130B1A0D22C70088EA61 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3B61710D17EDED6800FBF39F /* Resources */ = {
@@ -761,6 +809,7 @@
 				3B2E91CA19D3B331006B8DBE /* spnPieChartProcessDataOp.m in Sources */,
 				3BDB000B1819D70100876590 /* SpnCategory.m in Sources */,
 				3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */,
+				3BD413121A0D36150088EA61 /* spnViewController_Calendar.m in Sources */,
 				3B2C9BAC1984067000384B00 /* SpnSubCategoryMO.m in Sources */,
 				3B2E91D919D8A248006B8DBE /* spnLineChartProcessDataOp.m in Sources */,
 				3B2C9BB5198482E500384B00 /* spnTableViewController_MainCategorySelect.m in Sources */,
@@ -816,6 +865,11 @@
 			isa = PBXTargetDependency;
 			target = 3B61710E17EDED6800FBF39F /* EasySpendTracker */;
 			targetProxy = 3B61713517EDED6800FBF39F /* PBXContainerItemProxy */;
+		};
+		3BD4130E1A0D23B20088EA61 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Kal;
+			targetProxy = 3BD4130D1A0D23B20088EA61 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -912,6 +966,7 @@
 		3B61714217EDED6800FBF39F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
@@ -924,9 +979,13 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks/CorePlot",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "A28144CF-96EE-4D66-A88A-527289D4FC7C";
+				USER_HEADER_SEARCH_PATHS = "../Kal-master/src";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -934,6 +993,7 @@
 		3B61714317EDED6800FBF39F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
@@ -946,9 +1006,13 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks/CorePlot",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-all_load",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "A28144CF-96EE-4D66-A88A-527289D4FC7C";
+				USER_HEADER_SEARCH_PATHS = "../Kal-master/src";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
