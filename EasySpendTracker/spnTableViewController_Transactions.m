@@ -224,32 +224,31 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
 }
 
-- (void)configureCell:(spnTransactionCellView*)cell withObject:(id)object
+- (void)configureCell:(spnTransactionCellView*)cell withTransaction:(SpnTransaction*)transaction
 {
-    SpnTransaction* transaction = (SpnTransaction*)object;
-    
     // Write cell contents
-    [cell setValue:transaction.value.floatValue withMerchant:[transaction merchant] onDate:[transaction date] withDescription:[transaction notes]];
+    NSString* category = [transaction valueForKeyPath:@"subCategory.category.title"];
+    
+    [cell setValue:transaction.value.floatValue withMerchant:transaction.merchant isIncome:[category isEqualToString:@"Income"]];
 }
 
 // <UITableViewDataSource> methods
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString* CellIdentifier = @"TransactionCell";
-    spnTransactionCellView* cell = nil;
     
     // Acquire reuse cell object from the table view
-    cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    spnTransactionCellView* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if (!cell)
     {
         // Create cell if reuse cell doesn't exist.
-        cell = [[spnTransactionCellView alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:CellIdentifier];
+        cell = [[spnTransactionCellView alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
     }
     
     if (self.tableView == tableView)
     {
-        [self configureCell:cell withObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        [self configureCell:cell withTransaction:[self.fetchedResultsController objectAtIndexPath:indexPath]];
         
         if ((indexPath.section == ([self numberOfSectionsInTableView:tableView] - 1)) &&
             (indexPath.row == ([tableView numberOfRowsInSection:indexPath.section] - 1)))
@@ -259,9 +258,9 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
     else // self.searchDisplayController.searchResultsTableView
     {
-        [self configureCell:cell withObject:[self.searchResults objectAtIndex:indexPath.row]];
+        [self configureCell:cell withTransaction:[self.searchResults objectAtIndex:indexPath.row]];
     }
-
+    
     return cell;
 }
 
@@ -420,7 +419,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] withObject:[self.fetchedResultsController objectAtIndexPath:newIndexPath]];
+            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] withTransaction:[self.fetchedResultsController objectAtIndexPath:newIndexPath]];
             break;
             
         case NSFetchedResultsChangeMove:

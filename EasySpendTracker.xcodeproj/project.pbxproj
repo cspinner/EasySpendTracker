@@ -64,6 +64,7 @@
 		3BCB7F8719F6F000005D927F /* spnBarPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BCB7F8619F6F000005D927F /* spnBarPlot.m */; };
 		3BD4130F1A0D23C10088EA61 /* libKal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BD4130C1A0D22C70088EA61 /* libKal.a */; };
 		3BD413121A0D36150088EA61 /* spnViewController_Calendar.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BD413111A0D36150088EA61 /* spnViewController_Calendar.m */; };
+		3BD4131E1A0E5E790088EA61 /* Kal.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3BD4131D1A0E5E780088EA61 /* Kal.bundle */; };
 		3BDB000B1819D70100876590 /* SpnCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB000A1819D70100876590 /* SpnCategory.m */; };
 		3BDB00191819DA5F00876590 /* SpnTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDB00181819DA5F00876590 /* SpnTransaction.m */; };
 		3BDBFFFF1818AD4D00876590 /* spnUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BDBFFFE1818AD4D00876590 /* spnUtils.m */; };
@@ -272,6 +273,7 @@
 		3BD413071A0D22C70088EA61 /* Kal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Kal.xcodeproj; path = "../Kal-master/src/Kal.xcodeproj"; sourceTree = "<group>"; };
 		3BD413101A0D36150088EA61 /* spnViewController_Calendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnViewController_Calendar.h; sourceTree = "<group>"; };
 		3BD413111A0D36150088EA61 /* spnViewController_Calendar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnViewController_Calendar.m; sourceTree = "<group>"; };
+		3BD4131D1A0E5E780088EA61 /* Kal.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = Kal.bundle; path = "../Kal-master/src/Kal.bundle"; sourceTree = "<group>"; };
 		3BDB00091819D70100876590 /* SpnCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SpnCategory.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		3BDB000A1819D70100876590 /* SpnCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SpnCategory.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		3BDB00171819DA5F00876590 /* SpnTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpnTransaction.h; sourceTree = "<group>"; };
@@ -469,6 +471,7 @@
 		3B61710617EDED6800FBF39F = {
 			isa = PBXGroup;
 			children = (
+				3BD4131D1A0E5E780088EA61 /* Kal.bundle */,
 				3BD413071A0D22C70088EA61 /* Kal.xcodeproj */,
 				3B61711A17EDED6800FBF39F /* EasySpendTracker */,
 				3B61713717EDED6800FBF39F /* EasySpendTrackerTests */,
@@ -781,6 +784,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BD4131E1A0E5E790088EA61 /* Kal.bundle in Resources */,
 				3B61711F17EDED6800FBF39F /* InfoPlist.strings in Resources */,
 				3B61712A17EDED6800FBF39F /* Images.xcassets in Resources */,
 				3BF6E4C0199E262D002E4B9E /* CorePlotLicense.txt in Resources */,

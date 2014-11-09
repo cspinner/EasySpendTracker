@@ -12,6 +12,7 @@
 #import "spnTableViewController_Transactions.h"
 #import "spnViewController_Calendar.h"
 #import "SpnRecurrence.h"
+#import "NSDate+Convenience.h"
 
 @interface spnSpendTracker ()
 
@@ -107,8 +108,14 @@ static spnSpendTracker *sharedSpendTracker = nil;
 
 - (void)initCalendarViewCntrl
 {
-    [self.calendarViewController setTitle:@"Calendar View"];
+    [self.calendarViewController setTitle:@"Calendar"];
     [self.calendarViewController setManagedObjectContext:self.managedObjectContext];
+    [self.calendarViewController setDelegate:self.calendarViewController];
+    [self.calendarViewController setDataSource:self.calendarViewController];
+    self.calendarViewController.minAvailableDate = [NSDate dateStartOfDay:[[NSDate date] offsetYear:-3]];
+    self.calendarViewController.maxAvailableDate = [NSDate dateStartOfDay:[[NSDate date] offsetYear:3]];
+    self.calendarViewController.beginDate = [NSDate dateStartOfDay:[NSDate date]];
+    self.calendarViewController.endDate = [NSDate dateStartOfDay:[[NSDate date] offsetDay:1]];
 }
 
 - (void)updateAllRecurrences
