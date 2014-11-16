@@ -66,7 +66,7 @@ static int subCategorySetContext;
     NSError* error;
     
     // This day 3 months ago
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", [[NSDate date] offsetMonth:3]];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", [[NSDate date] offsetMonth:-3]];
     fetchRequest.predicate = predicate;
     merchantArray = [NSMutableArray arrayWithArray: [self.managedObjectContext executeFetchRequest:fetchRequest error:&error]];
     merchantArray = [merchantArray valueForKeyPath:@"@distinctUnionOfObjects.merchant"];
