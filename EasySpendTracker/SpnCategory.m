@@ -124,7 +124,7 @@ static int subCategoriesObservanceContext;
                     self.subCategories.count == 0)
                 {
                     [self.managedObjectContext deleteObject:self];
-                    NSLog(@"Removing empty category");
+//                    NSLog(@"Removing empty category");
                 }
             }
                 break;

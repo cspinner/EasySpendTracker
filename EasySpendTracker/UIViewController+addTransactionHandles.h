@@ -10,6 +10,8 @@
 
 @interface UIViewController (addTransactionHandles) <UIActionSheetDelegate>
 
+@property NSDate* preferredDate;
+
 enum
 {
     EXPENSE_TRANSACTION_TYPE = 0u,

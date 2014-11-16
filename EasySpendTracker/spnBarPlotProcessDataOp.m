@@ -7,6 +7,7 @@
 //
 
 #import "spnBarPlotProcessDataOp.h"
+#import "NSDate+Convenience.h"
 
 @interface spnBarPlotProcessDataOp()
 
@@ -49,29 +50,20 @@
         if (transactions.count > 0)
         {
             NSInteger i = -1;
-            NSCalendar* calendar = [NSCalendar currentCalendar];
-            NSDate* date = [transactions[0] valueForKey:@"date"];
-            NSDateComponents* dateComponents = [calendar components:NSCalendarUnitMonth fromDate:date];
-            NSDateComponents* prevDateComponents = [[NSDateComponents alloc] init];
-            
-            // Create the date formatter to extract the month
-            NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMM" options:0 locale:[NSLocale currentLocale]]];
-            
+            NSDate* date;
+            NSDate* prevDate;
+
             // For each transaction
             for (id transaction in transactions)
             {
                 date = [transaction valueForKey:@"date"];
-                dateComponents = [calendar components:NSCalendarUnitMonth fromDate:date];
                 
                 // If the transaction is not in the same month as previous
-                if (dateComponents.month != prevDateComponents.month)
+                if (date.month != prevDate.month)
                 {
-                    NSDate* monthDate = [calendar dateFromComponents:dateComponents];
-                    
                     // add plot data item
                     [barPlotValues addObject:[NSDecimalNumber numberWithFloat:0.0]];
-                    [barPlotMonths addObject:[dateFormatter stringFromDate:monthDate]];
+                    [barPlotMonths addObject:[NSDate stringFromDate:date format:@"MMMM"]];
                     i++;
                 }
                 
@@ -87,7 +79,7 @@
                     barPlotValues[i] = [barPlotValues[i] decimalNumberBySubtracting:value];
                 }
                 
-                prevDateComponents = [dateComponents copy];
+                prevDate = [date copy];
             }
         }
         

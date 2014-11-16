@@ -14,13 +14,9 @@
 #import "spnTableViewController_PieChart_Cat.h"
 #import "spnTableViewController_LinePlot_Cat.h"
 #import "spnTableViewController_BarPlot.h"
+#import "NSDate+Convenience.h"
 
 @interface spnTableViewController_Summary ()
-
-@property NSDate* thisMonthLastYear;
-@property NSDate* firstDayOfThreeMonthsAgo;
-@property NSDate* firstDayOfThisMonth;
-@property NSDate* firstDayOfNextMonth;
 
 @property spnTableViewController_BarPlot* barPlotCashFlowByMonth;
 @property spnTableViewController_PieChart_Cat* pieChartTableThisMonthExpenses;
@@ -80,38 +76,6 @@ int observeChartPreviewContext;
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
     
-    NSCalendar* calendar = [NSCalendar currentCalendar];
-    
-    // The first of this month
-    NSDateComponents* dateComponents = [calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:[NSDate date]];
-    [dateComponents setDay:1];
-    self.firstDayOfThisMonth = [calendar dateFromComponents:dateComponents];
-    [dateComponents setDay:0];
-    
-    // This month, one year ago
-    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
-    [tempComponents setYear:-1];
-    self.thisMonthLastYear = [calendar dateByAddingComponents:tempComponents toDate:self.firstDayOfThisMonth options:0];
-    
-    [tempComponents setMonth:1];
-    [tempComponents setYear:0];
-    
-    NSDate* thisDayNextMonth = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
-    
-    tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:thisDayNextMonth];
-    [tempComponents setDay:1];
-    
-    // First day of the next month
-    self.firstDayOfNextMonth = [calendar dateFromComponents:tempComponents];
-    
-    dateComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self.firstDayOfThisMonth];
-    [tempComponents setMonth:-3];
-    [tempComponents setDay:0];
-    [tempComponents setYear:0];
-    
-    self.firstDayOfThreeMonthsAgo = [calendar dateByAddingComponents:tempComponents toDate:[calendar dateFromComponents:dateComponents] options:0];
-    
-    
     self.chartImageDefaults = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"Empty_Bar_Plot"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Line_Plot"], nil];
     self.chartImageCache = [[NSMutableArray alloc] initWithArray:self.chartImageDefaults copyItems:YES];
     
@@ -137,19 +101,21 @@ int observeChartPreviewContext;
 
 -(void)initCharts
 {
+    NSDate* firstDayOfNextMonth = [[NSDate dateStartOfMonth:[NSDate date]] offsetMonth:1];;
+    
     // Last 4 month's cash flow
     self.barPlotCashFlowByMonth = [[spnTableViewController_BarPlot alloc] initWithStyle:UITableViewStyleGrouped];
     self.barPlotCashFlowByMonth.title = @"Cash Flow";
-    self.barPlotCashFlowByMonth.startDate = self.firstDayOfThreeMonthsAgo;
-    self.barPlotCashFlowByMonth.endDate = self.firstDayOfNextMonth;
+    self.barPlotCashFlowByMonth.startDate = [[NSDate dateStartOfMonth:[NSDate date]] offsetMonth:-3];
+    self.barPlotCashFlowByMonth.endDate = firstDayOfNextMonth;
     self.barPlotCashFlowByMonth.managedObjectContext = self.managedObjectContext;
     [self.barPlotCashFlowByMonth addObserver:self forKeyPath:@"barPlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
     
     // This Month - Expenses
     self.pieChartTableThisMonthExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
     self.pieChartTableThisMonthExpenses.title = @"This Month's Expenses";
-    self.pieChartTableThisMonthExpenses.startDate = self.firstDayOfThisMonth;
-    self.pieChartTableThisMonthExpenses.endDate = self.firstDayOfNextMonth;
+    self.pieChartTableThisMonthExpenses.startDate = [NSDate dateStartOfMonth:[NSDate date]];
+    self.pieChartTableThisMonthExpenses.endDate = firstDayOfNextMonth;
     self.pieChartTableThisMonthExpenses.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
     self.pieChartTableThisMonthExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
@@ -157,8 +123,8 @@ int observeChartPreviewContext;
     // This Month - Income and Expenses
     self.pieChartTableThisMonthIncomeExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
     self.pieChartTableThisMonthIncomeExpenses.title = @"This Month's Income";
-    self.pieChartTableThisMonthIncomeExpenses.startDate = self.firstDayOfThisMonth;
-    self.pieChartTableThisMonthIncomeExpenses.endDate = self.firstDayOfNextMonth;
+    self.pieChartTableThisMonthIncomeExpenses.startDate = [NSDate dateStartOfMonth:[NSDate date]];
+    self.pieChartTableThisMonthIncomeExpenses.endDate = firstDayOfNextMonth;
     self.pieChartTableThisMonthIncomeExpenses.excludeCategories = nil;
     self.pieChartTableThisMonthIncomeExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthIncomeExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
@@ -167,7 +133,7 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
     self.pieChartTableAllTimeExpenses.title = @"All Time Expenses";
     self.pieChartTableAllTimeExpenses.startDate = nil;
-    self.pieChartTableAllTimeExpenses.endDate = nil;
+    self.pieChartTableAllTimeExpenses.endDate = firstDayOfNextMonth;
     self.pieChartTableAllTimeExpenses.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
     self.pieChartTableAllTimeExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
@@ -176,7 +142,7 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeIncomeExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
     self.pieChartTableAllTimeIncomeExpenses.title = @"All Time Income";
     self.pieChartTableAllTimeIncomeExpenses.startDate = nil;
-    self.pieChartTableAllTimeIncomeExpenses.endDate = nil;
+    self.pieChartTableAllTimeIncomeExpenses.endDate = firstDayOfNextMonth;
     self.pieChartTableAllTimeIncomeExpenses.excludeCategories = nil;
     self.pieChartTableAllTimeIncomeExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeIncomeExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
@@ -184,8 +150,8 @@ int observeChartPreviewContext;
     // Line Plot
     self.linePlotAllExpenses = [[spnTableViewController_LinePlot_Cat alloc] initWithStyle:UITableViewStyleGrouped];
     self.linePlotAllExpenses.title = @"Spending - Last 12 Months";
-    self.linePlotAllExpenses.startDate = self.thisMonthLastYear;
-    self.linePlotAllExpenses.endDate = nil;
+    self.linePlotAllExpenses.startDate = [[NSDate dateStartOfMonth:[NSDate date]] offsetYear:-1];
+    self.linePlotAllExpenses.endDate = firstDayOfNextMonth;
     self.linePlotAllExpenses.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
     self.linePlotAllExpenses.includeCategories = nil;
     self.linePlotAllExpenses.managedObjectContext = self.managedObjectContext;

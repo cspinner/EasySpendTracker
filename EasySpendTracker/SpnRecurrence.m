@@ -8,6 +8,7 @@
 
 #import "SpnRecurrence.h"
 #import "SpnTransaction.h"
+#import "NSDate+Convenience.h"
 
 @implementation SpnRecurrence
 
@@ -72,7 +73,7 @@ static int rootTransactionObservanceContext;
                     if (self.transactions.count == 0)
                     {
                         [self.managedObjectContext deleteObject:self];
-                        NSLog(@"Deleting recurrence");
+//                        NSLog(@"Deleting recurrence");
                     }
                     else
                     {
@@ -84,7 +85,7 @@ static int rootTransactionObservanceContext;
                         
                         // Pick the first one (most recent date)
                         self.rootTransaction = sortedTransactions[0];
-                        NSLog(@"Root transaction: %@", self.rootTransaction.sectionName);
+//                        NSLog(@"Root transaction: %@", self.rootTransaction.sectionName);
                     }
                 }
                 
@@ -154,8 +155,8 @@ static int rootTransactionObservanceContext;
     
     self.nextDate = [calendar dateByAddingComponents:self.frequency toDate:transaction.date options:0];
     
-    // Copy the transaction through the present date
-    [self extendSeriesThroughToday];
+    // Copy the transaction through the next year
+    [self extendSeries];
 }
 
 - (void) updateAllTransactionsInSeriesWith:(SpnTransaction*)transaction
@@ -216,7 +217,7 @@ static int rootTransactionObservanceContext;
 
     // delete the recurrence. Note the previous transactions will remain
     [self.managedObjectContext deleteObject:self];
-    NSLog(@"Deleting recurrence");
+//    NSLog(@"Deleting recurrence");
     
     // delete future transactions (including the one specified) associated with the recurrence.
     for (SpnTransaction* transaction in filteredTransactions)
@@ -231,12 +232,12 @@ static int rootTransactionObservanceContext;
     [self.managedObjectContext deleteObject:transaction];
 }
 
-- (void) extendSeriesThroughToday
+- (void) extendSeries
 {
     NSCalendar* calendar = [NSCalendar currentCalendar];
     
-    // Continue to create recurring transactions based on the root transaction until the present date - TBD this comparison is subsecond granularity, check manual for options
-    while([[NSDate date] compare:self.nextDate] == NSOrderedDescending)
+    // Continue to create recurring transactions based on the root transaction for the next year - TBD this comparison is subsecond granularity, check manual for options
+    while([[[NSDate date] offsetYear:1] compare:self.nextDate] == NSOrderedDescending)
     {
         // copy the root transaction
         SpnTransaction* copiedTransaction = [self.rootTransaction clone];

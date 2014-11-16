@@ -54,7 +54,7 @@ static int transactionsObservanceContext;
                     self.transactions.count == 0)
                 {
                     [self.managedObjectContext deleteObject:self];
-                    NSLog(@"Removing empty sub-category");
+//                    NSLog(@"Removing empty sub-category");
                 }
             }
                 break;

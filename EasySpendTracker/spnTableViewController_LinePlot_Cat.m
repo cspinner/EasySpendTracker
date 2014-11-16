@@ -69,7 +69,7 @@
     spnTableViewController_LinePlot_SubCat *subCategoryLinePlotTableView = [[spnTableViewController_LinePlot_SubCat alloc] initWithStyle:UITableViewStyleGrouped];
     subCategoryLinePlotTableView.title = @"Spending - Last 12 Months";
     subCategoryLinePlotTableView.startDate = self.startDate;
-    subCategoryLinePlotTableView.endDate = nil;
+    subCategoryLinePlotTableView.endDate = self.endDate;
     subCategoryLinePlotTableView.excludeCategories = nil;
     subCategoryLinePlotTableView.includeCategories = [NSArray arrayWithObject:sectionInfo.name];
     subCategoryLinePlotTableView.managedObjectContext = self.managedObjectContext;

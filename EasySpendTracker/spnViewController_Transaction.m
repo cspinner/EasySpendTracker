@@ -17,6 +17,7 @@
 #import "spnTableViewController_MainCategorySelect.h"
 #import "spnTableViewController_SubCategorySelect.h"
 #import "AutoFillTableViewController.h"
+#import "NSDate+Convenience.h"
 
 @interface spnViewController_Transaction ()
 
@@ -60,16 +61,12 @@ static int subCategorySetContext;
     
     // Fetch merchants from the past 3 months
     NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionMO"];
-    NSCalendar* calendar = [NSCalendar currentCalendar];
+    
     NSMutableArray* merchantArray;
     NSError* error;
     
     // This day 3 months ago
-    NSDateComponents* tempComponents = [[NSDateComponents alloc] init];
-    [tempComponents setMonth:-3];
-    NSDate* thisDayThreeMonthsAgo = [calendar dateByAddingComponents:tempComponents toDate:[NSDate date] options:0];
-    
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", thisDayThreeMonthsAgo];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", [[NSDate date] offsetMonth:3]];
     fetchRequest.predicate = predicate;
     merchantArray = [NSMutableArray arrayWithArray: [self.managedObjectContext executeFetchRequest:fetchRequest error:&error]];
     merchantArray = [merchantArray valueForKeyPath:@"@distinctUnionOfObjects.merchant"];
@@ -331,9 +328,19 @@ static int subCategorySetContext;
                 textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 0, subViewWidth-10, subViewHeight)];
                 [textField setTag:DATE_VIEW_TAG];
                 
+                // If the date doesn't come from the passed in transaction
                 if(!self.transaction.date)
                 {
-                    [self.transaction setDate:[NSDate date]];
+                    if (!self.date)
+                    {
+                        // This is a new transaction and no preferred date was specified
+                        [self.transaction setDate:[NSDate date]];
+                    }
+                    else
+                    {
+                        // This is a new transaction and a preferred date was specified (specified by the calendar tab)
+                        [self.transaction setDate:self.date];
+                    }
                 }
                 
                 [textField setText:self.transaction.sectionName];

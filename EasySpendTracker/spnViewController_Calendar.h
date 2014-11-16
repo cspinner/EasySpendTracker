@@ -9,7 +9,7 @@
 #import "Kal.h"
 #import "KalViewController.h"
 
-@interface spnViewController_Calendar : KalViewController<KalDataSource, UITableViewDelegate, UITableViewDataSource>
+@interface spnViewController_Calendar : KalViewController<KalDataSource, UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate>
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
 

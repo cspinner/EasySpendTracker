@@ -13,6 +13,7 @@
 #import "spnViewController_Calendar.h"
 #import "SpnRecurrence.h"
 #import "NSDate+Convenience.h"
+#import "UIViewController+addTransactionHandles.h"
 
 @interface spnSpendTracker ()
 
@@ -89,9 +90,9 @@ static spnSpendTracker *sharedSpendTracker = nil;
 
 - (void)initCategoriesViewCntrl
 {
-    [self.categoryTableViewController setTitle:@"Categories This Month"];
-    [self.categoryTableViewController setStartDate:nil];
-    [self.categoryTableViewController setEndDate:nil];
+    [self.categoryTableViewController setTitle:@"One Month's Categories"];
+    [self.categoryTableViewController setStartDate:[[NSDate date] offsetDay:-30]];
+    [self.categoryTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
 }
 
@@ -101,7 +102,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.allTransTableViewController setCategoryTitle:nil];
     [self.allTransTableViewController setSubCategoryTitle:nil];
     [self.allTransTableViewController setStartDate:nil];
-    [self.allTransTableViewController setEndDate:nil];
+    [self.allTransTableViewController setEndDate:[NSDate date]];
     [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
     [self.allTransTableViewController setCategoryTitle:@"*"];
 }
@@ -116,6 +117,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     self.calendarViewController.maxAvailableDate = [NSDate dateStartOfDay:[[NSDate date] offsetYear:3]];
     self.calendarViewController.beginDate = [NSDate dateStartOfDay:[NSDate date]];
     self.calendarViewController.endDate = [NSDate dateStartOfDay:[[NSDate date] offsetDay:1]];
+    self.calendarViewController.preferredDate = self.calendarViewController.beginDate;
 }
 
 - (void)updateAllRecurrences
@@ -126,8 +128,8 @@ static spnSpendTracker *sharedSpendTracker = nil;
     // Get all recurrences from the managed object context
     NSArray *recurrencesArray = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     
-    // Call the extend routine on them all. Transactions will be created through the end of the month, if they don't already exist
-    [recurrencesArray makeObjectsPerformSelector:@selector(extendSeriesThroughToday)];
+    // Call the extend routine on them all. Transactions will be created if they don't already exist
+    [recurrencesArray makeObjectsPerformSelector:@selector(extendSeries)];
     
     // Save changes
     [self saveContext:self.managedObjectContext];

@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, SpnRecurrenceActionType)
 @interface SpnRecurrence : SpnRecurrenceMO
 
 - (void)setRecurrenceForTransaction:(SpnTransaction*)transaction withFrequency:(NSDateComponents*)frequency withAction:(SpnRecurrenceActionType)action;
-- (void)extendSeriesThroughToday;
+- (void)extendSeries;
 
 
 @end

@@ -11,11 +11,26 @@
 #import "spnViewController_Expense.h"
 #import "spnViewController_Income.h"
 #import "SpnTransaction.h"
+#import <objc/runtime.h>
+
+static char const * const PreferredDateKey = "PreferredDate";
 
 @implementation UIViewController (addTransactionHandles)
 
+@dynamic preferredDate;
+
 #define ACTION_SHEET_BUTTON_IDX_EXPENSE 0
 #define ACTION_SHEET_BUTTON_IDX_INCOME 1
+
+- (NSDate*)preferredDate
+{
+    return objc_getAssociatedObject(self, PreferredDateKey);
+}
+
+- (void)setPreferredDate:(NSDate *)preferredDate
+{
+    objc_setAssociatedObject(self, PreferredDateKey, preferredDate,  OBJC_ASSOCIATION_RETAIN);
+}
 
 - (void)spnAddButtonClicked: (id)sender
 {
@@ -52,6 +67,7 @@
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
             [addViewController setTransaction:newTransaction];
             [addViewController setIsNew:YES];
+            [addViewController setDate:self.preferredDate];
             
             // Add done and cancel buttons
             addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:doneButtonSelector];
@@ -79,6 +95,7 @@
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
             [addViewController setTransaction:newTransaction];
             [addViewController setIsNew:YES];
+            [addViewController setDate:self.preferredDate];
             
             // Add done and cancel buttons
             addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:doneButtonSelector];

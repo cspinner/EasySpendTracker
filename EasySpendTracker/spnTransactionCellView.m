@@ -15,7 +15,8 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
-        self.detailTextLabel.font = [UIFont systemFontOfSize:14.0f];
+        self.textLabel.font = [UIFont systemFontOfSize:14.0f];
+        self.detailTextLabel.textColor = [UIColor blackColor];
         
         // Add chevron button
         [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
@@ -26,17 +27,17 @@
 - (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome
 {
     // Write cell contents
-    self.textLabel.text = merchant;
+    self.detailTextLabel.text = merchant;
 
     if (isIncome)
     {
-        self.detailTextLabel.text = [NSString stringWithFormat:@"$%.2f", value];
-        self.detailTextLabel.textColor = [UIColor blackColor];
+        self.textLabel.text = [NSString stringWithFormat:@"$%.2f", value];
+        self.textLabel.textColor = [UIColor blackColor];
     }
     else
     {
-        self.detailTextLabel.text = [NSString stringWithFormat:@"($%.2f)", value];
-        self.detailTextLabel.textColor = [UIColor redColor];
+        self.textLabel.text = [NSString stringWithFormat:@"($%.2f)", value];
+        self.textLabel.textColor = [UIColor redColor];
     }
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "spnLineChartProcessDataOp.h"
+#import "NSDate+Convenience.h"
 
 @interface spnLineChartProcessDataOp()
 
@@ -50,19 +51,10 @@
         NSMutableArray* XYValues = [[NSMutableArray alloc] init];
         NSMutableArray* XLabels = [[NSMutableArray alloc] init];
         
-        // Get array of dates for those transactions
-        NSCalendar* calendar = [NSCalendar currentCalendar];
-        NSDateComponents* tempComponents = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth) fromDate:[NSDate date]];
-        NSDate* dateForCompare1 = [calendar dateFromComponents:tempComponents]; // Creates year/month only date
-        [tempComponents setYear:0];
-        [tempComponents setMonth:-12];
-        dateForCompare1 = [calendar dateByAddingComponents:tempComponents toDate:dateForCompare1 options:0];
-        [tempComponents setMonth:1];
-        NSDate* dateForCompare2 = [calendar dateByAddingComponents:tempComponents toDate:dateForCompare1 options:0];
-        
-        // Create the date formatter to extract the abbreviated month
-        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMMMM" options:0 locale:[NSLocale currentLocale]]];
+        NSDate* dateForCompare1 = [NSDate date:[NSDate date] withComponents:(NSYearCalendarUnit|NSMonthCalendarUnit)]; // Creates year/month only date
+        dateForCompare1 = [dateForCompare1 offsetYear:-1]; // 1 year ago
+
+        NSDate* dateForCompare2 = [dateForCompare1 offsetMonth:1]; // 11 months ago
         
         // Get 12 month's worth of totals
         for (NSInteger monthOffset = 0; monthOffset <= 12; monthOffset++)
@@ -87,11 +79,11 @@
             [XYValues addObject:@[ @(monthOffset), valueOfMonth] ];
             
             // Add the label for the X axis
-            [XLabels addObject:[dateFormatter stringFromDate:dateForCompare1]];
+            [XLabels addObject:[NSDate stringFromDate:dateForCompare1 format:@"MMMMM"]];
             
             // Increment date pointers by one month
-            dateForCompare1 = [calendar dateByAddingComponents:tempComponents toDate:dateForCompare1 options:0];
-            dateForCompare2 = [calendar dateByAddingComponents:tempComponents toDate:dateForCompare1 options:0];
+            dateForCompare1 = [dateForCompare1 offsetMonth:1];
+            dateForCompare2 = [dateForCompare2 offsetMonth:1];
         }
         
         linePlotXYValues = [NSArray arrayWithArray:XYValues];
