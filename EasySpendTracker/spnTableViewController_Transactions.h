@@ -10,10 +10,10 @@
 
 @interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
-@property NSString* categoryTitle;
-@property NSString* subCategoryTitle;
-@property NSDate* startDate;
-@property NSDate* endDate;
+@property (nonatomic) NSString* categoryTitle;
+@property (nonatomic) NSString* subCategoryTitle;
+@property (nonatomic) NSDate* startDate;
+@property (nonatomic) NSDate* endDate;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
 
 @end

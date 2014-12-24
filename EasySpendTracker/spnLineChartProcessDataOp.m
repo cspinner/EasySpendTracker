@@ -51,7 +51,7 @@
         NSMutableArray* XYValues = [[NSMutableArray alloc] init];
         NSMutableArray* XLabels = [[NSMutableArray alloc] init];
         
-        NSDate* dateForCompare1 = [NSDate date:[NSDate date] withComponents:(NSYearCalendarUnit|NSMonthCalendarUnit)]; // Creates year/month only date
+        NSDate* dateForCompare1 = [NSDate date:[NSDate date] withComponents:(NSCalendarUnitYear|NSCalendarUnitMonth)]; // Creates year/month only date
         dateForCompare1 = [dateForCompare1 offsetYear:-1]; // 1 year ago
 
         NSDate* dateForCompare2 = [dateForCompare1 offsetMonth:1]; // 11 months ago

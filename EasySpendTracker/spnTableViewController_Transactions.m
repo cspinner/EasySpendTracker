@@ -8,7 +8,6 @@
 
 #import "spnTableViewController_Transactions.h"
 #import "UIViewController+addTransactionHandles.h"
-#import "UIView+spnViewCtgy.h"
 #import "spnTransactionCellView.h"
 #import "spnViewController_Expense.h"
 #import "spnViewController_Income.h"
@@ -558,6 +557,32 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
     
     self.searchResults = [NSMutableArray arrayWithArray:[fetchedObjects filteredArrayUsingPredicate:predicate]];
+}
+
+#pragma mark - property overrides
+
+- (void)setCategoryTitle:(NSString *)categoryTitle
+{
+    _categoryTitle = categoryTitle;
+    _fetchedResultsController = nil;
+}
+
+- (void)setSubCategoryTitle:(NSString *)subCategoryTitle
+{
+    _subCategoryTitle = subCategoryTitle;
+    _fetchedResultsController = nil;
+}
+
+- (void)setStartDate:(NSDate *)startDate
+{
+    _startDate = startDate;
+    _fetchedResultsController = nil;
+}
+
+- (void)setEndDate:(NSDate *)endDate
+{
+    _endDate = endDate;
+    _fetchedResultsController = nil;
 }
 
 @end

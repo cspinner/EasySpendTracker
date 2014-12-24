@@ -333,4 +333,18 @@
     self.searchResults = [NSMutableArray arrayWithArray:[fetchedObjects filteredArrayUsingPredicate:predicate]];
 }
 
+#pragma mark - property overrides
+
+- (void)setStartDate:(NSDate *)startDate
+{
+    _startDate = startDate;
+    _fetchedResultsController = nil;
+}
+
+- (void)setEndDate:(NSDate *)endDate
+{
+    _endDate = endDate;
+    _fetchedResultsController = nil;
+}
+
 @end

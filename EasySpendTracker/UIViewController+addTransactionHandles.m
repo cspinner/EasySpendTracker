@@ -10,7 +10,9 @@
 #import "spnSpendTracker.h"
 #import "spnViewController_Expense.h"
 #import "spnViewController_Income.h"
+#import "spnViewController_BillReminder.h"
 #import "SpnTransaction.h"
+#import "SpnBillReminder.h"
 #import <objc/runtime.h>
 
 static char const * const PreferredDateKey = "PreferredDate";
@@ -21,6 +23,7 @@ static char const * const PreferredDateKey = "PreferredDate";
 
 #define ACTION_SHEET_BUTTON_IDX_EXPENSE 0
 #define ACTION_SHEET_BUTTON_IDX_INCOME 1
+#define ACTION_SHEET_BUTTON_IDX_REMINDER 2
 
 - (NSDate*)preferredDate
 {
@@ -37,6 +40,7 @@ static char const * const PreferredDateKey = "PreferredDate";
     UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:
         @"Expense",
         @"Income",
+        @"Reminder",
         nil];
     
     [actionSheet setActionSheetStyle:UIActionSheetStyleAutomatic];
@@ -106,6 +110,35 @@ static char const * const PreferredDateKey = "PreferredDate";
             [self presentViewController:navController animated:YES completion:nil];
         }
             break;
+            
+        case ACTION_SHEET_BUTTON_IDX_REMINDER:
+        {
+            SpnBillReminder* newReminder = [[SpnBillReminder alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnBillReminderMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+            
+            // Perform additional initialization.
+            [newReminder setMerchant:@""];
+            [newReminder setNotes:@""];
+            [newReminder setValue:[NSNumber numberWithFloat:0.00]];
+            [newReminder setPaidStatus:PAID_STATUS_NONE];
+            
+            spnViewController_BillReminder* addViewController = [[spnViewController_BillReminder alloc] init];
+            [addViewController setTitle:@"Add Reminder"];
+            [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
+            [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
+            [addViewController setBillReminder:newReminder];
+            [addViewController setIsNew:YES];
+            [addViewController setDate:self.preferredDate];
+            
+            // Add done and cancel buttons
+            addViewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:addViewController action:doneButtonSelector];
+            addViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:addViewController action:cancelButtonSelector];
+            
+            UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:addViewController];
+            
+            [self presentViewController:navController animated:YES completion:nil];
+        }
+            break;
+
             
         default:
             break;

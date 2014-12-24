@@ -8,6 +8,7 @@
 
 #import "spnAppDelegate.h"
 #import "spnSpendTracker.h"
+#import "NSDate+Convenience.h"
 #import <UIKit/UIKit.h>
 
 @interface spnAppDelegate ()
@@ -34,8 +35,19 @@
     // main data object (singleton)
     spnSpendTracker* spendTracker = [spnSpendTracker sharedManager];
     spendTracker.managedObjectContext = context;
-    [spendTracker updateAllRecurrences];
     [spendTracker initViews];
+    [spendTracker initLocalNotifications];
+    
+    // Notifications -
+    // The user taps the default button in the alert or taps (or clicks) the app icon.
+    UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    if (notification)
+    {
+//        application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber-1;
+        NSLog(@"Launch options: %@", notification.alertBody);
+        [[spnSpendTracker sharedManager] processLocalNotification:notification withActionIdentifier:nil];
+    }
+//    [application cancelAllLocalNotifications];
     
     self.window.rootViewController = spendTracker.rootViewController;
     [self.window makeKeyAndVisible];
@@ -58,11 +70,21 @@
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    
+    // Many of the view controllers will display content based on a start and end date that is set when the view controllers are loaded for the first time. If the app has been lingering in background across a day's boundary, the view controllers will need to be reloaded so they can account for the date change.
+    if ([spnSpendTracker sharedManager].dateViewCntlLoaded.day != [NSDate date].day)
+    {
+        [[spnSpendTracker sharedManager] initViews];
+    }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    [[spnSpendTracker sharedManager] updateAllRecurrences];
+    [[spnSpendTracker sharedManager] updateAllReminders];
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -169,8 +191,25 @@
 // Returns the URL to the application's Documents directory.
 - (NSURL *)applicationDocumentsDirectory
 {
-    NSLog(@"%@",[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory  inDomains:NSUserDomainMask] lastObject]);
+//    NSLog(@"%@",[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory  inDomains:NSUserDomainMask] lastObject]);
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+}
+
+#pragma mark - Notifications
+// Notifications -
+// Called when the user taps a custom action button in an iOS 8 notification.
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler
+{
+    NSLog(@"Button pressed - Notification handled: %@ with identifier: %@", notification.alertBody, identifier);
+    [[spnSpendTracker sharedManager] processLocalNotification:notification withActionIdentifier:identifier];
+    completionHandler();
+}
+
+// Called when the notification is delivered when the app is running in the foreground.
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    NSLog(@"App Running - Notification handled: %@", notification.alertBody);
+    [[spnSpendTracker sharedManager] processLocalNotification:notification withActionIdentifier:nil];
 }
 
 @end

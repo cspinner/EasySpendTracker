@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="1" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6252" systemVersion="14B25" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="SpnBillReminderMO" representedClassName="SpnBillReminder" syncable="YES">
+        <attribute name="dateDue" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="frequency" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="merchant" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="paidStatusRaw" optional="YES" attributeType="Integer 32" syncable="YES"/>
+        <attribute name="sectionName" optional="YES" transient="YES" attributeType="String" syncable="YES"/>
+        <attribute name="uniqueID" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="value" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+    </entity>
+    <entity name="SpnCategoryMO" representedClassName="SpnCategory" syncable="YES">
+        <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="subCategories" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnSubCategoryMO" inverseName="category" inverseEntity="SpnSubCategoryMO" syncable="YES"/>
+    </entity>
+    <entity name="SpnRecurrenceMO" representedClassName="SpnRecurrence" syncable="YES">
+        <attribute name="frequency" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="nextDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="rootTransaction" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnTransactionMO" inverseName="recurrenceWhereRoot" inverseEntity="SpnTransactionMO" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SpnTransactionMO" inverseName="recurrence" inverseEntity="SpnTransactionMO" syncable="YES"/>
+    </entity>
+    <entity name="SpnSubCategoryMO" representedClassName="SpnSubCategory" syncable="YES">
+        <attribute name="lastModifiedDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnCategoryMO" inverseName="subCategories" inverseEntity="SpnCategoryMO" syncable="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SpnTransactionMO" inverseName="subCategory" inverseEntity="SpnTransactionMO" syncable="YES"/>
+    </entity>
+    <entity name="SpnTransactionMO" representedClassName="SpnTransaction" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="merchant" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sectionName" optional="YES" transient="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="value" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="recurrence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="transactions" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
+        <relationship name="recurrenceWhereRoot" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SpnRecurrenceMO" inverseName="rootTransaction" inverseEntity="SpnRecurrenceMO" syncable="YES"/>
+        <relationship name="subCategory" maxCount="1" deletionRule="Nullify" destinationEntity="SpnSubCategoryMO" inverseName="transactions" inverseEntity="SpnSubCategoryMO" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="SpnBillReminderMO" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SpnCategoryMO" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SpnRecurrenceMO" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SpnSubCategoryMO" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SpnTransactionMO" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>

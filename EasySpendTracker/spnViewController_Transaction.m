@@ -24,6 +24,10 @@
 @property AutoFillTableViewController *autoFillTableViewController;
 @property UITableView* tableView;
 
+// Managing the view reacting to the keyboard
+@property UIView* activeField;
+@property UIEdgeInsets edgeInsetsSaved;
+
 @end
 
 @implementation spnViewController_Transaction
@@ -46,6 +50,11 @@ static int subCategorySetContext;
     [tap setCancelsTouchesInView:NO];
     [self.view addGestureRecognizer:tap];
     [self.tableView addGestureRecognizer:tap];
+    
+    // Register for keyboard notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
     
     // Initialize frequency based on recurrence
     if (self.transaction.recurrence)
@@ -111,6 +120,33 @@ static int subCategorySetContext;
     [self.view performSelector:@selector(dismissKeyboard)];
     
     self.autoFillTableViewController.tableView.hidden = YES;
+}
+
+- (void)keyboardDidShowNotification:(NSNotification*)notification
+{
+    NSDictionary* info = [notification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    self.edgeInsetsSaved = self.tableView.contentInset;
+    
+    // If active text field is hidden by keyboard, scroll it so it's visible
+    CGRect viewFrameRect = self.view.frame;
+    viewFrameRect.size.height -= kbSize.height;
+    CGPoint aBottomPointOfActiveField = CGPointMake(self.activeField.superview.frame.origin.x, self.activeField.superview.frame.origin.y+self.activeField.superview.frame.size.height);
+    if (!CGRectContainsPoint(viewFrameRect, aBottomPointOfActiveField) )
+    {
+        UIEdgeInsets contentInsets = UIEdgeInsetsMake(self.tableView.contentInset.top, self.tableView.contentInset.left, self.tableView.contentInset.bottom+kbSize.height, self.tableView.contentInset.right);
+        self.tableView.contentInset = contentInsets;
+        self.tableView.scrollIndicatorInsets = contentInsets;
+        [self.tableView scrollRectToVisible:self.activeField.superview.frame animated:YES];
+    }
+}
+
+- (void)keyboardWillHideNotification:(NSNotification*)notification
+{
+    NSDictionary* info = [notification userInfo];
+
+    self.tableView.contentInset = self.edgeInsetsSaved;
+    self.tableView.scrollIndicatorInsets = self.edgeInsetsSaved;
 }
 
 - (void)doneButtonClicked: (id)sender
@@ -222,6 +258,8 @@ static int subCategorySetContext;
         [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
+
+#pragma mark - UITableViewDataSource
 
 // <UITableViewDataSource> methods
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -438,6 +476,7 @@ static int subCategorySetContext;
     }
 }
 
+#pragma mark - UITableViewDelegate
 
 // <UITableViewDelegate> methods
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -579,9 +618,14 @@ static int subCategorySetContext;
     
 }
 
+#pragma mark - UITextFieldDelegate
+
 // <UITextFieldDelegate> methods
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
+    // lets the view controller know that this field is active - used in keyboard/view position management
+    self.activeField = textField;
+    
     switch (textField.tag)
     {
         case AMOUNT_VIEW_TAG:
@@ -690,6 +734,8 @@ static int subCategorySetContext;
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
+    self.activeField = nil;
+    
     switch (textField.tag)
     {
         case MERCHANT_VIEW_TAG:
@@ -716,9 +762,19 @@ static int subCategorySetContext;
     }
 }
 
+#pragma mark - UITextViewDelegate
+
 // <UITextViewDelegate> methods
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    // lets the view controller know that this field is active - used in keyboard/view position management
+    self.activeField = textView;
+}
+
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
+    self.activeField = nil;
+    
     switch (textView.tag)
     {
         case DESCRIPTION_VIEW_TAG:
@@ -732,6 +788,8 @@ static int subCategorySetContext;
             break;
     }
 }
+
+#pragma mark - spnViewController_RecurDelegate
 
 // <spnViewController_RecurDelegate> methods
 - (NSDateComponents*)recurGetFrequency
