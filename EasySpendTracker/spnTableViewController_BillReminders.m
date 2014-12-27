@@ -15,10 +15,19 @@
 @interface spnTableViewController_BillReminders ()
 
 @property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
+@property UISegmentedControl* segmentedControl;
+@property BOOL showUnpaidOnly;
 
 @end
 
 #define CELL_HEIGHT 44.0
+
+enum
+{
+    SEGMENT_IDX_UNPAID,
+    SEGMENT_IDX_ALL,
+    SEGMENT_IDX_COUNT
+};
 
 @implementation spnTableViewController_BillReminders
 
@@ -38,13 +47,21 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
+    // search bar init
+    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"UNPAID", @"ALL"]];
+    self.segmentedControl.selectedSegmentIndex = SEGMENT_IDX_UNPAID;
+    [self.segmentedControl addTarget:self action:@selector(handleSegmentControlEvent) forControlEvents:UIControlEventValueChanged];
+    
+    // filter used for the default segmented control view in the fetched results controller
+    self.showUnpaidOnly = true;
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
     
     NSError *error;
     if (![self.fetchedResultsController performFetch:&error])
     {
         // Update to handle the error appropriately.
-        NSLog(@"Transaction Fetch Error: %@, %@", error, [error userInfo]);
+        NSLog(@"Reminder Fetch Error: %@, %@", error, [error userInfo]);
         exit(-1);
     }
 }
@@ -54,6 +71,9 @@
     [super viewWillAppear:animated];
     
     [[spnSpendTracker sharedManager] updateAllReminders];
+    
+    // Display the segmented control
+    [self.tableView setTableHeaderView:self.segmentedControl];
     
     [self.tableView reloadData];
 }
@@ -78,6 +98,11 @@
     
     NSMutableArray* predicateArray = [[NSMutableArray alloc] init];
     
+    if(self.showUnpaidOnly)
+    {
+        [predicateArray addObject:[NSPredicate predicateWithFormat:@"paidStatusRaw == %@", @(PAID_STATUS_UNPAID)]];
+    }
+    
     // Combine the predicates if any were created
     if (predicateArray.count > 0)
     {
@@ -90,6 +115,43 @@
     [_fetchedResultsController setDelegate:self];
     
     return _fetchedResultsController;
+}
+
+- (void)handleSegmentControlEvent
+{
+    // Set the paidstatus filter
+    switch (self.segmentedControl.selectedSegmentIndex)
+    {
+        case SEGMENT_IDX_UNPAID:
+        {
+            self.showUnpaidOnly = true;
+        }
+            break;
+            
+        case SEGMENT_IDX_ALL:
+        {
+            self.showUnpaidOnly = false;
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    // Nullify the current fetched results controller
+    _fetchedResultsController = nil;
+    
+    // Perform new fetch
+    NSError *error;
+    if (![self.fetchedResultsController performFetch:&error])
+    {
+        // Update to handle the error appropriately.
+        NSLog(@"Reminder Fetch Error: %@, %@", error, [error userInfo]);
+        exit(-1);
+    }
+    
+    // refresh the table using the new filter
+    [self.tableView reloadData];
 }
 
 - (void)configureCell:(UITableViewCell*)cell withReminder:(SpnBillReminder*)reminder

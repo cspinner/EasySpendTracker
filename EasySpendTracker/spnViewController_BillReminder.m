@@ -125,9 +125,6 @@
         if ((self.isNew) ||
             (!self.isNew && self.dueDateWasUpdated))
         {
-            // Set 'none' status - results in PENDING
-            self.billReminder.paidStatus = PAID_STATUS_NONE;
-            
             [self scheduleReminderNotification];
         }
         
@@ -152,6 +149,9 @@
 
 - (void)scheduleReminderNotification
 {
+    // Set 'none' status - results in PENDING
+    self.billReminder.paidStatus = PAID_STATUS_NONE;
+    
     // Create the new reminder notification
     self.billReminder.uniqueID = @(arc4random());
     NSLog(@"%@: %lu", self.billReminder.merchant, self.billReminder.uniqueID.integerValue);

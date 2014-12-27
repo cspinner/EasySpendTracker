@@ -91,23 +91,23 @@ static spnSpendTracker *sharedSpendTracker = nil;
     NSArray* navControllerArray = [NSArray arrayWithObjects:summaryNavController, categoryTableNavController, allTransTableNavController, calendarNavController, remindersNavController, nil];
     
     // Setup Summary Tab
-    UITabBarItem* summaryTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Summary" image:nil tag:TAB_BAR_SUMMARY_INEDX+1];
+    UITabBarItem* summaryTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Summary" image:[UIImage imageNamed:@"pie-chart-7.png"] tag:TAB_BAR_SUMMARY_INEDX+1];
     summaryNavController.tabBarItem = summaryTabBarItem;
     
     // Setup Categories Tab
-    UITabBarItem* catTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Categories" image:nil tag:TAB_BAR_CATEGORIES_INDEX+1];
+    UITabBarItem* catTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Categories" image:[UIImage imageNamed:@"folder-7.png"] tag:TAB_BAR_CATEGORIES_INDEX+1];
     categoryTableNavController.tabBarItem = catTabBarItem;
     
     // Setup Transactions Tab
-    UITabBarItem* trnsTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Transactions" image:nil tag:TAB_BAR_TRANSACTIONS_INDEX+1];
+    UITabBarItem* trnsTabBarItem = [[UITabBarItem alloc] initWithTitle:@"List" image:[UIImage imageNamed:@"list-fat-7.png"] tag:TAB_BAR_TRANSACTIONS_INDEX+1];
     allTransTableNavController.tabBarItem = trnsTabBarItem;
     
     // Setup Calendar Tab
-    UITabBarItem* calTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Calendar" image:nil tag:TAB_BAR_CALENDAR_INDEX+1];
+    UITabBarItem* calTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Calendar" image:[UIImage imageNamed:@"calendar-7.png"] tag:TAB_BAR_CALENDAR_INDEX+1];
     calendarNavController.tabBarItem = calTabBarItem;
     
     // Setup Reminders Tab
-    UITabBarItem* reminderTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Bills" image:nil tag:TAB_BAR_REMINDERS_INDEX+1];
+    UITabBarItem* reminderTabBarItem = [[UITabBarItem alloc] initWithTitle:@"Bills" image:[UIImage imageNamed:@"paper-piece-tick-7.png"] tag:TAB_BAR_REMINDERS_INDEX+1];
     remindersNavController.tabBarItem = reminderTabBarItem;
     
     // Setup Tab Bar Control - set as root view controller
@@ -423,6 +423,18 @@ static spnSpendTracker *sharedSpendTracker = nil;
     {
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
     }
+    
+    if ([[UIApplication sharedApplication] applicationIconBadgeNumber] != 0)
+    {
+        // Set badge count in tab bar item
+        ((UINavigationController*)self.mainTabBarController.viewControllers[4]).tabBarItem.badgeValue = [NSString stringWithFormat:@"%lu", [[UIApplication sharedApplication] applicationIconBadgeNumber]];
+    }
+    else
+    {
+        // Clear the badge count in tab bar item
+        ((UINavigationController*)self.mainTabBarController.viewControllers[4]).tabBarItem.badgeValue = nil;
+    }
+    
     
     // Save changes
     [self saveContext:self.managedObjectContext];
