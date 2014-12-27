@@ -232,10 +232,22 @@ enum
 {
     // Write cell contents
     NSString* category = [transaction valueForKeyPath:@"subCategory.category.title"];
-    
-    [cell setValue:transaction.value.floatValue withMerchant:transaction.merchant isIncome:[category isEqualToString:@"Income"]];
+
+    // Write cell contents
+    [cell.textLabel setText:transaction.merchant];
     [cell.textLabel setFont:[UIFont systemFontOfSize:11.5]];
     [cell.detailTextLabel setFont:[UIFont systemFontOfSize:11.5]];
+    
+    if ([category isEqualToString:@"Income"])
+    {
+        [cell.detailTextLabel setText:[NSString stringWithFormat:@"$%.2f", transaction.value.floatValue]];
+        [cell.detailTextLabel setTextColor:[UIColor blackColor]];
+    }
+    else
+    {
+        [cell.detailTextLabel setText:[NSString stringWithFormat:@"($%.2f)", transaction.value.floatValue]];
+        [cell.detailTextLabel setTextColor:[UIColor redColor]];
+    }
 }
 
 - (void)configureCell:(UITableViewCell*)cell withReminder:(SpnBillReminder*)reminder
@@ -373,6 +385,7 @@ enum
     [headerLabel setFont:[UIFont systemFontOfSize:12]];
     [headerLabel setTextColor:[UIColor grayColor]];
     
+    [headerView setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:1.0]];
     [headerView addSubview:headerLabel];
     
     return headerView;
@@ -533,12 +546,14 @@ enum
         static NSString* CellIdentifier = @"CalendarTransEventCell";
         
         // Acquire reuse cell object from the table view
-        spnTransactionCellView* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+//        spnTransactionCellView* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         
         if (!cell)
         {
             // Create cell if reuse cell doesn't exist.
-            cell = [[spnTransactionCellView alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
+//            cell = [[spnTransactionCellView alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
         }
         
         [self configureCell:cell withTransaction:self.filteredTransactions[indexPath.row]];

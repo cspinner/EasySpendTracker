@@ -92,13 +92,13 @@
         
         NSMutableArray* valuesArray = [[NSMutableArray alloc] init];
         
-        // Get array of unique category titles
+        // Get array of unique names
         NSMutableArray* namesArray = [transactions valueForKeyPath:[NSString stringWithFormat:@"@distinctUnionOfObjects.%@", self.keyPath]];
         
-        for(NSString* categoryTitle in namesArray)
+        for(NSString* name in namesArray)
         {
-            // Get array of transactions for each category, by category title
-            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"%K MATCHES[cd] %@", self.keyPath, categoryTitle];
+            // Get array of transactions for each name
+            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"%K MATCHES[cd] %@", self.keyPath, name];
             NSArray* filteredTransactions = [transactions filteredArrayUsingPredicate:predicate];
             
             // Store the sum of values of those transactions to the array

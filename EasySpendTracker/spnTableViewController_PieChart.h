@@ -24,7 +24,6 @@ enum
 @property spnPieChart* pieChartCntrl;
 @property NSDate* startDate;
 @property NSDate* endDate;
-@property NSArray* excludeCategories;
 
 // These two are sorted together
 @property NSArray* pieChartValues;

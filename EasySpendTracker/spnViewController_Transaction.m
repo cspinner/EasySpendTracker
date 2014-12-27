@@ -27,6 +27,7 @@
 // Managing the view reacting to the keyboard
 @property UIView* activeField;
 @property UIEdgeInsets edgeInsetsSaved;
+@property BOOL isKeyboardOpen;
 
 @end
 
@@ -55,6 +56,8 @@ static int subCategorySetContext;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
+    
+    self.isKeyboardOpen = NO;
     
     // Initialize frequency based on recurrence
     if (self.transaction.recurrence)
@@ -139,14 +142,19 @@ static int subCategorySetContext;
         self.tableView.scrollIndicatorInsets = contentInsets;
         [self.tableView scrollRectToVisible:self.activeField.superview.frame animated:YES];
     }
+    
+    self.isKeyboardOpen = YES;
 }
 
 - (void)keyboardWillHideNotification:(NSNotification*)notification
 {
-    NSDictionary* info = [notification userInfo];
-
-    self.tableView.contentInset = self.edgeInsetsSaved;
-    self.tableView.scrollIndicatorInsets = self.edgeInsetsSaved;
+    if (self.isKeyboardOpen == YES)
+    {
+        self.tableView.contentInset = self.edgeInsetsSaved;
+        self.tableView.scrollIndicatorInsets = self.edgeInsetsSaved;
+    }
+    
+    self.isKeyboardOpen = NO;
 }
 
 - (void)doneButtonClicked: (id)sender

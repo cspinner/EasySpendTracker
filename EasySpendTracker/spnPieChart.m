@@ -189,13 +189,13 @@ BOOL isPreview;
         [self.delegate pieChart:self entryWasSelectedAtIndex:index];
     }
 
-    [self generateData];
-    [plot reloadData];
-    
-    if ([self.delegate respondsToSelector:@selector(pieChart:reloadedPlot:)])
-    {
-        [self.delegate pieChart:self reloadedPlot:plot];
-    }
+//    [self generateData];
+//    [plot reloadData];
+//    
+//    if ([self.delegate respondsToSelector:@selector(pieChart:reloadedPlot:)])
+//    {
+//        [self.delegate pieChart:self reloadedPlot:plot];
+//    }
 }
 
 //<CPTLegendDelegate> methods
@@ -206,13 +206,13 @@ BOOL isPreview;
         [self.delegate pieChart:self entryWasSelectedAtIndex:idx];
     }
     
-    [self generateData];
-    [plot reloadData];
-    
-    if ([self.delegate respondsToSelector:@selector(pieChart:reloadedPlot:)])
-    {
-        [self.delegate pieChart:self reloadedPlot:plot];
-    }
+//    [self generateData];
+//    [plot reloadData];
+//    
+//    if ([self.delegate respondsToSelector:@selector(pieChart:reloadedPlot:)])
+//    {
+//        [self.delegate pieChart:self reloadedPlot:plot];
+//    }
 }
 
 //<CPTPlotDataSource> methods

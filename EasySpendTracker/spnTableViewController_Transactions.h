@@ -12,6 +12,7 @@
 
 @property (nonatomic) NSString* categoryTitle;
 @property (nonatomic) NSString* subCategoryTitle;
+@property (nonatomic) NSString* merchantTitle;
 @property (nonatomic) NSDate* startDate;
 @property (nonatomic) NSDate* endDate;
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;

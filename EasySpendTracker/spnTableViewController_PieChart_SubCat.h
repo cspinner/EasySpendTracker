@@ -11,5 +11,6 @@
 @interface spnTableViewController_PieChart_SubCat : spnTableViewController_PieChart
 
 @property NSString* focusCategory;
+@property NSArray* excludeCategories;
 
 @end

@@ -181,6 +181,14 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
         [predicateArray addObject:predicate];
     }
     
+    // Create a predicate for the merchant title
+    if (self.merchantTitle != nil)
+    {
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"merchant LIKE %@", self.merchantTitle];
+        
+        [predicateArray addObject:predicate];
+    }
+    
     // Combine the predicates if any were created
     if (predicateArray.count > 0)
     {
@@ -223,12 +231,13 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
 }
 
-- (void)configureCell:(spnTransactionCellView*)cell withTransaction:(SpnTransaction*)transaction
+- (void)configureCell:(spnTransactionCellView*)cell withTransaction:(SpnTransaction*)transaction showDate:(BOOL)showDate
 {
     // Write cell contents
     NSString* category = [transaction valueForKeyPath:@"subCategory.category.title"];
+    NSDate* dateForDisplay = showDate ? transaction.date : nil;
     
-    [cell setValue:transaction.value.floatValue withMerchant:transaction.merchant isIncome:[category isEqualToString:@"Income"]];
+    [cell setValue:transaction.value.floatValue withMerchant:transaction.merchant isIncome:[category isEqualToString:@"Income"] onDate:dateForDisplay];
 }
 
 // <UITableViewDataSource> methods
@@ -247,7 +256,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     
     if (self.tableView == tableView)
     {
-        [self configureCell:cell withTransaction:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        [self configureCell:cell withTransaction:[self.fetchedResultsController objectAtIndexPath:indexPath] showDate:NO];
         
         if ((indexPath.section == ([self numberOfSectionsInTableView:tableView] - 1)) &&
             (indexPath.row == ([tableView numberOfRowsInSection:indexPath.section] - 1)))
@@ -257,7 +266,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
     else // self.searchDisplayController.searchResultsTableView
     {
-        [self configureCell:cell withTransaction:[self.searchResults objectAtIndex:indexPath.row]];
+        [self configureCell:cell withTransaction:[self.searchResults objectAtIndex:indexPath.row] showDate:YES];
     }
     
     return cell;
@@ -418,7 +427,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] withTransaction:[self.fetchedResultsController objectAtIndexPath:newIndexPath]];
+            [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] withTransaction:[self.fetchedResultsController objectAtIndexPath:newIndexPath] showDate:NO];
             break;
             
         case NSFetchedResultsChangeMove:
@@ -570,6 +579,12 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
 - (void)setSubCategoryTitle:(NSString *)subCategoryTitle
 {
     _subCategoryTitle = subCategoryTitle;
+    _fetchedResultsController = nil;
+}
+
+- (void)setMerchantTitle:(NSString *)merchantTitle
+{
+    _merchantTitle = merchantTitle;
     _fetchedResultsController = nil;
 }
 

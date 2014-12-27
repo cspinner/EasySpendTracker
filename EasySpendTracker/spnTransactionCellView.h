@@ -10,6 +10,11 @@
 
 @interface spnTransactionCellView : UITableViewCell
 
-- (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome;
+@property UILabel* valueLabel;
+@property UILabel* valueLabelLarge;
+@property UILabel* merchantLabel;
+@property UILabel* dateLabel;
+
+- (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome onDate:(NSDate*)date;
 
 @end

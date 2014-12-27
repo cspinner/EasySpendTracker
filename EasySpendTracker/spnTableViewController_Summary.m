@@ -13,6 +13,7 @@
 #import "SpnSubCategory.h"
 #import "spnTableViewController_PieChart_Cat.h"
 #import "spnTableViewController_LinePlot_Cat.h"
+#import "spnTableViewController_PieChart_Mer.h"
 #import "spnTableViewController_BarPlot.h"
 #import "NSDate+Convenience.h"
 
@@ -23,6 +24,7 @@
 @property spnTableViewController_PieChart_Cat* pieChartTableThisMonthIncomeExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableAllTimeExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableAllTimeIncomeExpenses;
+@property spnTableViewController_PieChart_Mer* pieChartTableThisMonthExpMerchants;
 @property spnTableViewController_LinePlot_Cat* linePlotAllExpenses;
 
 @property NSArray* chartImageDefaults;
@@ -41,6 +43,10 @@ enum
     ROW_THIS_MONTH_INCOME_EXPENSE,
     ROW_ALL_TIME_EXPENSE,
     ROW_ALL_TIME_INCOME_EXPENSE,
+    ROW_THIS_MONTH_EXPENSE_MERCHANTS,
+//    ROW_THIS_MONTH_INCOME_MERCHANTS,
+//    ROW_ALL_TIME_EXPENSE_MERCHANTS,
+//    ROW_ALL_TIME_INCOME_MERCHANTS,
     ROW_LINE,
     ROW_COUNT
 };
@@ -76,7 +82,7 @@ int observeChartPreviewContext;
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(spnAddButtonClicked:)];
     
-    self.chartImageDefaults = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"Empty_Bar_Plot"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Line_Plot"], nil];
+    self.chartImageDefaults = [[NSArray alloc] initWithObjects:[UIImage imageNamed:@"Empty_Bar_Plot"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Pie_Chart"], [UIImage imageNamed:@"Empty_Line_Plot"], nil];
     self.chartImageCache = [[NSMutableArray alloc] initWithArray:self.chartImageDefaults copyItems:YES];
     
     [self initCharts];
@@ -146,6 +152,15 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeIncomeExpenses.excludeCategories = nil;
     self.pieChartTableAllTimeIncomeExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeIncomeExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    
+    // This Month - Expense Merchants
+    self.pieChartTableThisMonthExpMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
+    self.pieChartTableThisMonthExpMerchants.title = @"This Month's Merchants";
+    self.pieChartTableThisMonthExpMerchants.startDate = [NSDate dateStartOfMonth:[NSDate date]];
+    self.pieChartTableThisMonthExpMerchants.endDate = firstDayOfNextMonth;
+    self.pieChartTableThisMonthExpMerchants.excludeCategories = [NSArray arrayWithObjects: [NSString stringWithFormat:@"Income"], nil];
+    self.pieChartTableThisMonthExpMerchants.managedObjectContext = self.managedObjectContext;
+    [self.pieChartTableThisMonthExpMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
     
     // Line Plot
     self.linePlotAllExpenses = [[spnTableViewController_LinePlot_Cat alloc] initWithStyle:UITableViewStyleGrouped];
@@ -262,6 +277,25 @@ int observeChartPreviewContext;
                     break;
             }
         }
+        else if (object == self.pieChartTableThisMonthExpMerchants)
+        {
+            switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
+            {
+                case NSKeyValueChangeSetting:
+                {
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_MONTH_EXPENSE_MERCHANTS inSection:0]];
+                    previewImage = self.pieChartTableThisMonthExpMerchants.pieChartImage;
+                    row = ROW_THIS_MONTH_EXPENSE_MERCHANTS;
+                }
+                    break;
+                    
+                case NSKeyValueChangeReplacement:
+                case NSKeyValueChangeInsertion:
+                case NSKeyValueChangeRemoval:
+                default:
+                    break;
+            }
+        }
         else if (object == self.linePlotAllExpenses)
         {
             switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
@@ -340,6 +374,7 @@ int observeChartPreviewContext;
         case ROW_THIS_MONTH_INCOME_EXPENSE:
         case ROW_ALL_TIME_EXPENSE:
         case ROW_ALL_TIME_INCOME_EXPENSE:
+        case ROW_THIS_MONTH_EXPENSE_MERCHANTS:
         case ROW_LINE:
         {
             // get imageContainerView => imageView
@@ -362,7 +397,7 @@ int observeChartPreviewContext;
 // <UITableViewDataSource> methods
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray* reuseIdentifier = [NSArray arrayWithObjects:@"barPlotCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"linePlotCell", nil];
+    NSArray* reuseIdentifier = [NSArray arrayWithObjects:@"barPlotCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"pieChartCell", @"linePlotCell", nil];
     
     // Must be in the same order as row enum
     NSArray* headerText = [NSArray arrayWithObjects:
@@ -371,6 +406,7 @@ int observeChartPreviewContext;
                            @"INCOME/EXPENSES - THIS MONTH",
                            @"EXPENSES - ALL TIME",
                            @"INCOME/EXPENSES - ALL TIME",
+                           @"MERCHANTS - THIS MONTH",
                            @"EXPENSES - LAST 12 MONTHS",
                            nil];
     
@@ -414,6 +450,7 @@ int observeChartPreviewContext;
             case ROW_THIS_MONTH_INCOME_EXPENSE:
             case ROW_ALL_TIME_EXPENSE:
             case ROW_ALL_TIME_INCOME_EXPENSE:
+            case ROW_THIS_MONTH_EXPENSE_MERCHANTS:
             {
                 // Create text label
                 UILabel* textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.bounds.size.width, 25.0)];
@@ -552,6 +589,13 @@ int observeChartPreviewContext;
         }
             break;
             
+        case ROW_THIS_MONTH_EXPENSE_MERCHANTS:
+        {
+            self.pieChartTableThisMonthExpMerchants.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT);
+            [self.pieChartTableThisMonthExpMerchants performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+        }
+            break;
+            
         case ROW_LINE:
         {
             self.linePlotAllExpenses.imageFrame = CGRectMake(0, 0, self.tableView.bounds.size.width, LINE_PLOT_HEIGHT);
@@ -574,6 +618,7 @@ int observeChartPreviewContext;
     // Must be in the same order as row enums
     NSArray* rowHeight = [NSArray arrayWithObjects:
                           [NSNumber numberWithFloat:BAR_PLOT_HEIGHT+25],
+                          [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
                           [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
                           [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
                           [NSNumber numberWithFloat:PIE_CHART_HEIGHT+25],
@@ -602,6 +647,10 @@ int observeChartPreviewContext;
             
         case ROW_ALL_TIME_INCOME_EXPENSE:
             [[self navigationController] pushViewController:self.pieChartTableAllTimeIncomeExpenses animated:YES];
+            break;
+            
+        case ROW_THIS_MONTH_EXPENSE_MERCHANTS:
+            [[self navigationController] pushViewController:self.pieChartTableThisMonthExpMerchants animated:YES];
             break;
             
         case ROW_LINE:
