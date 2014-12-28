@@ -7,6 +7,7 @@
 //
 
 #import "spnTransactionCellView.h"
+#import "spnUtils.h"
 
 @implementation spnTransactionCellView
 
@@ -15,10 +16,10 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
-        self.merchantLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 16, 156, 14)];
-        self.valueLabel = [[UILabel alloc] initWithFrame:CGRectMake(156, 0, 120, 22)];
-        self.valueLabelLarge = [[UILabel alloc] initWithFrame:CGRectMake(156, 16, 120, 14)];
-        self.dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(156, 22, 120, 22)];
+        self.merchantLabel = [[UILabel alloc] initWithFrame:CGRectMake(46, 11, 168, 20)];
+        self.valueLabel = [[UILabel alloc] initWithFrame:CGRectMake(194, 0, 92, 22)];
+        self.valueLabelLarge = [[UILabel alloc] initWithFrame:CGRectMake(194, 11, 92, 20)];
+        self.dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(194, 22, 92, 22)];
         
         // Set font colors of labels
         [self.merchantLabel setTextColor:[UIColor blackColor]];
@@ -29,11 +30,11 @@
         // Set font
         [self.merchantLabel setFont:[UIFont systemFontOfSize:13.0]];
         [self.valueLabel setFont:[UIFont systemFontOfSize:12.0]];
-        [self.valueLabelLarge setFont:[UIFont systemFontOfSize:14.0]];
+        [self.valueLabelLarge setFont:[UIFont systemFontOfSize:13.0]];
         [self.dateLabel setFont:[UIFont systemFontOfSize:12.0]];
         
-        // Adjust font size to fit width
-        [self.merchantLabel setAdjustsFontSizeToFitWidth:YES];
+        // Adjust font size to fit width settings
+        [self.merchantLabel setAdjustsFontSizeToFitWidth:NO]; // managed by truncation
         [self.valueLabel setAdjustsFontSizeToFitWidth:YES];
         [self.valueLabelLarge setAdjustsFontSizeToFitWidth:YES];
         [self.dateLabel setAdjustsFontSizeToFitWidth:YES];
@@ -49,7 +50,7 @@
     return self;
 }
 
-- (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome onDate:(NSDate*)date
+- (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome onDate:(NSDate*)date isRecurring:(BOOL)isRecurring
 {
     NSString* valueString;
     UIColor* valueStringColor;
@@ -63,6 +64,14 @@
     {
         valueString = [NSString stringWithFormat:@"($%.2f)", value];
         valueStringColor = [UIColor redColor];
+    }
+    
+    // truncate merchant to 27 chars + ...
+    if (merchant.length > 30)
+    {
+        NSString* truncatedMerchant = [merchant substringToIndex:27];
+        truncatedMerchant = [truncatedMerchant stringByAppendingString:@"..."];
+        merchant = truncatedMerchant;
     }
     
     [self.merchantLabel setText:merchant];
@@ -87,7 +96,17 @@
         [self.contentView addSubview:self.valueLabelLarge];
     }
     
-    
+    // display recurring image if enabled
+    if (isRecurring)
+    {
+        self.imageView.image = [[spnUtils sharedUtils] imageWithImage:[UIImage imageNamed:@"recurrence.png"] scaledToSize:CGSizeMake(20, 20)];
+    }
+    else
+    {
+        self.imageView.image = nil;
+    }
 }
+
+
 
 @end

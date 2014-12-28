@@ -13,6 +13,7 @@
 #import "spnTableViewController_BillReminders.h"
 #import "spnViewController_Calendar.h"
 #import "SpnRecurrence.h"
+#import "SpnTransaction.h"
 #import "SpnBillReminder.h"
 #import "NSDate+Convenience.h"
 #import "UIViewController+addTransactionHandles.h"
@@ -212,8 +213,20 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
 }
 
-- (void)addLocalNotification:(UILocalNotification*)notification
+- (void)addLocalNotificationWithID:(NSNumber*)uniqueID alertBody:(NSString*)alertBody fireDate:(NSDate*)fireDate
 {
+    UILocalNotification* notification = [[UILocalNotification alloc] init];
+    notification.fireDate = fireDate;
+    notification.timeZone = [NSTimeZone localTimeZone];
+    notification.alertBody = alertBody;
+    notification.alertAction = nil;
+    notification.applicationIconBadgeNumber = 0; // this will be computed in renumberBadgesOfPendingNotifications
+    notification.soundName = UILocalNotificationDefaultSoundName;
+    notification.userInfo = [[NSDictionary alloc] initWithObjects:@[[uniqueID copy]] forKeys:@[@"uniqueID"]];
+    notification.repeatCalendar = [NSCalendar currentCalendar];
+    notification.repeatInterval = 0; // Don't repeat
+    notification.category = @"REMINDER_CATEGORY";
+    
     // Schedule the notification
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
     
@@ -238,44 +251,13 @@ static spnSpendTracker *sharedSpendTracker = nil;
     
     if (fetchedReminders.count)
     {
-        for (SpnBillReminder* remind in fetchedReminders) {
+        for (SpnBillReminder* remind in fetchedReminders)
+        {
             NSLog(@"hit - %@: %lu", remind.merchant, remind.uniqueID.integerValue);
         }
         
         [self.mainTabBarController setSelectedIndex:TAB_BAR_REMINDERS_INDEX];
-//        SpnBillReminder* reminder = fetchedReminders[0];
-//        
-//        if (identifier)
-//        {
-//            // User requested to mark this paid
-//            if ([identifier isEqualToString:@"PAID_IDENTIFIER"])
-//            {
-//                // The notification fire automatically set the app badge number. If marking as paid, we need to adjust it accordingly
-//                [self billReminder:reminder setPaidStatus:PAID_STATUS_PAID shouldAdjustBadge:YES];
-//                [self saveContext:self.managedObjectContext];
-//            }
-//        }
-//        else
-//        {
-//            // The notification fire automatically set the app badge number. In lieu of any other action identifier, just set the reminder to unpaid.
-//            [self billReminder:reminder setPaidStatus:PAID_STATUS_UNPAID shouldAdjustBadge:NO];
-//            [self saveContext:self.managedObjectContext];
-//        }
     }
-    
-//    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive)
-//    {
-//        // Initialize the alert view.
-//        if (!self.notificationAlert)
-//        {
-//            self.notificationAlert = [[UIAlertView alloc] initWithTitle:nil message:nil delegate:nil cancelButtonTitle:@"OK"otherButtonTitles:nil];
-//        }
-//        
-//        // Set the title of the alert with the notification's body.
-//        self.notificationAlert.title = notification.alertBody;
-//        
-//        [self.notificationAlert show];
-//    }
 }
 
 - (void)deleteLocalNotificationWithUniqueID:(NSNumber*)uniqueID
@@ -366,6 +348,30 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self saveContext:self.managedObjectContext];
 }
 
+#pragma mark - Transactions
+
+- (SpnTransaction*)createTransactionWithType:(enumSpnTransactionType)transactionType
+{
+    SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:self.managedObjectContext] insertIntoManagedObjectContext:self.managedObjectContext];
+    
+    // Perform additional initialization.
+    [newTransaction setMerchant:@""];
+    [newTransaction setNotes:@""];
+    [newTransaction setValue:@(0.00)];
+    [newTransaction setType:@(transactionType)];
+    
+    return newTransaction;
+}
+
+- (void)deleteTransaction:(SpnTransaction*)transaction
+{
+    // Remove the reminder object
+    [self.managedObjectContext deleteObject:transaction];
+    
+    // Save context
+    [self saveContext:self.managedObjectContext];
+}
+
 #pragma mark - Bill Reminders
 
 - (void)updateAllReminders
@@ -424,6 +430,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
     }
     
+    // Manage badge of tab bar icon
     if ([[UIApplication sharedApplication] applicationIconBadgeNumber] != 0)
     {
         // Set badge count in tab bar item
@@ -440,14 +447,13 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self saveContext:self.managedObjectContext];
 }
 
-- (void)billReminder:(SpnBillReminder*)reminder setPaidStatus:(enumBillReminderPaidStatus)paidStatus shouldAdjustBadge:(BOOL)shouldAdjustBadge
+- (void)billReminder:(SpnBillReminder*)reminder setPaidStatus:(enumBillReminderPaidStatus)paidStatus
 {
     switch (paidStatus)
     {
-        case PAID_STATUS_NONE:
         case PAID_STATUS_UNPAID:
         {
-            if ((reminder.paidStatus != PAID_STATUS_UNPAID) && shouldAdjustBadge)
+            if (reminder.paidStatus != PAID_STATUS_UNPAID)
             {
                 // badge increments for every time a bill transitions to unpaid from paid/none
                 NSInteger currentBadgeNum = [[UIApplication sharedApplication] applicationIconBadgeNumber];
@@ -458,16 +464,15 @@ static spnSpendTracker *sharedSpendTracker = nil;
                 // We should readjust pending notification badges settings after manually changing the badge count
                 [self renumberBadgesOfPendingNotifications];
             }
-            
-            reminder.paidStatus = paidStatus;
         }
             break;
             
+        case PAID_STATUS_NONE:
         case PAID_STATUS_PAID:
         {
-            if ((reminder.paidStatus != PAID_STATUS_PAID) && shouldAdjustBadge)
+            if (reminder.paidStatus == PAID_STATUS_UNPAID)
             {
-                // bill is unpaid/none so we need to decrement the badge number first. Assumes that a badge increments for every time a bill transitions to unpaid
+                // bill is unpaid so we need to decrement the badge number first. Assumes that a badge increments for every time a bill transitions to unpaid
                 NSInteger currentBadgeNum = [[UIApplication sharedApplication] applicationIconBadgeNumber];
                 NSInteger newBadgeNum = MAX(0, currentBadgeNum-1); // protect against negative
                 
@@ -476,14 +481,73 @@ static spnSpendTracker *sharedSpendTracker = nil;
                 // We should readjust pending notification badges settings after manually changing the badge count
                 [self renumberBadgesOfPendingNotifications];
             }
-            
-            reminder.paidStatus = PAID_STATUS_PAID;
         }
             break;
             
         default:
             break;
     }
+    
+    // Finally, set the status
+    reminder.paidStatus = PAID_STATUS_PAID;
+}
+
+- (SpnBillReminder*)createBillReminder
+{
+    SpnBillReminder* newReminder = [[SpnBillReminder alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnBillReminderMO" inManagedObjectContext:self.managedObjectContext] insertIntoManagedObjectContext:self.managedObjectContext];
+    
+    // Perform additional initialization.
+    [newReminder setMerchant:@""];
+    [newReminder setNotes:@""];
+    [newReminder setValue:[NSNumber numberWithFloat:0.00]];
+    [newReminder setPaidStatus:PAID_STATUS_NONE];
+    
+    return newReminder;
+}
+
+- (void)deleteBillReminder:(SpnBillReminder*)reminder
+{
+    // First mark bill as paid
+    [self billReminder:reminder setPaidStatus:PAID_STATUS_PAID];
+    
+    // Delete the notification in case it still is pending
+    [self deleteLocalNotificationWithUniqueID:reminder.uniqueID];
+    
+    // Remove the reminder object
+    [self.managedObjectContext deleteObject:reminder];
+    
+    // Save context
+    [self saveContext:self.managedObjectContext];
+}
+
+- (void)markBillReminderAsPending:(SpnBillReminder*)reminder
+{
+    // First mark bill as pending
+    [self billReminder:reminder setPaidStatus:PAID_STATUS_NONE];
+    
+    // Save context
+    [self saveContext:self.managedObjectContext];
+}
+
+- (void)markBillReminderAsUnpaid:(SpnBillReminder*)reminder
+{
+    // First mark bill as unpaid
+    [self billReminder:reminder setPaidStatus:PAID_STATUS_UNPAID];
+    
+    // Save context
+    [self saveContext:self.managedObjectContext];
+}
+
+- (void)markBillReminderAsPaid:(SpnBillReminder*)reminder
+{
+    // First mark bill as paid
+    [self billReminder:reminder setPaidStatus:PAID_STATUS_PAID];
+    
+    // Delete pending notification by ID, in case it still exists
+    [self deleteLocalNotificationWithUniqueID:reminder.uniqueID];
+    
+    // Save context
+    [self saveContext:self.managedObjectContext];
 }
 
 @end

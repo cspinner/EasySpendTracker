@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SpnTransaction.h"
 #import "SpnBillReminder.h"
 
 @interface spnSpendTracker : NSObject 
@@ -18,13 +19,23 @@
 + (spnSpendTracker*)sharedManager;
 - (void)initViews;
 - (void)saveContext:(NSManagedObjectContext*)managedObjectContext;
+
 - (void)initLocalNotifications;
-- (void)addLocalNotification:(UILocalNotification*)notification;
+- (void)addLocalNotificationWithID:(NSNumber*)uniqueID alertBody:(NSString*)alertBody fireDate:(NSDate*)fireDate;
 - (void)processLocalNotification:(UILocalNotification*)notification withActionIdentifier:(NSString*)identifier;
 - (void)deleteLocalNotificationWithUniqueID:(NSNumber*)uniqueID;
 - (void)renumberBadgesOfPendingNotifications;
+
 - (void)updateAllRecurrences;
+
+- (SpnTransaction*)createTransactionWithType:(enumSpnTransactionType)transactionType;
+- (void)deleteTransaction:(SpnTransaction*)transaction;
+
 - (void)updateAllReminders;
-- (void)billReminder:(SpnBillReminder*)reminder setPaidStatus:(enumBillReminderPaidStatus)paidStatus shouldAdjustBadge:(BOOL)shouldAdjustBadge;
+- (SpnBillReminder*)createBillReminder;
+- (void)deleteBillReminder:(SpnBillReminder*)reminder;
+- (void)markBillReminderAsPending:(SpnBillReminder*)reminder;
+- (void)markBillReminderAsUnpaid:(SpnBillReminder*)reminder;
+- (void)markBillReminderAsPaid:(SpnBillReminder*)reminder;
 
 @end

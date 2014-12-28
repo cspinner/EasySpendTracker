@@ -11,8 +11,6 @@
 #import "spnViewController_Expense.h"
 #import "spnViewController_Income.h"
 #import "spnViewController_BillReminder.h"
-#import "SpnTransaction.h"
-#import "SpnBillReminder.h"
 #import <objc/runtime.h>
 
 static char const * const PreferredDateKey = "PreferredDate";
@@ -57,19 +55,11 @@ static char const * const PreferredDateKey = "PreferredDate";
     {
         case ACTION_SHEET_BUTTON_IDX_EXPENSE:
         {
-            SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            
-            // Perform additional initialization.
-            [newTransaction setMerchant:@""];
-            [newTransaction setNotes:@""];
-            [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
-            [newTransaction setType:[NSNumber numberWithInt:EXPENSE_TRANSACTION_TYPE]];
-            
             spnViewController_Expense* addViewController = [[spnViewController_Expense alloc] init];
             [addViewController setTitle:@"Add Expense"];
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            [addViewController setTransaction:newTransaction];
+            [addViewController setTransaction:[[spnSpendTracker sharedManager] createTransactionWithType:EXPENSE_TRANSACTION_TYPE]];
             [addViewController setIsNew:YES];
             [addViewController setDate:self.preferredDate];
             
@@ -85,19 +75,11 @@ static char const * const PreferredDateKey = "PreferredDate";
             
         case ACTION_SHEET_BUTTON_IDX_INCOME:
         {
-            SpnTransaction* newTransaction = [[SpnTransaction alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnTransactionMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            
-            // Perform additional initialization.
-            [newTransaction setMerchant:@""];
-            [newTransaction setNotes:@""];
-            [newTransaction setValue:[NSNumber numberWithFloat:0.00]];
-            [newTransaction setType:[NSNumber numberWithInt:INCOME_TRANSACTION_TYPE]];
-            
             spnViewController_Income* addViewController = [[spnViewController_Income alloc] init];
             [addViewController setTitle:@"Add Income"];
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            [addViewController setTransaction:newTransaction];
+            [addViewController setTransaction:[[spnSpendTracker sharedManager] createTransactionWithType:INCOME_TRANSACTION_TYPE]];
             [addViewController setIsNew:YES];
             [addViewController setDate:self.preferredDate];
             
@@ -113,19 +95,11 @@ static char const * const PreferredDateKey = "PreferredDate";
             
         case ACTION_SHEET_BUTTON_IDX_REMINDER:
         {
-            SpnBillReminder* newReminder = [[SpnBillReminder alloc] initWithEntity:[NSEntityDescription entityForName:@"SpnBillReminderMO" inManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]] insertIntoManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            
-            // Perform additional initialization.
-            [newReminder setMerchant:@""];
-            [newReminder setNotes:@""];
-            [newReminder setValue:[NSNumber numberWithFloat:0.00]];
-            [newReminder setPaidStatus:PAID_STATUS_NONE];
-            
             spnViewController_BillReminder* addViewController = [[spnViewController_BillReminder alloc] init];
             [addViewController setTitle:@"Add Reminder"];
             [addViewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
             [addViewController setManagedObjectContext:[[spnSpendTracker sharedManager] managedObjectContext]];
-            [addViewController setBillReminder:newReminder];
+            [addViewController setBillReminder:[[spnSpendTracker sharedManager] createBillReminder]];
             [addViewController setIsNew:YES];
             [addViewController setDate:self.preferredDate];
             

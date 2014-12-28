@@ -178,10 +178,13 @@ enum
     }
     
     [cell.textLabel setText:reminder.merchant];
+    [cell.textLabel setFont:[UIFont systemFontOfSize:13.0]];
     [cell.detailTextLabel setText:paidStatusStr];
+    [cell.detailTextLabel setFont:[UIFont systemFontOfSize:13.0]];
 }
 
-// <UITableViewDataSource> methods
+#pragma mark - UITableViewDataSource
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString* CellIdentifier = @"ReminderCell";
@@ -251,10 +254,27 @@ enum
     return NO;
 }
 
-// <UITableViewDelegate> methods
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    switch (editingStyle)
+    {
+        case UITableViewCellEditingStyleDelete:
+        {
+            // delete the reminder object associated with the row
+            [[spnSpendTracker sharedManager] deleteBillReminder:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+#pragma mark - UITableViewDelegate methods
+
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return UITableViewCellEditingStyleNone;
+    return UITableViewCellEditingStyleDelete;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -306,7 +326,8 @@ enum
     return 0.001;
 }
 
-// <NSFetchedResultsControllerDelegate> methods
+#pragma mark - NSFetchedResultsControllerDelegate methods
+
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
 {
     // The fetch controller is about to start sending change notifications, so prepare the table view for updates.

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
+@interface spnTableViewController_Transactions : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 @property (nonatomic) NSString* categoryTitle;
 @property (nonatomic) NSString* subCategoryTitle;

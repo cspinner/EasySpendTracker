@@ -111,14 +111,11 @@
         self.billReminder.notes = self.notes;
         self.billReminder.frequency = self.frequency;
         
-        // If the date was updated on an existing reminder, delete the pending notification
+        // If the date was updated on an existing reminder
         if (!self.isNew && self.dueDateWasUpdated)
         {
-            // first, mark bill as paid
-            [self markBillAsPaid];
-            
-            // delete pending notification by ID
-            [[spnSpendTracker sharedManager] deleteLocalNotificationWithUniqueID:self.billReminder.uniqueID];
+            // mark bill as paid and deletes any pending notification for it
+            [[spnSpendTracker sharedManager] markBillReminderAsPaid:self.billReminder];
         }
         
         // Create a new notification if this is a new reminder or we are updating an existing reminder
@@ -150,39 +147,13 @@
 - (void)scheduleReminderNotification
 {
     // Set 'none' status - results in PENDING
-    self.billReminder.paidStatus = PAID_STATUS_NONE;
+    [[spnSpendTracker sharedManager] markBillReminderAsPending:self.billReminder];
     
     // Create the new reminder notification
     self.billReminder.uniqueID = @(arc4random());
     NSLog(@"%@: %lu", self.billReminder.merchant, self.billReminder.uniqueID.integerValue);
     
-    UILocalNotification* notification = [[UILocalNotification alloc] init];
-    notification.fireDate = self.billReminder.dateDue;
-    notification.timeZone = [NSTimeZone localTimeZone];
-    notification.alertBody = [NSString stringWithFormat:@"%@ bill due!", self.merchant];
-    notification.alertAction = nil;
-    notification.applicationIconBadgeNumber = 0; // this will be computed in renumberBadgesOfPendingNotifications
-    notification.soundName = UILocalNotificationDefaultSoundName;
-    notification.userInfo = [[NSDictionary alloc] initWithObjects:[NSArray arrayWithObject:[self.billReminder.uniqueID copy]] forKeys:[NSArray arrayWithObject:@"uniqueID"]];
-    notification.repeatCalendar = [NSCalendar currentCalendar];
-    notification.repeatInterval = 0; // Don't repeat
-    notification.category = @"REMINDER_CATEGORY";
-    
-    [[spnSpendTracker sharedManager] addLocalNotification:notification];
-}
-
-- (void)markBillAsPaid
-{
-    [[spnSpendTracker sharedManager] billReminder:self.billReminder setPaidStatus:PAID_STATUS_PAID shouldAdjustBadge:YES];
-    
-    self.paidStatus = PAID_STATUS_PAID;
-}
-
-- (void)markBillAsUnpaid
-{
-    [[spnSpendTracker sharedManager] billReminder:self.billReminder setPaidStatus:PAID_STATUS_UNPAID shouldAdjustBadge:YES];
-    
-    self.paidStatus = PAID_STATUS_UNPAID;
+    [[spnSpendTracker sharedManager] addLocalNotificationWithID:self.billReminder.uniqueID alertBody:[NSString stringWithFormat:@"%@ bill due!", self.merchant] fireDate:self.billReminder.dateDue];
 }
 
 #pragma mark - UITableViewDataSource
@@ -472,7 +443,8 @@
     {
         case REM_MARK_PAID_SECTION_INDEX:
         {
-            [self markBillAsPaid];
+            // Mark as paid
+            [[spnSpendTracker sharedManager] markBillReminderAsPaid:self.billReminder];
             
             // If there is a frequency specified, schedule the next notification
             if (self.frequency)
@@ -503,17 +475,8 @@
             
         case REM_DELETE_SECTION_IDX:
         {
-            // Mark bill as paid (cleans up any badge numbers)
-            [self markBillAsPaid];
-            
-            // Delete the notification in case it still is pending
-            [[spnSpendTracker sharedManager] deleteLocalNotificationWithUniqueID:self.billReminder.uniqueID];
-            
-            // Remove the reminder object
-            [self.managedObjectContext deleteObject:self.billReminder];
-            
-            // Save and dismiss/pop
-            [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
+            // Delete reminder, dismiss/pop
+            [[spnSpendTracker sharedManager] deleteBillReminder:self.billReminder];
             [self.navigationController popViewControllerAnimated:YES];
             break;
         }
@@ -526,7 +489,6 @@
 
 #pragma mark - UITextFieldDelegate
 
-// <UITextFieldDelegate> methods
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
     // lets the view controller know that this field is active - used in keyboard/view position management

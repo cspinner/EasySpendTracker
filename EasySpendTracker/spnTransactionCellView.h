@@ -15,6 +15,6 @@
 @property UILabel* merchantLabel;
 @property UILabel* dateLabel;
 
-- (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome onDate:(NSDate*)date;
+- (void)setValue:(float)value withMerchant:(NSString*)merchant isIncome:(BOOL)isIncome onDate:(NSDate*)date isRecurring:(BOOL)isRecurring;
 
 @end

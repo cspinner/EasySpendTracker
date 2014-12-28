@@ -12,13 +12,6 @@
 
 @property NSDate* preferredDate;
 
-enum
-{
-    EXPENSE_TRANSACTION_TYPE = 0u,
-    INCOME_TRANSACTION_TYPE,
-    NUM_TRANSACTION_TYPES
-};
-
 - (void)spnAddButtonClicked: (id)sender;
 
 @end
