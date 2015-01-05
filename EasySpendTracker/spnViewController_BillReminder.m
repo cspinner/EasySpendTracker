@@ -151,7 +151,7 @@
     
     // Create the new reminder notification
     self.billReminder.uniqueID = @(arc4random());
-    NSLog(@"%@: %lu", self.billReminder.merchant, self.billReminder.uniqueID.integerValue);
+//    NSLog(@"%@: %lu", self.billReminder.merchant, self.billReminder.uniqueID.integerValue);
     
     [[spnSpendTracker sharedManager] addLocalNotificationWithID:self.billReminder.uniqueID alertBody:[NSString stringWithFormat:@"%@ bill due!", self.merchant] fireDate:self.billReminder.dateDue];
 }
@@ -388,6 +388,7 @@
     [headerLabel setFont:[UIFont systemFontOfSize:12]];
     [headerLabel setTextColor:[UIColor grayColor]];
     
+    [headerView setBackgroundColor:[UIColor colorWithRed:201.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:1.0]];
     [headerView addSubview:headerLabel];
     
     return headerView;

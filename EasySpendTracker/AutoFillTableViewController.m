@@ -8,6 +8,8 @@
 
 #import "AutoFillTableViewController.h"
 
+#define TABLE_VIEW_WIDTH ([UIScreen mainScreen].bounds.size.width)
+#define TABLE_VIEW_HEIGHT ([UIScreen mainScreen].bounds.size.width*.625)
 
 @implementation AutoFillTableViewController
 
@@ -29,7 +31,7 @@
 - (void)createTableViewWithYPosition:(NSNumber *)yPosition
 {
     self.tableView = [[UITableView alloc] initWithFrame:
-                      CGRectMake(0, [yPosition intValue], 320, 200) style:UITableViewStylePlain];
+                      CGRectMake(0, [yPosition intValue], TABLE_VIEW_WIDTH, TABLE_VIEW_HEIGHT) style:UITableViewStylePlain];
     
     self.tableView.hidden = YES;
     [self.tableView setBackgroundColor:[UIColor whiteColor]];

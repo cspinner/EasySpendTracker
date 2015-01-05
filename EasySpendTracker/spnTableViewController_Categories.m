@@ -223,14 +223,7 @@
 {
     if (self.tableView == tableView)
     {
-        if (section == 0)
-        {
-            return CELL_HEIGHT;
-        }
-        else
-        {
-            return 0.001;
-        }
+        return 0.001;
     }
     else // self.searchDisplayController.searchResultsTableView
     {

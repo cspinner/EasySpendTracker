@@ -24,7 +24,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    UIScreen *mainScreen = [UIScreen mainScreen];
+//    NSLog(@"Screen bounds: %@, Screen resolution: %@, scale: %f, nativeScale: %f", NSStringFromCGRect(mainScreen.bounds), mainScreen.coordinateSpace, mainScreen.scale, mainScreen.nativeScale);
+    
+    self.window = [[UIWindow alloc] initWithFrame:mainScreen.bounds];
     // Override point for customization after application launch.
     
     NSManagedObjectContext *context = [self managedObjectContext];
@@ -44,7 +47,7 @@
     if (notification)
     {
 //        application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber-1;
-        NSLog(@"Launch options: %@", notification.alertBody);
+//        NSLog(@"Launch options: %@", notification.alertBody);
         [[spnSpendTracker sharedManager] processLocalNotification:notification withActionIdentifier:nil];
     }
 //    [application cancelAllLocalNotifications];
@@ -82,9 +85,12 @@
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     
-    [[spnSpendTracker sharedManager] updateAllRecurrences];
-    [[spnSpendTracker sharedManager] updateAllReminders];
-    
+    // This was added because exceptions were occuring when the app entered background with the "add" view active, which had a pending transaction/reminder object. Invoking either of these when the app re-entered foreground and became active stomped over the active context
+    if ([self.managedObjectContext hasChanges] == NO)
+    {
+        [[spnSpendTracker sharedManager] updateAllRecurrences];
+        [[spnSpendTracker sharedManager] updateAllReminders];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -200,7 +206,7 @@
 // Called when the user taps a custom action button in an iOS 8 notification.
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler
 {
-    NSLog(@"Button pressed - Notification handled: %@ with identifier: %@", notification.alertBody, identifier);
+//    NSLog(@"Button pressed - Notification handled: %@ with identifier: %@", notification.alertBody, identifier);
     [[spnSpendTracker sharedManager] processLocalNotification:notification withActionIdentifier:identifier];
     completionHandler();
 }
@@ -208,7 +214,7 @@
 // Called when the notification is delivered when the app is running in the foreground.
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
-    NSLog(@"App Running - Notification handled: %@", notification.alertBody);
+//    NSLog(@"App Running - Notification handled: %@", notification.alertBody);
     [[spnSpendTracker sharedManager] processLocalNotification:notification withActionIdentifier:nil];
 }
 

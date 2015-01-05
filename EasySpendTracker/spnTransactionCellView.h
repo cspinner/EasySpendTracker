@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+#define CELL_HEIGHT 44.0
+
 @interface spnTransactionCellView : UITableViewCell
 
 @property UILabel* valueLabel;

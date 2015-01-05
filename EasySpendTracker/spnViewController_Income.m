@@ -57,7 +57,11 @@
     // Category section is not desired for the Income view
     if (section != CATEGORY_SECTION_IDX)
     {
-        return [super tableView:tableView viewForHeaderInSection:section];
+        UIView* headerView = [super tableView:tableView viewForHeaderInSection:section];
+
+        [headerView setBackgroundColor:[UIColor colorWithRed:226.0/255.0 green:254.0/255.0 blue:226.0/255.0 alpha:1.0]];
+        
+        return headerView;
     }
     else
     {

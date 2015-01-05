@@ -48,8 +48,8 @@ static char const * const DatePickerKey = "DatePicker";
 
 - (UIView*)datePickerView
 {
-    UIView* datePickerView = [[UIView alloc] initWithFrame:CGRectMake(0, 288, 320, 260)];
-    UIToolbar *datePickerViewToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    UIView* datePickerView = [[UIView alloc] initWithFrame:CGRectMake(0, 288, self.frame.size.width, 260)];
+    UIToolbar *datePickerViewToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 44)];
     UIBarButtonItem* dateToolbarCancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(dateButtonClicked:)];
     [dateToolbarCancelButton setTag:0];
     UIBarButtonItem* dateToolbarSpacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
@@ -57,7 +57,7 @@ static char const * const DatePickerKey = "DatePicker";
     [dateToolbarDoneButton setTag:1];
     [datePickerViewToolbar setItems:[NSArray arrayWithObjects:dateToolbarCancelButton, dateToolbarSpacer, dateToolbarDoneButton, nil]];
     
-    [self setDatePicker:[[UIDatePicker alloc] initWithFrame:CGRectMake(0, 44, 320, 216)]];
+    [self setDatePicker:[[UIDatePicker alloc] initWithFrame:CGRectMake(0, 44, self.frame.size.width, 216)]];
 	[self.datePicker setDatePickerMode:UIDatePickerModeDate];
 	[self.datePicker setDate:[NSDate date]];
     [self.datePicker setBackgroundColor:[UIColor whiteColor]];

@@ -9,6 +9,18 @@
 #import "spnTransactionCellView.h"
 #import "spnUtils.h"
 
+#define CELL_IMAGE_SIZE 46.0
+#define CELL_ACCESSORY_SIZE 44.0
+#define CELL_CONTENT_WIDTH (([UIScreen mainScreen].bounds.size.width-CELL_ACCESSORY_SIZE)-CELL_CONTENT_OFFSET)
+#define CELL_CONTENT_OFFSET CELL_IMAGE_SIZE
+
+#define MERCHANT_WIDTH (CELL_CONTENT_WIDTH*2/3)
+#define MERCHANT_HEIGHT 22.0
+#define VALUE_WIDTH (CELL_CONTENT_WIDTH/3)
+#define VALUE_HEIGHT 22.0
+#define DATE_WIDTH (CELL_CONTENT_WIDTH/3)
+#define DATE_HEIGHT 22.0
+
 @implementation spnTransactionCellView
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -16,10 +28,10 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
-        self.merchantLabel = [[UILabel alloc] initWithFrame:CGRectMake(46, 11, 168, 20)];
-        self.valueLabel = [[UILabel alloc] initWithFrame:CGRectMake(194, 0, 92, 22)];
-        self.valueLabelLarge = [[UILabel alloc] initWithFrame:CGRectMake(194, 11, 92, 20)];
-        self.dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(194, 22, 92, 22)];
+        self.merchantLabel = [[UILabel alloc] initWithFrame:CGRectMake(CELL_CONTENT_OFFSET, CELL_HEIGHT/4, MERCHANT_WIDTH, MERCHANT_HEIGHT)];
+        self.valueLabel = [[UILabel alloc] initWithFrame:CGRectMake((CELL_CONTENT_OFFSET+MERCHANT_WIDTH), 0, VALUE_WIDTH, VALUE_HEIGHT)];
+        self.valueLabelLarge = [[UILabel alloc] initWithFrame:CGRectMake((CELL_CONTENT_OFFSET+MERCHANT_WIDTH), CELL_HEIGHT/4, VALUE_WIDTH, VALUE_HEIGHT)];
+        self.dateLabel = [[UILabel alloc] initWithFrame:CGRectMake((CELL_CONTENT_OFFSET+MERCHANT_WIDTH), VALUE_HEIGHT, DATE_WIDTH, DATE_HEIGHT)];
         
         // Set font colors of labels
         [self.merchantLabel setTextColor:[UIColor blackColor]];

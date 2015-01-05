@@ -162,7 +162,7 @@ BOOL isPreview;
         theLegend.entryPaddingBottom = 0.0;
         theLegend.entryPaddingTop = 0.0;
         theLegend.entryPaddingLeft = 0.0;
-        theLegend.entryPaddingRight = 50.0;
+        theLegend.entryPaddingRight = 10.0;
         graph.legendAnchor = CPTRectAnchorRight;
     }
     else

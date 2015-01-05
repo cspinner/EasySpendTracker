@@ -251,10 +251,10 @@ static spnSpendTracker *sharedSpendTracker = nil;
     
     if (fetchedReminders.count)
     {
-        for (SpnBillReminder* remind in fetchedReminders)
-        {
-            NSLog(@"hit - %@: %lu", remind.merchant, remind.uniqueID.integerValue);
-        }
+//        for (SpnBillReminder* remind in fetchedReminders)
+//        {
+//            NSLog(@"hit - %@: %lu", remind.merchant, remind.uniqueID.integerValue);
+//        }
         
         [self.mainTabBarController setSelectedIndex:TAB_BAR_REMINDERS_INDEX];
     }
@@ -284,7 +284,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     if (thisNotification)
     {
         [[UIApplication sharedApplication] cancelLocalNotification:thisNotification];
-        NSLog(@"notification canceled: %@", thisNotification.fireDate);
+//        NSLog(@"notification canceled: %@", thisNotification.fireDate);
         
         // Recompute badge numbers
         [[spnSpendTracker sharedManager] renumberBadgesOfPendingNotifications];
@@ -326,7 +326,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
             
             // schedule 'again'
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-            NSLog(@"notification scheduled: %@, Badge: %lu", notification.fireDate, notification.applicationIconBadgeNumber);
+//            NSLog(@"notification scheduled: %@, Badge: %lu", notification.fireDate, notification.applicationIconBadgeNumber);
         }
     }
 }
@@ -390,14 +390,14 @@ static spnSpendTracker *sharedSpendTracker = nil;
         if (reminder.frequency != nil)
         {
             [reminder setPaidStatusRaw:@(PAID_STATUS_UNPAID)];
-            NSLog(@"updateAllReminders - marked %@ Unpaid", reminder.merchant);
+//            NSLog(@"updateAllReminders - marked %@ Unpaid", reminder.merchant);
         }
         else
         {
             if (reminder.paidStatus != PAID_STATUS_PAID)
             {
                 [reminder setPaidStatusRaw:@(PAID_STATUS_UNPAID)];
-                NSLog(@"updateAllReminders - marked %@ Unpaid", reminder.merchant);
+//                NSLog(@"updateAllReminders - marked %@ Unpaid", reminder.merchant);
             }
         }
     }
@@ -413,7 +413,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
             {
                 // This dispatch delay accounts for a race condition - special case where the notification is scheduled, it is already due, and the reminder list is refreshed immediately. The system doesn't schedule notifications atomically so the delay is necessary.
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.100 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    NSLog(@"Present it now!");
+//                    NSLog(@"Present it now!");
                     [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
                     [[UIApplication sharedApplication] cancelLocalNotification:notification];
                 });
@@ -489,7 +489,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     }
     
     // Finally, set the status
-    reminder.paidStatus = PAID_STATUS_PAID;
+    reminder.paidStatus = paidStatus;
 }
 
 - (SpnBillReminder*)createBillReminder

@@ -320,21 +320,6 @@ enum
     return UITableViewCellEditingStyleNone;
 }
 
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-//{
-//    UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, [self tableView:tableView heightForHeaderInSection:section])];
-//    UILabel* headerLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, headerView.frame.size.width, headerView.frame.size.height)];
-//    
-//    // Set text based on section index
-//    [headerLabel setText:[NSString stringWithFormat:@"%@:", [self tableView:self.tableView titleForHeaderInSection:section]]];
-//    [headerLabel setFont:[UIFont systemFontOfSize:12]];
-//    [headerLabel setTextColor:[UIColor grayColor]];
-//    
-//    [headerView addSubview:headerLabel];
-//    
-//    return headerView;
-//}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
 //    return 25;

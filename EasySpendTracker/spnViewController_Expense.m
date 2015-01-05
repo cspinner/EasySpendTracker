@@ -37,4 +37,13 @@
     }
 }
 
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UIView* headerView = [super tableView:tableView viewForHeaderInSection:section];
+    
+    [headerView setBackgroundColor:[UIColor colorWithRed:255.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1.0]];
+    
+    return headerView;
+}
+
 @end
