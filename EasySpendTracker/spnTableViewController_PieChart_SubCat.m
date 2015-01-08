@@ -20,7 +20,12 @@
 @property spnTransactionFetchOp* fetchOperation;
 @property spnPieChartProcessDataOp* processDataOperation;
 
+@property NSMutableArray* otherNamesArray;
+@property NSMutableArray* otherValuesArray;
+
 @end
+
+#define MAX_ENTRIES 10
 
 @implementation spnTableViewController_PieChart_SubCat
 
@@ -109,6 +114,31 @@
     }
 }
 
+-(void)postProcessNames:(NSMutableArray*)names andValues:(NSMutableArray*)values
+{
+    self.otherNamesArray = [[NSMutableArray alloc] init];
+    self.otherValuesArray = [[NSMutableArray alloc] init];
+    
+    if (values.count > MAX_ENTRIES)
+    {
+        // Add objects to the 'others' array, Remove the objects from the original array
+        for (NSInteger idx = values.count-1; idx >= MAX_ENTRIES-1; idx--)
+        {
+            [self.otherNamesArray addObject:names[idx]];
+            [names removeObjectAtIndex:idx];
+            [self.otherValuesArray addObject:values[idx]];
+            [values removeObjectAtIndex:idx];
+        }
+    }
+    
+    // Add a single 'Other' entry to the main arrays
+    if (self.otherValuesArray.count > 0)
+    {
+        [names addObject:@"Other"];
+        [values addObject:[self.otherValuesArray valueForKeyPath:@"@sum.self"]];
+    }
+}
+
 -(void)updateSourceDataForPieChart:(spnPieChart*)pieChart
 {
     // Need to create a week reference of self to avoid retain loop when accessing self within the block.
@@ -128,9 +158,16 @@
             
             if (weakSelf.pieChartNames.count > 0)
             {
-                // Update pie chart table cell
-                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                [weakSelf postProcessNames:weakSelf.pieChartNames andValues:weakSelf.pieChartValues];
+                
+                // Update pie chart table summary cell
+                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_TEXT_ROW inSection:0];
                 UITableViewCell* cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
+                [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
+                
+                // Update pie chart table chart cell
+                chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
                 [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
             }
         });
@@ -159,13 +196,28 @@
 {
     // Get reference to selected item
     SpnCategory* category = [SpnCategory fetchCategoryWithName:self.focusCategory inManagedObjectContext:self.managedObjectContext];
-    SpnSubCategory* subCategory = [category fetchSubCategoryWithName:[self.pieChartNames objectAtIndex:idx] inManagedObjectContext:self.managedObjectContext];
+    
+    NSArray* subCategoryTitles;
+    NSString* transactionsTableViewControllerTitle;
+    
+    // Get reference to selected item
+    if (idx < (MAX_ENTRIES-1))
+    {
+        subCategoryTitles = @[self.pieChartNames[idx]];
+        transactionsTableViewControllerTitle = [NSString stringWithFormat:@"$%.2f", [self.pieChartValues[idx] floatValue]];
+    }
+    else
+    {
+        subCategoryTitles = self.otherNamesArray;
+        transactionsTableViewControllerTitle = [NSString stringWithFormat:@"$%.2f", [[self.otherValuesArray valueForKeyPath:@"@sum.self"] floatValue]];
+    }
     
     // Create and Push transaction detail view controller
     spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
-    [transactionsTableViewController setTitle:[subCategory title]];
-    [transactionsTableViewController setCategoryTitle:[category title]];
-    [transactionsTableViewController setSubCategoryTitle:[subCategory title]];
+    [transactionsTableViewController setTitle:transactionsTableViewControllerTitle];
+    [transactionsTableViewController setCategoryTitles:@[category.title]];
+    [transactionsTableViewController setSubCategoryTitles:subCategoryTitles];
+    [transactionsTableViewController setMerchantTitles:nil];
     [transactionsTableViewController setStartDate:self.startDate];
     [transactionsTableViewController setEndDate:self.endDate];
     [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];

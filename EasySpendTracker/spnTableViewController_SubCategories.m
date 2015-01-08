@@ -63,8 +63,9 @@
     [transactionsTableViewController setStartDate:self.startDate];
     [transactionsTableViewController setEndDate:self.endDate];
     [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];
-    [transactionsTableViewController setSubCategoryTitle:subCategory.title];
-    [transactionsTableViewController setCategoryTitle:self.categoryTitle];
+    [transactionsTableViewController setSubCategoryTitles:@[subCategory.title]];
+    [transactionsTableViewController setCategoryTitles:@[self.categoryTitle]];
+    [transactionsTableViewController setMerchantTitles:nil];
     
     [[self navigationController] pushViewController:transactionsTableViewController animated:YES];
 }

@@ -67,8 +67,9 @@
     // Create and Push transaction detail view controller
     spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
     [transactionsTableViewController setTitle:sectionInfo.name];
-    [transactionsTableViewController setCategoryTitle:self.includeCategories[0]];
-    [transactionsTableViewController setSubCategoryTitle:sectionInfo.name];
+    [transactionsTableViewController setCategoryTitles:@[self.includeCategories[0]]];
+    [transactionsTableViewController setSubCategoryTitles:@[sectionInfo.name]];
+    [transactionsTableViewController setMerchantTitles:nil];
     [transactionsTableViewController setStartDate:self.startDate];
     [transactionsTableViewController setEndDate:self.endDate];
     [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];

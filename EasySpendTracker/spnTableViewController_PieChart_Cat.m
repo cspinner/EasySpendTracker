@@ -100,9 +100,14 @@
                 // Retrieve pie chart image once data processing is complete
                 weakSelf.pieChartImage = [pieChart imageWithFrame:weakSelf.imageFrame];
                 
-                // Update pie chart table cell
-                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                // Update pie chart table summary cell
+                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_TEXT_ROW inSection:0];
                 UITableViewCell* cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
+                [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
+                
+                // Update pie chart table chart cell
+                chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
                 [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
             }
             else
@@ -140,7 +145,7 @@
     // Prepare sub category pie chart view
     spnTableViewController_PieChart_SubCat* subCategoryPieChart = [[spnTableViewController_PieChart_SubCat alloc] initWithStyle:UITableViewStyleGrouped];
     subCategoryPieChart.focusCategory = [self.pieChartNames objectAtIndex:idx];
-    subCategoryPieChart.title = [NSString stringWithFormat:@"%@ - This Month", [self.pieChartNames objectAtIndex:idx]];
+    subCategoryPieChart.title = [NSString stringWithFormat:@"%@", self.pieChartNames[idx]];
     subCategoryPieChart.startDate = self.startDate;
     subCategoryPieChart.endDate = self.endDate;
     subCategoryPieChart.excludeCategories = nil;

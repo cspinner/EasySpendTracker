@@ -18,7 +18,12 @@
 @property spnTransactionFetchOp* fetchOperation;
 @property spnPieChartProcessDataOp* processDataOperation;
 
+@property NSMutableArray* otherNamesArray;
+@property NSMutableArray* otherValuesArray;
+
 @end
+
+#define MAX_ENTRIES 10
 
 @implementation spnTableViewController_PieChart_Mer
 
@@ -50,7 +55,7 @@
         case PIECHART_TABLE_TEXT_ROW:
         {
             // Set category count
-            [cell.textLabel setText:[NSString stringWithFormat:@"%lu Merchants", (unsigned long)self.pieChartValues.count]];
+            [cell.textLabel setText:[NSString stringWithFormat:@"%lu Merchants", (unsigned long)(self.pieChartValues.count+self.otherValuesArray.count)]];
             
             [cell.detailTextLabel setText:[NSString stringWithFormat:@"$%.2f", [[self.pieChartValues valueForKeyPath:@"@sum.self"] floatValue]]];
         }
@@ -78,6 +83,31 @@
     }
 }
 
+-(void)postProcessNames:(NSMutableArray*)names andValues:(NSMutableArray*)values
+{
+    self.otherNamesArray = [[NSMutableArray alloc] init];
+    self.otherValuesArray = [[NSMutableArray alloc] init];
+    
+    if (values.count > MAX_ENTRIES)
+    {
+        // Add objects to the 'others' array, Remove the objects from the original array
+        for (NSInteger idx = values.count-1; idx >= MAX_ENTRIES-1; idx--)
+        {
+            [self.otherNamesArray addObject:names[idx]];
+            [names removeObjectAtIndex:idx];
+            [self.otherValuesArray addObject:values[idx]];
+            [values removeObjectAtIndex:idx];
+        }
+    }
+
+    // Add a single 'Other' entry to the main arrays
+    if (self.otherValuesArray.count > 0)
+    {
+        [names addObject:@"Other"];
+        [values addObject:[self.otherValuesArray valueForKeyPath:@"@sum.self"]];
+    }
+}
+
 -(void)updateSourceDataForPieChart:(spnPieChart*)pieChart
 {
     // Need to create a week reference of self to avoid retain loop when accessing self within the block.
@@ -97,12 +127,19 @@
             
             if (weakSelf.pieChartNames.count > 0)
             {
+                [weakSelf postProcessNames:weakSelf.pieChartNames andValues:weakSelf.pieChartValues];
+                
                 // Retrieve pie chart image once data processing is complete
                 weakSelf.pieChartImage = [pieChart imageWithFrame:weakSelf.imageFrame];
                 
-                // Update pie chart table cell
-                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                // Update pie chart table summary cell
+                NSIndexPath* chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_TEXT_ROW inSection:0];
                 UITableViewCell* cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
+                [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
+                
+                // Update pie chart table chart cell
+                chartCellIndexPath = [NSIndexPath indexPathForRow:PIECHART_TABLE_PLOT_ROW inSection:0];
+                cell = [weakSelf.tableView cellForRowAtIndexPath:chartCellIndexPath];
                 [weakSelf configureCell:cell atIndexPath:chartCellIndexPath];
             }
             else
@@ -134,18 +171,31 @@
     [self.queue addOperation:self.processDataOperation];
 }
 
-//<spnPieChartDelegate> methods>
+#pragma mark - spnPieChartDelegate methods
+
 -(void)pieChart:(spnPieChart*)pieChart entryWasSelectedAtIndex:(NSUInteger)idx
 {
-    // Get reference to selected item
-    NSString* merchantTitle = [self.pieChartNames objectAtIndex:idx];
+    NSArray* merchantTitles;
+    NSString* transactionsTableViewControllerTitle;
     
+    // Get reference to selected item
+    if (idx < (MAX_ENTRIES-1))
+    {
+        merchantTitles = @[self.pieChartNames[idx]];
+        transactionsTableViewControllerTitle = [NSString stringWithFormat:@"$%.2f", [self.pieChartValues[idx] floatValue]];
+    }
+    else
+    {
+        merchantTitles = self.otherNamesArray;
+        transactionsTableViewControllerTitle = [NSString stringWithFormat:@"$%.2f", [[self.otherValuesArray valueForKeyPath:@"@sum.self"] floatValue]];
+    }
+
     // Create and Push transaction detail view controller
     spnTableViewController_Transactions* transactionsTableViewController = [[spnTableViewController_Transactions alloc] initWithStyle:UITableViewStyleGrouped];
-    [transactionsTableViewController setTitle:merchantTitle];
-    [transactionsTableViewController setCategoryTitle:nil];
-    [transactionsTableViewController setSubCategoryTitle:nil];
-    [transactionsTableViewController setMerchantTitle:merchantTitle];
+    [transactionsTableViewController setTitle:transactionsTableViewControllerTitle];
+    [transactionsTableViewController setCategoryTitles:nil];
+    [transactionsTableViewController setSubCategoryTitles:nil];
+    [transactionsTableViewController setMerchantTitles:merchantTitles];
     [transactionsTableViewController setStartDate:self.startDate];
     [transactionsTableViewController setEndDate:self.endDate];
     [transactionsTableViewController setManagedObjectContext:self.managedObjectContext];

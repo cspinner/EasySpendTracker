@@ -167,25 +167,25 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     }
     
     // Create a predicate for the category title
-    if (self.categoryTitle != nil)
+    if (self.categoryTitles != nil)
     {
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title LIKE %@", self.categoryTitle];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.category.title IN %@", self.categoryTitles];
         
         [predicateArray addObject:predicate];
     }
     
     // Create a predicate for the subCategory title
-    if (self.subCategoryTitle != nil)
+    if (self.subCategoryTitles != nil)
     {
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title LIKE %@", self.subCategoryTitle];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"subCategory.title IN %@", self.subCategoryTitles];
         
         [predicateArray addObject:predicate];
     }
     
     // Create a predicate for the merchant title
-    if (self.merchantTitle != nil)
+    if (self.merchantTitles != nil)
     {
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"merchant LIKE %@", self.merchantTitle];
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"merchant IN %@", self.merchantTitles];
         
         [predicateArray addObject:predicate];
     }
@@ -199,9 +199,9 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     [fetchRequest setFetchBatchSize:FETCH_LIMIT];
     [fetchRequest setFetchLimit:FETCH_LIMIT];
     
-    [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
+    [NSFetchedResultsController deleteCacheWithName:@"CacheTransactions"];
     
-    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"sectionName" cacheName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
+    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"sectionName" cacheName:@"CacheTransactions"];
     [_fetchedResultsController setDelegate:self];
     
     return _fetchedResultsController;
@@ -214,7 +214,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
     if (self.fetchedResultsController.fetchRequest.fetchLimit == [[self.fetchedResultsController fetchedObjects] count])
     {
         // First clear the cache from the FRC
-        [NSFetchedResultsController deleteCacheWithName:[NSString stringWithFormat:@"Cache%@Transactions", self.categoryTitle]];
+        [NSFetchedResultsController deleteCacheWithName:@"CacheTransactions"];
         
         // Set the new fetch limit to the present limit plus another FETCH_LIMIT
         NSUInteger newFetchLimit = self.fetchedResultsController.fetchRequest.fetchLimit + FETCH_LIMIT;
@@ -591,21 +591,21 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
 
 #pragma mark - property overrides
 
-- (void)setCategoryTitle:(NSString *)categoryTitle
+- (void)setCategoryTitles:(NSArray *)categoryTitles
 {
-    _categoryTitle = categoryTitle;
+    _categoryTitles = categoryTitles;
     _fetchedResultsController = nil;
 }
 
-- (void)setSubCategoryTitle:(NSString *)subCategoryTitle
+- (void)setSubCategoryTitles:(NSArray *)subCategoryTitles
 {
-    _subCategoryTitle = subCategoryTitle;
+    _subCategoryTitles = subCategoryTitles;
     _fetchedResultsController = nil;
 }
 
-- (void)setMerchantTitle:(NSString *)merchantTitle
+- (void)setMerchantTitles:(NSArray *)merchantTitles
 {
-    _merchantTitle = merchantTitle;
+    _merchantTitles = merchantTitles;
     _fetchedResultsController = nil;
 }
 

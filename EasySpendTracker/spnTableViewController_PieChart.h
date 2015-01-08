@@ -26,8 +26,8 @@ enum
 @property NSDate* endDate;
 
 // These two are sorted together
-@property NSArray* pieChartValues;
-@property NSArray* pieChartNames;
+@property NSMutableArray* pieChartValues;
+@property NSMutableArray* pieChartNames;
 
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
 
