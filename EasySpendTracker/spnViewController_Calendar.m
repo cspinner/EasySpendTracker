@@ -547,13 +547,13 @@ enum
         
         // Acquire reuse cell object from the table view
 //        spnTransactionCellView* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-        UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        spnTransactionCellView* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         
         if (!cell)
         {
             // Create cell if reuse cell doesn't exist.
 //            cell = [[spnTransactionCellView alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
-            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
+            cell = (spnTransactionCellView*)[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
         }
         
         [self configureCell:cell withTransaction:self.filteredTransactions[indexPath.row]];
@@ -591,11 +591,11 @@ enum
         case NSFetchedResultsChangeUpdate:
             if (controller == self.fetchedResultsController_Reminders)
             {
-                [self configureCell:[tableView cellForRowAtIndexPath:indexPath] withReminder:[self.fetchedResultsController_Reminders objectAtIndexPath:newIndexPath]];
+                [self configureCell:[previewTableView cellForRowAtIndexPath:indexPath] withReminder:[self.fetchedResultsController_Reminders objectAtIndexPath:newIndexPath]];
             }
             else if (controller == self.fetchedResultsController_Transactions)
             {
-                [self configureCell:(spnTransactionCellView*)[tableView cellForRowAtIndexPath:indexPath] withTransaction:[self.fetchedResultsController_Transactions objectAtIndexPath:newIndexPath]];
+                [self configureCell:(spnTransactionCellView*)[previewTableView cellForRowAtIndexPath:indexPath] withTransaction:[self.fetchedResultsController_Transactions objectAtIndexPath:newIndexPath]];
             }
             break;
             

@@ -119,12 +119,18 @@ static int subCategoriesObservanceContext;
         {
             case NSKeyValueChangeRemoval:
             {
-                // Is there a better way?
-                if (self.subCategories.count == nil ||
-                    self.subCategories.count == 0)
+                if (self.subCategories == nil)
                 {
                     [self.managedObjectContext deleteObject:self];
-//                    NSLog(@"Removing empty category");
+                }
+                else
+                {
+                    // Check for empty
+                    if (self.subCategories.count == 0)
+                    {
+                        [self.managedObjectContext deleteObject:self];
+                        //                    NSLog(@"Removing empty category");
+                    }
                 }
             }
                 break;

@@ -19,16 +19,15 @@
 
 @interface spnTableViewController_Categories : UITableViewController <UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
-
 @property (nonatomic) NSManagedObjectContext* managedObjectContext;
-@property(nonatomic,assign) id<spnTableViewController_CategoriesDelegate> delegate;
+@property (nonatomic,assign) id<spnTableViewController_CategoriesDelegate> delegate;
 
 // properties used for fetched results controller
 @property (nonatomic)  NSFetchedResultsController* fetchedResultsController;
 @property NSString* entityName;
 @property NSPredicate* predicate;
 
-@property NSDate* startDate;
-@property NSDate* endDate;
+@property (nonatomic) NSDate* startDate;
+@property (nonatomic) NSDate* endDate;
 
 @end

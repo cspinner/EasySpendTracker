@@ -148,8 +148,8 @@ static spnSpendTracker *sharedSpendTracker = nil;
 {
     [self.calendarViewController setTitle:@"Calendar"];
     [self.calendarViewController setManagedObjectContext:self.managedObjectContext];
-    [self.calendarViewController setDelegate:self.calendarViewController];
-    [self.calendarViewController setDataSource:self.calendarViewController];
+    [self.calendarViewController setTableViewDelegate:self.calendarViewController];
+    [self.calendarViewController setCalendarDataSource:self.calendarViewController];
     [self.calendarViewController setMinAvailableDate:[NSDate dateStartOfDay:[[NSDate date] offsetYear:-3]]];
     [self.calendarViewController setMaxAvailableDate:[NSDate dateStartOfDay:[[NSDate date] offsetYear:3]]];
     [self.calendarViewController setBeginDate:[NSDate dateStartOfDay:[NSDate date]]];

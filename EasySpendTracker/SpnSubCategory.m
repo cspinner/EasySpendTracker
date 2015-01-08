@@ -49,12 +49,17 @@ static int transactionsObservanceContext;
         {
             case NSKeyValueChangeRemoval:
             {
-                // Is there a better way? TBD
-                if (self.transactions.count == nil ||
-                    self.transactions.count == 0)
+                if (self.transactions == nil)
                 {
                     [self.managedObjectContext deleteObject:self];
-//                    NSLog(@"Removing empty sub-category");
+                }
+                {
+                    // Check for empty
+                    if (self.transactions.count == 0)
+                    {
+                        [self.managedObjectContext deleteObject:self];
+                        //                    NSLog(@"Removing empty sub-category");
+                    }
                 }
             }
                 break;
