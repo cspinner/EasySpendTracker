@@ -17,6 +17,7 @@
 #import "SpnBillReminder.h"
 #import "NSDate+Convenience.h"
 #import "UIViewController+addTransactionHandles.h"
+#import "iAd/iAd.h"
 
 @interface spnSpendTracker ()
 
@@ -123,6 +124,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
 {
     [self.summaryViewController setTitle:@"Summary"];
     [self.summaryViewController setManagedObjectContext:self.managedObjectContext];
+    [self.summaryViewController setCanDisplayBannerAds:YES];
 }
 
 - (void)initCategoriesViewCntrl
@@ -131,6 +133,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.categoryTableViewController setStartDate:[[NSDate date] offsetDay:-30]];
     [self.categoryTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
+    [self.categoryTableViewController setCanDisplayBannerAds:YES];
 }
 
 - (void)initTransactionsViewCntrl
@@ -142,6 +145,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.allTransTableViewController setStartDate:nil];
     [self.allTransTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
+    [self.allTransTableViewController setCanDisplayBannerAds:YES];
 }
 
 - (void)initCalendarViewCntrl
@@ -155,12 +159,14 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.calendarViewController setBeginDate:[NSDate dateStartOfDay:[NSDate date]]];
     [self.calendarViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.calendarViewController setPreferredDate:self.calendarViewController.beginDate];
+    [self.calendarViewController setCanDisplayBannerAds:YES];
 }
 
 - (void)initRemindersViewCntrl
 {
     [self.remindersTableViewController setTitle:@"Bill Reminders"];
     [self.remindersTableViewController setManagedObjectContext:self.managedObjectContext];
+    [self.remindersTableViewController setCanDisplayBannerAds:YES];
 }
 
 #pragma mark - Context
