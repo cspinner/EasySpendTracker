@@ -133,7 +133,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.categoryTableViewController setStartDate:[[NSDate date] offsetDay:-30]];
     [self.categoryTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.categoryTableViewController setCanDisplayBannerAds:YES];
+    [self.categoryTableViewController setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 - (void)initTransactionsViewCntrl
@@ -145,7 +145,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.allTransTableViewController setStartDate:nil];
     [self.allTransTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.allTransTableViewController setCanDisplayBannerAds:YES];
+    [self.allTransTableViewController setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 - (void)initCalendarViewCntrl
@@ -159,14 +159,14 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.calendarViewController setBeginDate:[NSDate dateStartOfDay:[NSDate date]]];
     [self.calendarViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.calendarViewController setPreferredDate:self.calendarViewController.beginDate];
-//    [self.calendarViewController setCanDisplayBannerAds:YES]; - Crashes calendar view controller for some reason
+//    [self.calendarViewController setCanDisplayBannerAds:PP_AD_ENABLE]; - Crashes calendar view controller for some reason
 }
 
 - (void)initRemindersViewCntrl
 {
     [self.remindersTableViewController setTitle:@"Bill Reminders"];
     [self.remindersTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.remindersTableViewController setCanDisplayBannerAds:YES];
+    [self.remindersTableViewController setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 #pragma mark - Context
