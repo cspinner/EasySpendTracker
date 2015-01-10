@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "spnCollectionContainerView.h"
 
-@interface spnTableViewController_Summary : UITableViewController <UITableViewDelegate, UITableViewDataSource, spnCollectionContainerDelegate>
+@interface spnTableViewController_Summary : UITableViewController <UITableViewDelegate, UITableViewDataSource, spnCollectionContainerDelegate, UIAlertViewDelegate>
 
 @property NSManagedObjectContext* managedObjectContext;
 

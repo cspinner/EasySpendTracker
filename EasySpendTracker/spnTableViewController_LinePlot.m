@@ -10,6 +10,7 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "spnTransactionFetchOp.h"
 #import "spnLineChartProcessDataOp.h"
+#import "iAd/iAd.h"
 
 @interface spnTableViewController_LinePlot ()
 
@@ -54,6 +55,8 @@ enum
 -(void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self setCanDisplayBannerAds:PP_AD_ENABLE];
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -153,6 +156,8 @@ enum
     processDataOperation.persistentStoreCoordinator = [self.managedObjectContext persistentStoreCoordinator];
     processDataOperation.dataReturnBlock = ^(NSMutableArray* linePlotXYValues, NSMutableArray* linePlotXLabels) {
         
+        [values removeAllObjects];
+        [labels removeAllObjects];
         [values addObjectsFromArray:[[NSMutableArray alloc] initWithArray:linePlotXYValues copyItems:YES]];
         [labels addObjectsFromArray:[[NSMutableArray alloc] initWithArray:linePlotXLabels copyItems:YES]];
     };

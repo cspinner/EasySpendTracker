@@ -101,6 +101,8 @@ int observeChartPreviewContext;
 {
     [super viewDidLoad];
     
+    [self setCanDisplayBannerAds:PP_AD_ENABLE];
+    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
@@ -115,6 +117,25 @@ int observeChartPreviewContext;
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    
+    if (PP_AD_ENABLE)
+    {
+        // Manage the 'upgrade' alert
+        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDate* upgradeAlertLastDisplayed = [userDefaults objectForKey:@"spnUpgradeAlertLastDisplayed"];
+        
+        if ((upgradeAlertLastDisplayed == nil) || ([NSDate dayBetweenStartDate:upgradeAlertLastDisplayed endDate:[NSDate date]] >= 7))
+        {
+            UIAlertView* upgradeAppAlert = [[UIAlertView alloc] initWithTitle:@"Upgrade Available" message:@"If you find this app useful, please consider purchasing the Ad-Free version." delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Get It", nil];
+            
+            [upgradeAppAlert show];
+            
+            // Save last displayed date
+            upgradeAlertLastDisplayed = [NSDate date];
+            [userDefaults setObject:upgradeAlertLastDisplayed forKey:@"spnUpgradeAlertLastDisplayed"];
+            [userDefaults synchronize];
+        }
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -146,7 +167,6 @@ int observeChartPreviewContext;
     self.barPlotCashFlowByMonth.endDate = firstDayOfNextMonth;
     self.barPlotCashFlowByMonth.managedObjectContext = self.managedObjectContext;
     [self.barPlotCashFlowByMonth addObserver:self forKeyPath:@"barPlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.barPlotCashFlowByMonth.canDisplayBannerAds = PP_AD_ENABLE;
     
     // This Month - Expenses
     self.pieChartTableThisMonthExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
@@ -156,7 +176,6 @@ int observeChartPreviewContext;
     self.pieChartTableThisMonthExpenses.excludeCategories = @[@"Income"];
     self.pieChartTableThisMonthExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableThisMonthExpenses.canDisplayBannerAds = PP_AD_ENABLE;
     
     // This Month - Expense Merchants
     self.pieChartTableThisMonthExpMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
@@ -166,7 +185,6 @@ int observeChartPreviewContext;
     self.pieChartTableThisMonthExpMerchants.excludeCategories = @[@"Income"];
     self.pieChartTableThisMonthExpMerchants.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthExpMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableThisMonthExpMerchants.canDisplayBannerAds = PP_AD_ENABLE;
     
     // This Month - Income
     self.pieChartTableThisMonthIncome = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
@@ -176,7 +194,6 @@ int observeChartPreviewContext;
     self.pieChartTableThisMonthIncome.excludeCategories = nonIncomeCategoryTitles;
     self.pieChartTableThisMonthIncome.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthIncome addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableThisMonthIncome.canDisplayBannerAds = PP_AD_ENABLE;
     
     // This Month - Income Sources
     self.pieChartTableThisMonthIncMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
@@ -186,7 +203,6 @@ int observeChartPreviewContext;
     self.pieChartTableThisMonthIncMerchants.excludeCategories = nonIncomeCategoryTitles;
     self.pieChartTableThisMonthIncMerchants.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthIncMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableThisMonthIncMerchants.canDisplayBannerAds = PP_AD_ENABLE;
     
     
     
@@ -198,7 +214,6 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeExpenses.excludeCategories = @[@"Income"];
     self.pieChartTableAllTimeExpenses.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableAllTimeExpenses.canDisplayBannerAds = PP_AD_ENABLE;
     
     // All Time - Expense Merchants
     self.pieChartTableAllTimeExpMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
@@ -208,7 +223,6 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeExpMerchants.excludeCategories = @[@"Income"];
     self.pieChartTableAllTimeExpMerchants.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeExpMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableAllTimeExpMerchants.canDisplayBannerAds = PP_AD_ENABLE;
     
     // All Time - Income
     self.pieChartTableAllTimeIncome = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
@@ -218,7 +232,6 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeIncome.excludeCategories = nonIncomeCategoryTitles;
     self.pieChartTableAllTimeIncome.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeIncome addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableAllTimeIncome.canDisplayBannerAds = PP_AD_ENABLE;
     
     // All Time - Income Sources
     self.pieChartTableAllTimeIncMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
@@ -228,7 +241,6 @@ int observeChartPreviewContext;
     self.pieChartTableAllTimeIncMerchants.excludeCategories = nonIncomeCategoryTitles;
     self.pieChartTableAllTimeIncMerchants.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableAllTimeIncMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.pieChartTableAllTimeIncMerchants.canDisplayBannerAds = PP_AD_ENABLE;
     
     // Line Plot - Expense
     self.linePlotAllExpenses = [[spnTableViewController_LinePlot_Cat alloc] initWithStyle:UITableViewStyleGrouped];
@@ -240,7 +252,6 @@ int observeChartPreviewContext;
     self.linePlotAllExpenses.managedObjectContext = self.managedObjectContext;
     self.linePlotAllExpenses.entityName = @"SpnCategoryMO";
     [self.linePlotAllExpenses addObserver:self forKeyPath:@"linePlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.linePlotAllExpenses.canDisplayBannerAds = PP_AD_ENABLE;
     
     // Line Plot - Income
     self.linePlotAllIncome = [[spnTableViewController_LinePlot_Cat alloc] initWithStyle:UITableViewStyleGrouped];
@@ -252,7 +263,6 @@ int observeChartPreviewContext;
     self.linePlotAllIncome.managedObjectContext = self.managedObjectContext;
     self.linePlotAllIncome.entityName = @"SpnCategoryMO";
     [self.linePlotAllIncome addObserver:self forKeyPath:@"linePlotImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
-    self.linePlotAllIncome.canDisplayBannerAds = PP_AD_ENABLE;
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -1005,6 +1015,30 @@ int observeChartPreviewContext;
         }
     }
 
+}
+
+#pragma mark - UIAlertViewDelegate methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+{
+    switch (buttonIndex)
+    {
+        case 0:
+        {
+            // cancel button
+        }
+            break;
+            
+        case 1:
+        {
+            NSString *iTunesLink = @"http://appstore.com/easyspendtracker";
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]];
+        }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 @end

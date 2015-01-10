@@ -8,6 +8,7 @@
 
 #import "spnTableViewController_PieChart.h"
 #import "UIViewController+addTransactionHandles.h"
+#import "iAd/iAd.h"
 
 @interface spnTableViewController_PieChart ()
 
@@ -27,6 +28,8 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self setCanDisplayBannerAds:PP_AD_ENABLE];
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;

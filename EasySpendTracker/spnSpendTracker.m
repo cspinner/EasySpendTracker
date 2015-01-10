@@ -17,7 +17,6 @@
 #import "SpnBillReminder.h"
 #import "NSDate+Convenience.h"
 #import "UIViewController+addTransactionHandles.h"
-#import "iAd/iAd.h"
 
 @interface spnSpendTracker ()
 
@@ -124,7 +123,6 @@ static spnSpendTracker *sharedSpendTracker = nil;
 {
     [self.summaryViewController setTitle:@"Summary"];
     [self.summaryViewController setManagedObjectContext:self.managedObjectContext];
-    [self.summaryViewController setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 - (void)initCategoriesViewCntrl
@@ -132,9 +130,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.categoryTableViewController setTitle:@"One Month's Categories"];
     [self.categoryTableViewController setStartDate:[[NSDate date] offsetDay:-30]];
     [self.categoryTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
-    [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.categoryTableViewController setCanDisplayBannerAds:PP_AD_ENABLE];
-}
+    [self.categoryTableViewController setManagedObjectContext:self.managedObjectContext];}
 
 - (void)initTransactionsViewCntrl
 {
@@ -145,7 +141,6 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.allTransTableViewController setStartDate:nil];
     [self.allTransTableViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.allTransTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.allTransTableViewController setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 - (void)initCalendarViewCntrl
@@ -159,14 +154,12 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self.calendarViewController setBeginDate:[NSDate dateStartOfDay:[NSDate date]]];
     [self.calendarViewController setEndDate:[NSDate dateStartOfDay:[[NSDate date] offsetDay:1]]];
     [self.calendarViewController setPreferredDate:self.calendarViewController.beginDate];
-//    [self.calendarViewController setCanDisplayBannerAds:PP_AD_ENABLE]; - Crashes calendar view controller for some reason
 }
 
 - (void)initRemindersViewCntrl
 {
     [self.remindersTableViewController setTitle:@"Bill Reminders"];
     [self.remindersTableViewController setManagedObjectContext:self.managedObjectContext];
-    [self.remindersTableViewController setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 #pragma mark - Context

@@ -10,6 +10,7 @@
 #import "UIViewController+addTransactionHandles.h"
 #import "spnTransactionFetchOp.h"
 #import "spnBarPlotProcessDataOp.h"
+#import "iAd/iAd.h"
 
 @interface spnTableViewController_BarPlot ()
 
@@ -39,6 +40,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self setCanDisplayBannerAds:PP_AD_ENABLE];
 }
 
 - (void)reloadData
