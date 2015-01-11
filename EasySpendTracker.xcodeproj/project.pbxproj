@@ -1037,7 +1037,7 @@
 					"DEBUG=1",
 				);
 				INFOPLIST_FILE = "EasySpendTracker/EasySpendTracker-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks/CorePlot",
@@ -1065,7 +1065,7 @@
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "PP_AD_ENABLE=NO";
 				INFOPLIST_FILE = "EasySpendTracker/EasySpendTracker-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks/CorePlot",

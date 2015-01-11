@@ -433,7 +433,7 @@ static spnSpendTracker *sharedSpendTracker = nil;
     if ([[UIApplication sharedApplication] applicationIconBadgeNumber] != 0)
     {
         // Set badge count in tab bar item
-        ((UINavigationController*)self.mainTabBarController.viewControllers[4]).tabBarItem.badgeValue = [NSString stringWithFormat:@"%lu", [[UIApplication sharedApplication] applicationIconBadgeNumber]];
+        ((UINavigationController*)self.mainTabBarController.viewControllers[4]).tabBarItem.badgeValue = [NSString stringWithFormat:@"%lu", (long)[[UIApplication sharedApplication] applicationIconBadgeNumber]];
     }
     else
     {
