@@ -16,8 +16,10 @@
 #import "spnTableViewController_PieChart_Mer.h"
 #import "spnTableViewController_BarPlot.h"
 #import "spnCollectionContainerView.h"
+#import "spnTableViewController_InAppUpgrade.h"
 #import "NSDate+Convenience.h"
 #import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_Summary ()
 
@@ -101,8 +103,6 @@ int observeChartPreviewContext;
 {
     [super viewDidLoad];
     
-    [self setCanDisplayBannerAds:PP_AD_ENABLE];
-    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
@@ -114,33 +114,41 @@ int observeChartPreviewContext;
     [self initCharts];
 }
 
+- (void)removeAdsClicked
+{
+    spnTableViewController_InAppUpgrade* inAppUpgradeViewController = [[spnTableViewController_InAppUpgrade alloc] initWithStyle:UITableViewStyleGrouped];
+    
+
+    self.navigationItem.backBarButtonItem =
+    [[UIBarButtonItem alloc] initWithTitle:@"Back"
+                                     style:self.navigationItem.backBarButtonItem.style
+                                    target:nil
+                                    action:nil];
+    
+    // Present the view
+    [[self navigationController] pushViewController:inAppUpgradeViewController animated:YES];
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     
-    if (PP_AD_ENABLE)
+    if (![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade])
     {
-        // Manage the 'upgrade' alert
-        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        NSDate* upgradeAlertLastDisplayed = [userDefaults objectForKey:@"spnUpgradeAlertLastDisplayed"];
-        
-        if ((upgradeAlertLastDisplayed == nil) || ([NSDate dayBetweenStartDate:upgradeAlertLastDisplayed endDate:[NSDate date]] >= 7))
-        {
-            UIAlertView* upgradeAppAlert = [[UIAlertView alloc] initWithTitle:@"Upgrade Available" message:@"If you find this app useful, please consider purchasing the Ad-Free version." delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:@"Get It", nil];
-            
-            [upgradeAppAlert show];
-            
-            // Save last displayed date
-            upgradeAlertLastDisplayed = [NSDate date];
-            [userDefaults setObject:upgradeAlertLastDisplayed forKey:@"spnUpgradeAlertLastDisplayed"];
-            [userDefaults synchronize];
-        }
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"remove_ads"] style:UIBarButtonItemStylePlain target:self action:@selector(removeAdsClicked)];
+    }
+    else
+    {
+        self.navigationItem.leftBarButtonItem = nil;
     }
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
+    
     [self.tableView reloadData];
 }
 
@@ -1017,28 +1025,6 @@ int observeChartPreviewContext;
 
 }
 
-#pragma mark - UIAlertViewDelegate methods
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-{
-    switch (buttonIndex)
-    {
-        case 0:
-        {
-            // cancel button
-        }
-            break;
-            
-        case 1:
-        {
-            NSString *iTunesLink = @"http://appstore.com/easyspendtracker";
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]];
-        }
-            break;
-            
-        default:
-            break;
-    }
-}
 
 @end

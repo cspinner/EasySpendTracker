@@ -9,6 +9,7 @@
 #import "spnTableViewController_PieChart.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_PieChart ()
 
@@ -29,8 +30,6 @@
 {
     [super viewDidLoad];
     
-    [self setCanDisplayBannerAds:PP_AD_ENABLE];
-    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
@@ -40,6 +39,9 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
+    
     [self.tableView reloadData];
 }
 

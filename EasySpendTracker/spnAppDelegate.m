@@ -9,6 +9,7 @@
 #import "spnAppDelegate.h"
 #import "spnSpendTracker.h"
 #import "NSDate+Convenience.h"
+#import "spnInAppPurchaseManager.h"
 #import <UIKit/UIKit.h>
 
 @interface spnAppDelegate ()
@@ -54,6 +55,9 @@
     
     self.window.rootViewController = spendTracker.rootViewController;
     [self.window makeKeyAndVisible];
+    
+    // Initialize In app purchase singleton - registers itself as transaction observer
+    [spnInAppPurchaseManager sharedManager];
 
     return YES;
 }

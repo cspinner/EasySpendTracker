@@ -54,6 +54,10 @@
 		3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */; };
 		3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720E17F916A100FBF39F /* spnTransactionCellView.m */; };
 		3B61721217FCD3BD00FBF39F /* spnViewController_Expense.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */; };
+		3B70C7481A65F22C00355412 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B70C7471A65F22C00355412 /* StoreKit.framework */; };
+		3B70C74B1A65F38800355412 /* spnInAppPurchase.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B70C74A1A65F38800355412 /* spnInAppPurchase.m */; };
+		3B70C74E1A6732A800355412 /* spnInAppPurchaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B70C74D1A6732A800355412 /* spnInAppPurchaseManager.m */; };
+		3B70C7551A67442F00355412 /* spnTableViewController_InAppUpgrade.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B70C7541A67442F00355412 /* spnTableViewController_InAppUpgrade.m */; };
 		3B722F5E1999ABE70056959F /* PlotItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B722F5A1999ABE70056959F /* PlotItem.m */; };
 		3B722F5F1999ABE70056959F /* spnPieChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B722F5B1999ABE70056959F /* spnPieChart.m */; };
 		3B72B70219F706F500E6F88F /* spnTableViewController_BarPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B72B70119F706F500E6F88F /* spnTableViewController_BarPlot.m */; };
@@ -263,6 +267,13 @@
 		3B61720E17F916A100FBF39F /* spnTransactionCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTransactionCellView.m; sourceTree = "<group>"; };
 		3B61721017FCD3BD00FBF39F /* spnViewController_Expense.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = spnViewController_Expense.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = spnViewController_Expense.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		3B70C7471A65F22C00355412 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		3B70C7491A65F38800355412 /* spnInAppPurchase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnInAppPurchase.h; sourceTree = "<group>"; };
+		3B70C74A1A65F38800355412 /* spnInAppPurchase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnInAppPurchase.m; sourceTree = "<group>"; };
+		3B70C74C1A6732A800355412 /* spnInAppPurchaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnInAppPurchaseManager.h; sourceTree = "<group>"; };
+		3B70C74D1A6732A800355412 /* spnInAppPurchaseManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnInAppPurchaseManager.m; sourceTree = "<group>"; };
+		3B70C7531A67442F00355412 /* spnTableViewController_InAppUpgrade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spnTableViewController_InAppUpgrade.h; sourceTree = "<group>"; };
+		3B70C7541A67442F00355412 /* spnTableViewController_InAppUpgrade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnTableViewController_InAppUpgrade.m; sourceTree = "<group>"; };
 		3B722F5A1999ABE70056959F /* PlotItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlotItem.m; sourceTree = "<group>"; };
 		3B722F5B1999ABE70056959F /* spnPieChart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spnPieChart.m; sourceTree = "<group>"; };
 		3B722F5C1999ABE70056959F /* PlotItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlotItem.h; sourceTree = "<group>"; };
@@ -312,6 +323,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B70C7481A65F22C00355412 /* StoreKit.framework in Frameworks */,
 				3B91CE561A617C03000D4909 /* iAd.framework in Frameworks */,
 				3BD4130F1A0D23C10088EA61 /* libKal.a in Frameworks */,
 				3B1D7BD71991C7B300A8B533 /* QuartzCore.framework in Frameworks */,
@@ -444,6 +456,8 @@
 				3B2C9BB4198482E500384B00 /* spnTableViewController_MainCategorySelect.m */,
 				3B2C9BB71984834000384B00 /* spnTableViewController_SubCategorySelect.h */,
 				3B2C9BB81984834000384B00 /* spnTableViewController_SubCategorySelect.m */,
+				3B70C7531A67442F00355412 /* spnTableViewController_InAppUpgrade.h */,
+				3B70C7541A67442F00355412 /* spnTableViewController_InAppUpgrade.m */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -517,6 +531,7 @@
 		3B61711117EDED6800FBF39F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3B70C7471A65F22C00355412 /* StoreKit.framework */,
 				3B91CE551A617C03000D4909 /* iAd.framework */,
 				3B1D7BD61991C7B300A8B533 /* QuartzCore.framework */,
 				3B1D7B841991C68E00A8B533 /* CorePlot */,
@@ -579,28 +594,13 @@
 		3B61715A17F44AC200FBF39F /* ViewContollers */ = {
 			isa = PBXGroup;
 			children = (
+				3B70C74F1A67438700355412 /* Charts and Plots */,
 				3BD413281A19435B0088EA61 /* Reminders */,
 				3B2C9BBC1985EF3800384B00 /* Transaction */,
 				3B2C9BBB1985EF1400384B00 /* Category */,
 				3B2C9BBA1985EEF000384B00 /* Helpers */,
 				3B0C678219A7B8E300D358E0 /* spnTableViewController_Summary.h */,
 				3B0C678319A7B8E300D358E0 /* spnTableViewController_Summary.m */,
-				3B93B19F19A13E5F00A16006 /* spnTableViewController_PieChart.h */,
-				3B93B1A019A13E5F00A16006 /* spnTableViewController_PieChart.m */,
-				3B481B2D1A4DEEC1009A6AE3 /* spnTableViewController_PieChart_Mer.h */,
-				3B481B2E1A4DEEC1009A6AE3 /* spnTableViewController_PieChart_Mer.m */,
-				3B2E91D119D75E5E006B8DBE /* spnTableViewController_PieChart_Cat.h */,
-				3B2E91D219D75E5E006B8DBE /* spnTableViewController_PieChart_Cat.m */,
-				3B2E91D419D75F32006B8DBE /* spnTableViewController_PieChart_SubCat.h */,
-				3B2E91D519D75F32006B8DBE /* spnTableViewController_PieChart_SubCat.m */,
-				3B19C2C019BD3B5E00B3B317 /* spnTableViewController_LinePlot.h */,
-				3B19C2C119BD3B5E00B3B317 /* spnTableViewController_LinePlot.m */,
-				3B2E91DA19E69A02006B8DBE /* spnTableViewController_LinePlot_Cat.h */,
-				3B2E91DB19E69A02006B8DBE /* spnTableViewController_LinePlot_Cat.m */,
-				3B2E91DD19E69A13006B8DBE /* spnTableViewController_LinePlot_SubCat.h */,
-				3B2E91DE19E69A13006B8DBE /* spnTableViewController_LinePlot_SubCat.m */,
-				3B72B70019F706F500E6F88F /* spnTableViewController_BarPlot.h */,
-				3B72B70119F706F500E6F88F /* spnTableViewController_BarPlot.m */,
 			);
 			name = ViewContollers;
 			sourceTree = "<group>";
@@ -621,6 +621,8 @@
 			children = (
 				3B61716617F621D200FBF39F /* spnSpendTracker.h */,
 				3B61716717F621D200FBF39F /* spnSpendTracker.m */,
+				3B70C74C1A6732A800355412 /* spnInAppPurchaseManager.h */,
+				3B70C74D1A6732A800355412 /* spnInAppPurchaseManager.m */,
 			);
 			name = Controls;
 			sourceTree = "<group>";
@@ -646,6 +648,29 @@
 				3BDB00131819D9C400876590 /* Subclasses */,
 			);
 			name = CoreData;
+			sourceTree = "<group>";
+		};
+		3B70C74F1A67438700355412 /* Charts and Plots */ = {
+			isa = PBXGroup;
+			children = (
+				3B93B19F19A13E5F00A16006 /* spnTableViewController_PieChart.h */,
+				3B93B1A019A13E5F00A16006 /* spnTableViewController_PieChart.m */,
+				3B481B2D1A4DEEC1009A6AE3 /* spnTableViewController_PieChart_Mer.h */,
+				3B481B2E1A4DEEC1009A6AE3 /* spnTableViewController_PieChart_Mer.m */,
+				3B2E91D119D75E5E006B8DBE /* spnTableViewController_PieChart_Cat.h */,
+				3B2E91D219D75E5E006B8DBE /* spnTableViewController_PieChart_Cat.m */,
+				3B2E91D419D75F32006B8DBE /* spnTableViewController_PieChart_SubCat.h */,
+				3B2E91D519D75F32006B8DBE /* spnTableViewController_PieChart_SubCat.m */,
+				3B19C2C019BD3B5E00B3B317 /* spnTableViewController_LinePlot.h */,
+				3B19C2C119BD3B5E00B3B317 /* spnTableViewController_LinePlot.m */,
+				3B2E91DA19E69A02006B8DBE /* spnTableViewController_LinePlot_Cat.h */,
+				3B2E91DB19E69A02006B8DBE /* spnTableViewController_LinePlot_Cat.m */,
+				3B2E91DD19E69A13006B8DBE /* spnTableViewController_LinePlot_SubCat.h */,
+				3B2E91DE19E69A13006B8DBE /* spnTableViewController_LinePlot_SubCat.m */,
+				3B72B70019F706F500E6F88F /* spnTableViewController_BarPlot.h */,
+				3B72B70119F706F500E6F88F /* spnTableViewController_BarPlot.m */,
+			);
+			name = "Charts and Plots";
 			sourceTree = "<group>";
 		};
 		3B722F581999A94B0056959F /* Graphing */ = {
@@ -732,6 +757,8 @@
 				3B722F581999A94B0056959F /* Graphing */,
 				3BDBFFFD1818AD4D00876590 /* spnUtils.h */,
 				3BDBFFFE1818AD4D00876590 /* spnUtils.m */,
+				3B70C7491A65F38800355412 /* spnInAppPurchase.h */,
+				3B70C74A1A65F38800355412 /* spnInAppPurchase.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -745,6 +772,7 @@
 			buildPhases = (
 				3B61710B17EDED6800FBF39F /* Sources */,
 				3B61710C17EDED6800FBF39F /* Frameworks */,
+				3B70C7561A69834A00355412 /* ShellScript */,
 				3B61710D17EDED6800FBF39F /* Resources */,
 			);
 			buildRules = (
@@ -849,6 +877,22 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		3B70C7561A69834A00355412 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$INFOPLIST_FILE\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"$INFOPLIST_FILE\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		3B61710B17EDED6800FBF39F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -863,6 +907,7 @@
 				3B61716817F621D200FBF39F /* spnSpendTracker.m in Sources */,
 				3BD413121A0D36150088EA61 /* spnViewController_Calendar.m in Sources */,
 				3B2C9BAC1984067000384B00 /* SpnSubCategoryMO.m in Sources */,
+				3B70C74E1A6732A800355412 /* spnInAppPurchaseManager.m in Sources */,
 				3B2E91D919D8A248006B8DBE /* spnLineChartProcessDataOp.m in Sources */,
 				3B2C9BB5198482E500384B00 /* spnTableViewController_MainCategorySelect.m in Sources */,
 				3B2E91C719D24194006B8DBE /* spnTransactionFetchOp.m in Sources */,
@@ -888,6 +933,7 @@
 				3B61716117F518C300FBF39F /* UIViewController+addTransactionHandles.m in Sources */,
 				3BD4132B1A1943ED0088EA61 /* spnViewController_BillReminder.m in Sources */,
 				3B61715917F3D9D700FBF39F /* spnTableViewController_Categories.m in Sources */,
+				3B70C7551A67442F00355412 /* spnTableViewController_InAppUpgrade.m in Sources */,
 				3BCB7F8719F6F000005D927F /* spnBarPlot.m in Sources */,
 				3B722F5F1999ABE70056959F /* spnPieChart.m in Sources */,
 				3B61721217FCD3BD00FBF39F /* spnViewController_Expense.m in Sources */,
@@ -904,6 +950,7 @@
 				3B2C9BB2198406B000384B00 /* SpnSubCategory.m in Sources */,
 				3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */,
 				3B72B70219F706F500E6F88F /* spnTableViewController_BarPlot.m in Sources */,
+				3B70C74B1A65F38800355412 /* spnInAppPurchase.m in Sources */,
 				3B0C679319B10CC300D358E0 /* AutoFillTableViewController.m in Sources */,
 				3B49D59F1A1F7C62008C1B21 /* spnTableViewController_BillReminders.m in Sources */,
 			);
@@ -1032,8 +1079,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"PP_AD_ENABLE=NO",
 					"DEBUG=1",
+					"PP_IAP_ALL_PURCHASED=YES",
 				);
 				INFOPLIST_FILE = "EasySpendTracker/EasySpendTracker-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1061,7 +1108,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Christopher Spinner (63KT8V5NW6)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "PP_AD_ENABLE=NO";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INFOPLIST_FILE = "EasySpendTracker/EasySpendTracker-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (

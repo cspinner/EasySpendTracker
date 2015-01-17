@@ -115,14 +115,14 @@
         if (!self.isNew && self.dueDateWasUpdated)
         {
             // mark bill as paid and deletes any pending notification for it
-            [[spnSpendTracker sharedManager] markBillReminderAsPaid:self.billReminder];
+            [[spnSpendTracker sharedManager] markBillReminderAsPaid:self.billReminder doRescheduleIfRecurring:NO];
         }
         
         // Create a new notification if this is a new reminder or we are updating an existing reminder
         if ((self.isNew) ||
             (!self.isNew && self.dueDateWasUpdated))
         {
-            [self scheduleReminderNotification];
+            [[spnSpendTracker sharedManager] scheduleNotificationForReminder:self.billReminder];
         }
         
         // Save and dismiss/pop
@@ -142,18 +142,6 @@
         [self.managedObjectContext deleteObject:self.billReminder];
         [self dismissViewControllerAnimated:YES completion:nil];
     }
-}
-
-- (void)scheduleReminderNotification
-{
-    // Set 'none' status - results in PENDING
-    [[spnSpendTracker sharedManager] markBillReminderAsPending:self.billReminder];
-    
-    // Create the new reminder notification
-    self.billReminder.uniqueID = @(arc4random());
-//    NSLog(@"%@: %lu", self.billReminder.merchant, self.billReminder.uniqueID.integerValue);
-    
-    [[spnSpendTracker sharedManager] addLocalNotificationWithID:self.billReminder.uniqueID alertBody:[NSString stringWithFormat:@"%@ bill due!", self.merchant] fireDate:self.billReminder.dateDue];
 }
 
 #pragma mark - UITableViewDataSource
@@ -444,20 +432,9 @@
     {
         case REM_MARK_PAID_SECTION_INDEX:
         {
-            // Mark as paid
-            [[spnSpendTracker sharedManager] markBillReminderAsPaid:self.billReminder];
-            
-            // If there is a frequency specified, schedule the next notification
-            if (self.frequency)
-            {
-                NSDate* newDateDue = [self.billReminder.dateDue dateByAddingComponents:self.frequency];
-                self.billReminder.dateDue = newDateDue;
-                
-                [self scheduleReminderNotification];
-            }
-            
-            // Save and dismiss/pop
-            [[spnSpendTracker sharedManager] saveContext:self.managedObjectContext];
+            // Mark as paid - reschedules as necessary if recurring
+            [[spnSpendTracker sharedManager] markBillReminderAsPaid:self.billReminder doRescheduleIfRecurring:YES];
+
             [self.navigationController popViewControllerAnimated:YES];
         }
             break;

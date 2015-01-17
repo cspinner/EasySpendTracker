@@ -9,6 +9,7 @@
 #import "spnTableViewController_Categories.h"
 #import "UIViewController+addTransactionHandles.h"
 #import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_Categories ()
 
@@ -38,7 +39,6 @@
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
-    [self setCanDisplayBannerAds:PP_AD_ENABLE];
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     //self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
@@ -66,6 +66,8 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
     
     // Display the search bar
     [self.tableView setTableHeaderView:self.searchBar];

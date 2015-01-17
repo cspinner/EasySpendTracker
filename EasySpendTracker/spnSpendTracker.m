@@ -239,22 +239,9 @@ static spnSpendTracker *sharedSpendTracker = nil;
 {
     // Get the unique identifer associated with the notification
     NSNumber* uniqueID = [notification.userInfo valueForKey:@"uniqueID"];
-
-    // Fetch all bill pay reminders
-    NSError* error;
-    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnBillReminderMO"];
-    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"uniqueID.integerValue == %lu", uniqueID.integerValue];
     
-    // Should be at most 1
-    NSArray* fetchedReminders = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-    
-    if (fetchedReminders.count)
-    {
-//        for (SpnBillReminder* remind in fetchedReminders)
-//        {
-//            NSLog(@"hit - %@: %lu", remind.merchant, remind.uniqueID.integerValue);
-//        }
-        
+    if ([self reminderWithUniqueID:uniqueID])
+    { 
         [self.mainTabBarController setSelectedIndex:TAB_BAR_REMINDERS_INDEX];
     }
 }
@@ -537,16 +524,56 @@ static spnSpendTracker *sharedSpendTracker = nil;
     [self saveContext:self.managedObjectContext];
 }
 
-- (void)markBillReminderAsPaid:(SpnBillReminder*)reminder
+- (void)markBillReminderAsPaid:(SpnBillReminder*)reminder doRescheduleIfRecurring:(BOOL)doReschedule
 {
+    NSDateComponents* frequency = reminder.frequency;
+    
     // First mark bill as paid
     [self billReminder:reminder setPaidStatus:PAID_STATUS_PAID];
     
     // Delete pending notification by ID, in case it still exists
     [self deleteLocalNotificationWithUniqueID:reminder.uniqueID];
     
+    // If there is a frequency specified, schedule the next notification
+    if (frequency && doReschedule)
+    {
+        NSDate* newDateDue = [reminder.dateDue dateByAddingComponents:frequency];
+        reminder.dateDue = newDateDue;
+        
+        [self scheduleNotificationForReminder:reminder];
+    }
+    
     // Save context
     [self saveContext:self.managedObjectContext];
 }
+
+- (void)scheduleNotificationForReminder:(SpnBillReminder*)reminder
+{
+    // Set 'none' status - results in PENDING
+    [self markBillReminderAsPending:reminder];
+    
+    // Create the new reminder notification
+    reminder.uniqueID = @(arc4random());
+    //    NSLog(@"%@: %lu", self.billReminder.merchant, self.billReminder.uniqueID.integerValue);
+    
+    [self addLocalNotificationWithID:reminder.uniqueID alertBody:[NSString stringWithFormat:@"%@ bill due!", reminder.merchant] fireDate:reminder.dateDue];
+    
+    // Save context
+    [self saveContext:self.managedObjectContext];
+}
+
+- (SpnBillReminder*)reminderWithUniqueID:(NSNumber*)uniqueID
+{
+    // Fetch bill pay reminder
+    NSError* error;
+    NSFetchRequest* fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"SpnBillReminderMO"];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"uniqueID.integerValue == %lu", uniqueID.integerValue];
+    
+    // Should be at most 1
+    NSArray* fetchedReminders = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    
+    return fetchedReminders[0];
+}
+
 
 @end

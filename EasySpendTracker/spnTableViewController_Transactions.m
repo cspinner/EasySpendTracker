@@ -14,6 +14,7 @@
 #import "SpnTransaction.h"
 #import "spnSpendTracker.h"
 #import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_Transactions ()
 
@@ -56,8 +57,7 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
-    [self setCanDisplayBannerAds:PP_AD_ENABLE];
- 
+
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     self.tableView.delegate = self;
@@ -93,6 +93,8 @@ typedef NS_ENUM(NSInteger, TransSearchBarButtonIndexType)
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
     
     // Display the search bar
     [self.tableView setTableHeaderView:self.searchBar];

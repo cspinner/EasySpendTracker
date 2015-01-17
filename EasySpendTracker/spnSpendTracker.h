@@ -36,6 +36,8 @@
 - (void)deleteBillReminder:(SpnBillReminder*)reminder;
 - (void)markBillReminderAsPending:(SpnBillReminder*)reminder;
 - (void)markBillReminderAsUnpaid:(SpnBillReminder*)reminder;
-- (void)markBillReminderAsPaid:(SpnBillReminder*)reminder;
+- (void)markBillReminderAsPaid:(SpnBillReminder*)reminder doRescheduleIfRecurring:(BOOL)doReschedule;
+- (void)scheduleNotificationForReminder:(SpnBillReminder*)reminder;
+- (SpnBillReminder*)reminderWithUniqueID:(NSNumber*)uniqueID;
 
 @end

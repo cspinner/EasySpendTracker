@@ -11,6 +11,7 @@
 #import "spnTransactionFetchOp.h"
 #import "spnBarPlotProcessDataOp.h"
 #import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_BarPlot ()
 
@@ -40,8 +41,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
     
-    [self setCanDisplayBannerAds:PP_AD_ENABLE];
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
 }
 
 - (void)reloadData

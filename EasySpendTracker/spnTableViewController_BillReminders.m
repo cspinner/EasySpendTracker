@@ -11,6 +11,8 @@
 #import "SpnBillReminder.h"
 #import "spnViewController_BillReminder.h"
 #import "spnSpendTracker.h"
+#import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_BillReminders ()
 
@@ -69,6 +71,8 @@ enum
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
     
     [[spnSpendTracker sharedManager] updateAllReminders];
     
@@ -154,33 +158,52 @@ enum
     [self.tableView reloadData];
 }
 
-- (void)configureCell:(UITableViewCell*)cell withReminder:(SpnBillReminder*)reminder
+- (void)configureCell:(UITableViewCell*)cell withReminder:(SpnBillReminder*)reminder atIndexPath:(NSIndexPath*)indexPath
 {
-    NSString* paidStatusStr;
-    
+    NSString* valueStr = [reminder.value isEqualToNumber:@(0.0)] ? @"" : [NSString stringWithFormat:@"$%.2f", reminder.value.floatValue];
+ 
     switch (reminder.paidStatus)
     {
         case PAID_STATUS_UNPAID:
-            paidStatusStr = @"UNPAID";
-            [cell.detailTextLabel setTextColor:[UIColor redColor]];
+        {
+            UIButton *paidButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            paidButton.frame = CGRectMake(0, 0, 72, 37);
+            [paidButton setTitle:@"Mark Paid" forState:UIControlStateNormal];
+            paidButton.tag = reminder.uniqueID.integerValue;
+            [paidButton addTarget:self action:@selector(paidButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.accessoryView = paidButton;
+        }
             break;
             
         case PAID_STATUS_PAID:
-            paidStatusStr = @"PAID";
-            [cell.detailTextLabel setTextColor:[UIColor colorWithRed:0.0 green:0.39 blue:0.0 alpha:1.0]];
+        {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            cell.accessoryView = nil;
+        }
             break;
             
         case PAID_STATUS_NONE:
         default:
-            paidStatusStr = @"PENDING";
-            [cell.detailTextLabel setTextColor:[UIColor grayColor]];
+        {
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.accessoryView = nil;
+        }
             break;
     }
     
     [cell.textLabel setText:reminder.merchant];
     [cell.textLabel setFont:[UIFont systemFontOfSize:13.0]];
-    [cell.detailTextLabel setText:paidStatusStr];
+    [cell.detailTextLabel setText:valueStr];
     [cell.detailTextLabel setFont:[UIFont systemFontOfSize:13.0]];
+}
+
+- (void)paidButtonTapped:(id)sender
+{
+    UIButton *paidButton = (UIButton *)sender;
+    SpnBillReminder *reminder = [[spnSpendTracker sharedManager] reminderWithUniqueID:@(paidButton.tag)];
+    
+    [[spnSpendTracker sharedManager] markBillReminderAsPaid:reminder doRescheduleIfRecurring:YES];
 }
 
 #pragma mark - UITableViewDataSource
@@ -200,7 +223,7 @@ enum
     
     if (self.tableView == tableView)
     {
-        [self configureCell:cell withReminder:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        [self configureCell:cell withReminder:[self.fetchedResultsController objectAtIndexPath:indexPath] atIndexPath:indexPath];
     }
     
     return cell;
@@ -349,7 +372,7 @@ enum
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(UITableViewCell*)[tableView cellForRowAtIndexPath:indexPath] withReminder:[self.fetchedResultsController objectAtIndexPath:newIndexPath]];
+            [self configureCell:(UITableViewCell*)[tableView cellForRowAtIndexPath:indexPath] withReminder:[self.fetchedResultsController objectAtIndexPath:newIndexPath] atIndexPath:newIndexPath];
             break;
             
         case NSFetchedResultsChangeMove:

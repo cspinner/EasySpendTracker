@@ -11,6 +11,7 @@
 #import "spnTransactionFetchOp.h"
 #import "spnLineChartProcessDataOp.h"
 #import "iAd/iAd.h"
+#import "spnInAppPurchaseManager.h"
 
 @interface spnTableViewController_LinePlot ()
 
@@ -56,8 +57,6 @@ enum
 {
     [super viewDidLoad];
     
-    [self setCanDisplayBannerAds:PP_AD_ENABLE];
-    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
@@ -92,6 +91,9 @@ enum
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
+    
     [self.tableView reloadData];
 }
 
