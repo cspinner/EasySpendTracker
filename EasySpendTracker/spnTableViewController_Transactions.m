@@ -27,7 +27,7 @@
 @end
 
 #define CELL_HEIGHT 44.0
-#define FETCH_LIMIT 250
+#define FETCH_LIMIT 1000
 
 const float epsilon = 0.000001;
 
