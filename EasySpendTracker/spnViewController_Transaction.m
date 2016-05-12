@@ -752,38 +752,41 @@ static int subCategorySetContext;
             [self setMerchant:textField.text];
             self.autoFillTableViewController.tableView.hidden = YES;
             
-            // Now attempt to set category and sub-category based on the merchant, if it was used before.
-            // If merchant was used before, fills in the category and sub-category of most recent use:
-            
-            // Fetch transactions...
-            NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionMO"];
-            
-            NSMutableArray* transactionArray;
-            NSError* error;
-            
-            // ...with this merchant...
-            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(merchant MATCHES[cd] %@)", self.merchant];
-            fetchRequest.predicate = predicate;
-            
-            // ...sorted by date, newest first.
-            NSSortDescriptor *sortTransactionsByDate = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-            [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
-            
-            // now execute the fetch
-            transactionArray = [NSMutableArray arrayWithArray: [self.managedObjectContext executeFetchRequest:fetchRequest error:&error]];
-            
-            // If there were any transactions with this merchant name...
-            if(transactionArray.count > 0)
+            // For newly created expenses only..
+            if((self.transaction.type.integerValue == EXPENSE_TRANSACTION_TYPE) && self.isNew)
             {
-                // Set category and sub-category based on first transaction in the list:
-                SpnTransaction* firstTransaction = transactionArray[0];
-                NSLog(@"Category: %@", firstTransaction.subCategory.category.title);
-                NSLog(@"SubCategory: %@", firstTransaction.subCategory.title);
-                [self setCategory_string:firstTransaction.subCategory.category.title];
-                [self setSubCategory_string:firstTransaction.subCategory.title];
+                // Now attempt to set category and sub-category based on the merchant, if it was used before.
+                // If merchant was used before, fills in the category and sub-category of most recent use:
                 
-                // The updates to the data supporting the table are complete
-                [self.tableView reloadData];
+                // Fetch transactions...
+                NSFetchRequest* fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"SpnTransactionMO"];
+                
+                NSMutableArray* transactionArray;
+                NSError* error;
+                
+                // ...with this merchant...
+                NSPredicate* predicate = [NSPredicate predicateWithFormat:@"(merchant MATCHES[cd] %@)", self.merchant];
+                fetchRequest.predicate = predicate;
+                
+                // ...sorted by date, newest first.
+                NSSortDescriptor *sortTransactionsByDate = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+                [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortTransactionsByDate, nil]];
+                
+                // now execute the fetch
+                transactionArray = [NSMutableArray arrayWithArray: [self.managedObjectContext executeFetchRequest:fetchRequest error:&error]];
+                
+                // If there were any transactions with this merchant name...
+                if(transactionArray.count > 0)
+                {
+                    // Set category and sub-category based on first transaction in the list:
+                    SpnTransaction* firstTransaction = transactionArray[0];
+                    
+                    [self setCategory_string:firstTransaction.subCategory.category.title];
+                    [self setSubCategory_string:firstTransaction.subCategory.title];
+                    
+                    // The updates to the data supporting the table are complete
+                    [self.tableView reloadData];
+                }
             }
             
         }
