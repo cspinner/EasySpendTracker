@@ -77,8 +77,8 @@ static int subCategorySetContext;
     NSMutableArray* merchantArray;
     NSError* error;
     
-    // This day 3 months ago
-    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", [[NSDate date] offsetMonth:-3]];
+    // This day 1 year ago
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"date >= %@", [[NSDate date] offsetYear:-1]];
     fetchRequest.predicate = predicate;
     merchantArray = [NSMutableArray arrayWithArray: [self.managedObjectContext executeFetchRequest:fetchRequest error:&error]];
     merchantArray = [merchantArray valueForKeyPath:@"@distinctUnionOfObjects.merchant"];
@@ -633,18 +633,6 @@ static int subCategorySetContext;
 {
     // lets the view controller know that this field is active - used in keyboard/view position management
     self.activeField = textField;
-    
-    switch (textField.tag)
-    {
-        case AMOUNT_VIEW_TAG:
-        {
-            textField.text = @"$";
-        }
-            break;
-            
-        default:
-            break;
-    }
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -676,6 +664,8 @@ static int subCategorySetContext;
                 numberFormatterCurrency.minimumFractionDigits = 0;
                 numberFormatterCurrency.decimalSeparator = decimalSeperator;
                 numberFormatterCurrency.usesGroupingSeparator = NO;
+                numberFormatterCurrency.usesSignificantDigits = YES;
+                numberFormatterCurrency.maximumSignificantDigits = 0;
             }
             
             
