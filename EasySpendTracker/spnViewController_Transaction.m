@@ -631,8 +631,43 @@ static int subCategorySetContext;
 // <UITextFieldDelegate> methods
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
+    NSString *decimalSeperator = @".";
+    NSString *text = textField.text;
+    
     // lets the view controller know that this field is active - used in keyboard/view position management
     self.activeField = textField;
+    
+    switch (textField.tag)
+    {
+        case AMOUNT_VIEW_TAG:
+        {
+
+            // the number formatter will only be instantiated once ...
+            static NSNumberFormatter *numberFormatterCurrency;
+            if (!numberFormatterCurrency)
+            {
+                numberFormatterCurrency = [[NSNumberFormatter alloc] init];
+                numberFormatterCurrency.numberStyle = NSNumberFormatterCurrencyStyle;
+                numberFormatterCurrency.maximumFractionDigits = 2;
+                numberFormatterCurrency.minimumFractionDigits = 0;
+                numberFormatterCurrency.decimalSeparator = decimalSeperator;
+                numberFormatterCurrency.usesGroupingSeparator = NO;
+                numberFormatterCurrency.usesSignificantDigits = YES;
+                numberFormatterCurrency.maximumSignificantDigits = 2;
+            }
+            
+            // If the number is invalid, or it's zero, then clear the field
+            NSNumber *number = [numberFormatterCurrency numberFromString:text];
+            if ((number == nil) || (number.floatValue < 0.001))
+            {
+                textField.text = @"$";
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -665,7 +700,7 @@ static int subCategorySetContext;
                 numberFormatterCurrency.decimalSeparator = decimalSeperator;
                 numberFormatterCurrency.usesGroupingSeparator = NO;
                 numberFormatterCurrency.usesSignificantDigits = YES;
-                numberFormatterCurrency.maximumSignificantDigits = 0;
+                numberFormatterCurrency.maximumSignificantDigits = 2;
             }
             
             
