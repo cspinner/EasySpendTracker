@@ -44,7 +44,7 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(productPurchased:) name:spnInAppProductPurchasedNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(productPurchased:) name:spnInAppProductPurchasedNotification object:nil];
     
     // Reloading indicator
     self.refreshControl = [[UIRefreshControl alloc] init];

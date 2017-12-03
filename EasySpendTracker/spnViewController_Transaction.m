@@ -653,7 +653,7 @@ static int subCategorySetContext;
                 numberFormatterCurrency.decimalSeparator = decimalSeperator;
                 numberFormatterCurrency.usesGroupingSeparator = NO;
                 numberFormatterCurrency.usesSignificantDigits = YES;
-                numberFormatterCurrency.maximumSignificantDigits = 2;
+                numberFormatterCurrency.maximumSignificantDigits = 6;
             }
             
             // If the number is invalid, or it's zero, then clear the field
@@ -700,7 +700,7 @@ static int subCategorySetContext;
                 numberFormatterCurrency.decimalSeparator = decimalSeperator;
                 numberFormatterCurrency.usesGroupingSeparator = NO;
                 numberFormatterCurrency.usesSignificantDigits = YES;
-                numberFormatterCurrency.maximumSignificantDigits = 2;
+                numberFormatterCurrency.maximumSignificantDigits = 6;
             }
             
             

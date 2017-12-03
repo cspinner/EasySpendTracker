@@ -67,7 +67,7 @@
 {
     [super viewWillAppear:animated];
     
-    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
+//    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
     
     // Display the search bar
     [self.tableView setTableHeaderView:self.searchBar];

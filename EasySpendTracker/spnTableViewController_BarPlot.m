@@ -47,7 +47,7 @@
 {
     [super viewWillAppear:animated];
     
-    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
+//    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
 }
 
 - (void)reloadData

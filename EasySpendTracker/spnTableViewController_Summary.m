@@ -16,7 +16,7 @@
 #import "spnTableViewController_PieChart_Mer.h"
 #import "spnTableViewController_BarPlot.h"
 #import "spnCollectionContainerView.h"
-#import "spnTableViewController_InAppUpgrade.h"
+//#import "spnTableViewController_InAppUpgrade.h"
 #import "NSDate+Convenience.h"
 #import "iAd/iAd.h"
 #import "spnInAppPurchaseManager.h"
@@ -26,16 +26,20 @@
 @property spnTableViewController_BarPlot* barPlotCashFlowByMonth;
 @property spnTableViewController_PieChart_Cat* pieChartTableThisMonthExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableThisMonthIncome;
+@property spnTableViewController_PieChart_Cat* pieChartTableLastMonthExpenses;
+@property spnTableViewController_PieChart_Cat* pieChartTableLastMonthIncome;
 @property spnTableViewController_PieChart_Cat* pieChartTableAllTimeExpenses;
 @property spnTableViewController_PieChart_Cat* pieChartTableAllTimeIncome;
 @property spnTableViewController_PieChart_Mer* pieChartTableThisMonthExpMerchants;
 @property spnTableViewController_PieChart_Mer* pieChartTableThisMonthIncMerchants;
+@property spnTableViewController_PieChart_Mer* pieChartTableLastMonthExpMerchants;
+@property spnTableViewController_PieChart_Mer* pieChartTableLastMonthIncMerchants;
 @property spnTableViewController_PieChart_Mer* pieChartTableAllTimeExpMerchants;
 @property spnTableViewController_PieChart_Mer* pieChartTableAllTimeIncMerchants;
 @property spnTableViewController_LinePlot_Cat* linePlotAllExpenses;
 @property spnTableViewController_LinePlot_Cat* linePlotAllIncome;
 
-@property spnCollectionContainerView* containerViewThisMonthPies;
+@property spnCollectionContainerView* containerViewThisAndLastMonthPies;
 @property spnCollectionContainerView* containerViewAllTimePies;
 @property spnCollectionContainerView* containerViewAllTimeLines;
 
@@ -55,7 +59,7 @@
 enum
 {
     ROW_CASH_FLOW,
-    ROW_THIS_MONTH_COLLECTON,
+    ROW_THIS_AND_LAST_MONTH_COLLECTON,
     ROW_ALL_TIME_COLLECTION,
     ROW_LINE_COLLECTION,
     ROW_COUNT
@@ -116,38 +120,38 @@ int observeChartPreviewContext;
 
 - (void)removeAdsClicked
 {
-    spnTableViewController_InAppUpgrade* inAppUpgradeViewController = [[spnTableViewController_InAppUpgrade alloc] initWithStyle:UITableViewStyleGrouped];
-    
-
-    self.navigationItem.backBarButtonItem =
-    [[UIBarButtonItem alloc] initWithTitle:@"Back"
-                                     style:self.navigationItem.backBarButtonItem.style
-                                    target:nil
-                                    action:nil];
-    
-    // Present the view
-    [[self navigationController] pushViewController:inAppUpgradeViewController animated:YES];
+//    spnTableViewController_InAppUpgrade* inAppUpgradeViewController = [[spnTableViewController_InAppUpgrade alloc] initWithStyle:UITableViewStyleGrouped];
+//    
+//
+//    self.navigationItem.backBarButtonItem =
+//    [[UIBarButtonItem alloc] initWithTitle:@"Back"
+//                                     style:self.navigationItem.backBarButtonItem.style
+//                                    target:nil
+//                                    action:nil];
+//    
+//    // Present the view
+//    [[self navigationController] pushViewController:inAppUpgradeViewController animated:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     
-    if (![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade])
-    {
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"remove_ads"] style:UIBarButtonItemStylePlain target:self action:@selector(removeAdsClicked)];
-    }
-    else
-    {
+//    if (![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade])
+//    {
+//        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"remove_ads"] style:UIBarButtonItemStylePlain target:self action:@selector(removeAdsClicked)];
+//    }
+//    else
+//    {
         self.navigationItem.leftBarButtonItem = nil;
-    }
+//    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     
-    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
+//    [self setCanDisplayBannerAds:![[spnInAppPurchaseManager sharedManager] productPurchased:spnInAppProduct_AdFreeUpgrade]];
     
     [self.tableView reloadData];
 }
@@ -211,6 +215,49 @@ int observeChartPreviewContext;
     self.pieChartTableThisMonthIncMerchants.excludeCategories = nonIncomeCategoryTitles;
     self.pieChartTableThisMonthIncMerchants.managedObjectContext = self.managedObjectContext;
     [self.pieChartTableThisMonthIncMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    
+    
+    
+    
+    // Last Month - Expenses
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    NSDateComponents *lastMonthOffsetComponents = [[NSDateComponents alloc] init];
+    [lastMonthOffsetComponents setMonth:-1]; // note that I'm setting it to -1
+    
+    self.pieChartTableLastMonthExpenses = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
+    self.pieChartTableLastMonthExpenses.title = @"Last Month's Expenses";
+    self.pieChartTableLastMonthExpenses.startDate = [gregorian dateByAddingComponents:lastMonthOffsetComponents toDate:[NSDate dateStartOfMonth:[NSDate date]] options:0];
+    self.pieChartTableLastMonthExpenses.endDate = [NSDate dateStartOfMonth:[NSDate date]];
+    self.pieChartTableLastMonthExpenses.excludeCategories = @[@"Income"];
+    self.pieChartTableLastMonthExpenses.managedObjectContext = self.managedObjectContext;
+    [self.pieChartTableLastMonthExpenses addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    
+    // Last Month - Expense Merchants
+    self.pieChartTableLastMonthExpMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
+    self.pieChartTableLastMonthExpMerchants.title = @"Last Month's Merchants";
+    self.pieChartTableLastMonthExpMerchants.startDate = [gregorian dateByAddingComponents:lastMonthOffsetComponents toDate:[NSDate dateStartOfMonth:[NSDate date]] options:0];
+    self.pieChartTableLastMonthExpMerchants.endDate = [NSDate dateStartOfMonth:[NSDate date]];;
+    self.pieChartTableLastMonthExpMerchants.excludeCategories = @[@"Income"];
+    self.pieChartTableLastMonthExpMerchants.managedObjectContext = self.managedObjectContext;
+    [self.pieChartTableLastMonthExpMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    
+    // Last Month - Income
+    self.pieChartTableLastMonthIncome = [[spnTableViewController_PieChart_Cat alloc] initWithStyle:UITableViewStyleGrouped];
+    self.pieChartTableLastMonthIncome.title = @"Last Month's Income";
+    self.pieChartTableLastMonthIncome.startDate = [gregorian dateByAddingComponents:lastMonthOffsetComponents toDate:[NSDate dateStartOfMonth:[NSDate date]] options:0];
+    self.pieChartTableLastMonthIncome.endDate = [NSDate dateStartOfMonth:[NSDate date]];;
+    self.pieChartTableLastMonthIncome.excludeCategories = nonIncomeCategoryTitles;
+    self.pieChartTableLastMonthIncome.managedObjectContext = self.managedObjectContext;
+    [self.pieChartTableLastMonthIncome addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
+    
+    // Last Month - Income Sources
+    self.pieChartTableLastMonthIncMerchants = [[spnTableViewController_PieChart_Mer alloc] initWithStyle:UITableViewStyleGrouped];
+    self.pieChartTableLastMonthIncMerchants.title = @"Last Month's Income";
+    self.pieChartTableLastMonthIncMerchants.startDate = [gregorian dateByAddingComponents:lastMonthOffsetComponents toDate:[NSDate dateStartOfMonth:[NSDate date]] options:0];
+    self.pieChartTableLastMonthIncMerchants.endDate = [NSDate dateStartOfMonth:[NSDate date]];;
+    self.pieChartTableLastMonthIncMerchants.excludeCategories = nonIncomeCategoryTitles;
+    self.pieChartTableLastMonthIncMerchants.managedObjectContext = self.managedObjectContext;
+    [self.pieChartTableLastMonthIncMerchants addObserver:self forKeyPath:@"pieChartImage" options:(NSKeyValueObservingOptionNew) context:&observeChartPreviewContext];
     
     
     
@@ -307,9 +354,9 @@ int observeChartPreviewContext;
             {
                 case NSKeyValueChangeSetting:
                 {
-                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_MONTH_COLLECTON inSection:0]];
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
                     previewImage = self.pieChartTableThisMonthExpenses.pieChartImage;
-                    row = ROW_THIS_MONTH_COLLECTON;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
                     collectionViewCellIndex = COLL_VIEW_IDX_PIE_EXPENSE;
 //                    NSLog(@"Observe pieChartTableThisMonthExpenses, %lu",  collectionViewCellIndex);
                 }
@@ -328,9 +375,9 @@ int observeChartPreviewContext;
             {
                 case NSKeyValueChangeSetting:
                 {
-                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_MONTH_COLLECTON inSection:0]];
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
                     previewImage = self.pieChartTableThisMonthExpMerchants.pieChartImage;
-                    row = ROW_THIS_MONTH_COLLECTON;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
                     collectionViewCellIndex = COLL_VIEW_IDX_PIE_EXP_MERCHANT;
 //                    NSLog(@"Observe pieChartTableThisMonthExpMerchants, %lu",  collectionViewCellIndex);
                 }
@@ -349,9 +396,9 @@ int observeChartPreviewContext;
             {
                 case NSKeyValueChangeSetting:
                 {
-                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_MONTH_COLLECTON inSection:0]];
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
                     previewImage = self.pieChartTableThisMonthIncome.pieChartImage;
-                    row = ROW_THIS_MONTH_COLLECTON;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
                     collectionViewCellIndex = COLL_VIEW_IDX_PIE_INCOME;
 //                    NSLog(@"Observe pieChartTableThisMonthIncome, %lu",  collectionViewCellIndex);
                 }
@@ -370,11 +417,95 @@ int observeChartPreviewContext;
             {
                 case NSKeyValueChangeSetting:
                 {
-                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_MONTH_COLLECTON inSection:0]];
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
                     previewImage = self.pieChartTableThisMonthIncMerchants.pieChartImage;
-                    row = ROW_THIS_MONTH_COLLECTON;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
                     collectionViewCellIndex = COLL_VIEW_IDX_PIE_INC_MERCHANT;
 //                    NSLog(@"Observe pieChartTableThisMonthIncMerchants, %lu",  collectionViewCellIndex);
+                }
+                    break;
+                    
+                case NSKeyValueChangeReplacement:
+                case NSKeyValueChangeInsertion:
+                case NSKeyValueChangeRemoval:
+                default:
+                    break;
+            }
+        }
+        else if (object == self.pieChartTableLastMonthExpenses)
+        {
+            switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
+            {
+                case NSKeyValueChangeSetting:
+                {
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
+                    previewImage = self.pieChartTableLastMonthExpenses.pieChartImage;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
+                    collectionViewCellIndex = COLL_VIEW_IDX_PIE_COUNT + COLL_VIEW_IDX_PIE_EXPENSE;
+                    //                    NSLog(@"Observe pieChartTableLastMonthExpenses, %lu",  collectionViewCellIndex);
+                }
+                    break;
+                    
+                case NSKeyValueChangeReplacement:
+                case NSKeyValueChangeInsertion:
+                case NSKeyValueChangeRemoval:
+                default:
+                    break;
+            }
+        }
+        else if (object == self.pieChartTableLastMonthExpMerchants)
+        {
+            switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
+            {
+                case NSKeyValueChangeSetting:
+                {
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
+                    previewImage = self.pieChartTableLastMonthExpMerchants.pieChartImage;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
+                    collectionViewCellIndex = COLL_VIEW_IDX_PIE_COUNT + COLL_VIEW_IDX_PIE_EXP_MERCHANT;
+                    //                    NSLog(@"Observe pieChartTableLastMonthExpMerchants, %lu",  collectionViewCellIndex);
+                }
+                    break;
+                    
+                case NSKeyValueChangeReplacement:
+                case NSKeyValueChangeInsertion:
+                case NSKeyValueChangeRemoval:
+                default:
+                    break;
+            }
+        }
+        else if (object == self.pieChartTableLastMonthIncome)
+        {
+            switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
+            {
+                case NSKeyValueChangeSetting:
+                {
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
+                    previewImage = self.pieChartTableLastMonthIncome.pieChartImage;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
+                    collectionViewCellIndex = COLL_VIEW_IDX_PIE_COUNT + COLL_VIEW_IDX_PIE_INCOME;
+                    //                    NSLog(@"Observe pieChartTableLastMonthIncome, %lu",  collectionViewCellIndex);
+                }
+                    break;
+                    
+                case NSKeyValueChangeReplacement:
+                case NSKeyValueChangeInsertion:
+                case NSKeyValueChangeRemoval:
+                default:
+                    break;
+            }
+        }
+        else if (object == self.pieChartTableLastMonthIncMerchants)
+        {
+            switch([(NSNumber*)[change objectForKey:NSKeyValueChangeKindKey] intValue])
+            {
+                case NSKeyValueChangeSetting:
+                {
+                    cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]];
+                    previewImage = self.pieChartTableLastMonthIncMerchants.pieChartImage;
+                    row = ROW_THIS_AND_LAST_MONTH_COLLECTON;
+                    collectionViewCellIndex = COLL_VIEW_IDX_PIE_COUNT + COLL_VIEW_IDX_PIE_INC_MERCHANT;
+                    //                    NSLog(@"Observe pieChartTableLastMonthIncMerchants, %lu",  collectionViewCellIndex);
                 }
                     break;
                     
@@ -590,9 +721,12 @@ int observeChartPreviewContext;
         }
             break;
             
-        case ROW_THIS_MONTH_COLLECTON:
+        case ROW_THIS_AND_LAST_MONTH_COLLECTON:
         case ROW_ALL_TIME_COLLECTION:
         {
+            // create offset for last month row since it has twice the number of pie charts to view (current month and last month)
+            NSInteger offset = indexPath.row == ROW_THIS_AND_LAST_MONTH_COLLECTON ? COLL_VIEW_IDX_PIE_COUNT : 0;
+            
             // get collection container view
             spnCollectionContainerView* containerView = (spnCollectionContainerView*)[cell viewWithTag:CELL_CHART_TAG_CONTENT];
             containerView.delegate = self;
@@ -602,7 +736,7 @@ int observeChartPreviewContext;
 //                NSLog(@"Configure. New collection. row: %ld", (long)indexPath.row);
                 containerView.collectionData = [[NSMutableArray alloc] init];
                 
-                for (NSInteger i = 0; i < COLL_VIEW_IDX_PIE_COUNT; i++)
+                for (NSInteger i = 0; i < COLL_VIEW_IDX_PIE_COUNT+offset; i++)
                 {
                     UIImageView* imageView = [[UIImageView alloc] initWithFrame:PIE_CHART_IMAGE_FRAME];
                     imageView.image = self.chartImageCache[indexPath.row];
@@ -714,7 +848,7 @@ int observeChartPreviewContext;
             }
                 break;
 
-            case ROW_THIS_MONTH_COLLECTON:
+            case ROW_THIS_AND_LAST_MONTH_COLLECTON:
             case ROW_ALL_TIME_COLLECTION:
             {
                 // Create text label
@@ -728,9 +862,9 @@ int observeChartPreviewContext;
                 spnCollectionContainerView* collectionContainerView = [[spnCollectionContainerView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, PIE_CHART_HEIGHT)];
                 collectionContainerView.tag = CELL_CHART_TAG_CONTENT;
                 
-                if (indexPath.row == ROW_THIS_MONTH_COLLECTON)
+                if (indexPath.row == ROW_THIS_AND_LAST_MONTH_COLLECTON)
                 {
-                    self.containerViewThisMonthPies = collectionContainerView;
+                    self.containerViewThisAndLastMonthPies = collectionContainerView;
                 }
                 else
                 {
@@ -836,7 +970,7 @@ int observeChartPreviewContext;
         }
             break;
             
-        case ROW_THIS_MONTH_COLLECTON:
+        case ROW_THIS_AND_LAST_MONTH_COLLECTON:
         {
             self.pieChartTableThisMonthExpenses.imageFrame = PIE_CHART_IMAGE_FRAME;
             [self.pieChartTableThisMonthExpenses performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
@@ -850,7 +984,21 @@ int observeChartPreviewContext;
             self.pieChartTableThisMonthIncMerchants.imageFrame = PIE_CHART_IMAGE_FRAME;
             [self.pieChartTableThisMonthIncMerchants performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
             
-//            NSLog(@"ROW_THIS_MONTH_COLLECTON - reloadData");
+            
+            
+            self.pieChartTableLastMonthExpenses.imageFrame = PIE_CHART_IMAGE_FRAME;
+            [self.pieChartTableLastMonthExpenses performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+            
+            self.pieChartTableLastMonthExpMerchants.imageFrame = PIE_CHART_IMAGE_FRAME;
+            [self.pieChartTableLastMonthExpMerchants performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+            
+            self.pieChartTableLastMonthIncome.imageFrame = PIE_CHART_IMAGE_FRAME;
+            [self.pieChartTableLastMonthIncome performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+            
+            self.pieChartTableLastMonthIncMerchants.imageFrame = PIE_CHART_IMAGE_FRAME;
+            [self.pieChartTableLastMonthIncMerchants performSelector:@selector(reloadData) withObject:nil afterDelay:PERFORM_RELOAD_DELAY];
+            
+//            NSLog(@"ROW_THIS_AND_LAST_MONTH_COLLECTON - reloadData");
         }
             break;
             
@@ -911,10 +1059,14 @@ int observeChartPreviewContext;
 - (void)collectionContainer:(spnCollectionContainerView *)collectionContainer willDisplayEntryAtIndexPath:(NSIndexPath *)indexPath
 {
     // These sust be in the same order as row enums for the collection
-    NSArray* thisMonthPieHeaderText = @[@"THIS MONTH - EXPENSES",
+    NSArray* thisAndLastMonthPieHeaderText = @[@"THIS MONTH - EXPENSES",
                                         @"THIS MONTH - MERCHANTS",
                                         @"THIS MONTH - INCOME",
-                                        @"THIS MONTH - INCOME SOURCES"];
+                                        @"THIS MONTH - INCOME SOURCES",
+                                        @"LAST MONTH - EXPENSES",
+                                        @"LAST MONTH - MERCHANTS",
+                                        @"LAST MONTH - INCOME",
+                                        @"LAST MONTH - INCOME SOURCES"];
     
     NSArray* allTimePieHeaderText = @[@"ALL TIME - EXPENSES",
                                       @"ALL TIME - EXPENSE MERCHANTS",
@@ -925,10 +1077,10 @@ int observeChartPreviewContext;
                                            @"LAST 12 MONTHS - INCOME"];
 
     // This month pie charts
-    if (collectionContainer == self.containerViewThisMonthPies)
+    if (collectionContainer == self.containerViewThisAndLastMonthPies)
     {
-        UILabel* headerLabel = (UILabel*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_MONTH_COLLECTON inSection:0]] viewWithTag:CELL_CHART_TAG_LABEL];
-        headerLabel.text = thisMonthPieHeaderText[indexPath.row];
+        UILabel* headerLabel = (UILabel*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:ROW_THIS_AND_LAST_MONTH_COLLECTON inSection:0]] viewWithTag:CELL_CHART_TAG_LABEL];
+        headerLabel.text = thisAndLastMonthPieHeaderText[indexPath.row];
 //        headerLabel.backgroundColor = [ UIColor grayColor];
     }
     
@@ -954,7 +1106,7 @@ int observeChartPreviewContext;
 //    NSLog(@"view: %@, sec: %ld, row: %ld", collectionContainer, indexPath.section, indexPath.row);
     
     // This month pie charts
-    if (collectionContainer == self.containerViewThisMonthPies)
+    if (collectionContainer == self.containerViewThisAndLastMonthPies)
     {
         switch (indexPath.row)
         {
@@ -972,6 +1124,23 @@ int observeChartPreviewContext;
                 
             case COLL_VIEW_IDX_PIE_INC_MERCHANT:
                 [[self navigationController] pushViewController:self.pieChartTableThisMonthIncMerchants animated:YES];
+                break;
+                
+                // LAST MONTH COLUMNS:
+            case COLL_VIEW_IDX_PIE_COUNT+COLL_VIEW_IDX_PIE_EXPENSE:
+                [[self navigationController] pushViewController:self.pieChartTableLastMonthExpenses animated:YES];
+                break;
+                
+            case COLL_VIEW_IDX_PIE_COUNT+COLL_VIEW_IDX_PIE_EXP_MERCHANT:
+                [[self navigationController] pushViewController:self.pieChartTableLastMonthExpMerchants animated:YES];
+                break;
+                
+            case COLL_VIEW_IDX_PIE_COUNT+COLL_VIEW_IDX_PIE_INCOME:
+                [[self navigationController] pushViewController:self.pieChartTableLastMonthIncome animated:YES];
+                break;
+                
+            case COLL_VIEW_IDX_PIE_COUNT+COLL_VIEW_IDX_PIE_INC_MERCHANT:
+                [[self navigationController] pushViewController:self.pieChartTableLastMonthIncMerchants animated:YES];
                 break;
  
             default:

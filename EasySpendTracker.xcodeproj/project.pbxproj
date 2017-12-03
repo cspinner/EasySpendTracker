@@ -54,7 +54,6 @@
 		3B61720C17F8DAB200FBF39F /* spnTableViewController_Transactions.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720B17F8DAB200FBF39F /* spnTableViewController_Transactions.m */; };
 		3B61720F17F916A100FBF39F /* spnTransactionCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61720E17F916A100FBF39F /* spnTransactionCellView.m */; };
 		3B61721217FCD3BD00FBF39F /* spnViewController_Expense.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B61721117FCD3BD00FBF39F /* spnViewController_Expense.m */; };
-		3B70C7481A65F22C00355412 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B70C7471A65F22C00355412 /* StoreKit.framework */; };
 		3B70C74B1A65F38800355412 /* spnInAppPurchase.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B70C74A1A65F38800355412 /* spnInAppPurchase.m */; };
 		3B70C74E1A6732A800355412 /* spnInAppPurchaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B70C74D1A6732A800355412 /* spnInAppPurchaseManager.m */; };
 		3B70C7551A67442F00355412 /* spnTableViewController_InAppUpgrade.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B70C7541A67442F00355412 /* spnTableViewController_InAppUpgrade.m */; };
@@ -67,7 +66,6 @@
 		3B771A151979CC4600CF556F /* SpnRecurrenceMO.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A141979CC4600CF556F /* SpnRecurrenceMO.m */; };
 		3B771A18197AD7C600CF556F /* spnTableViewController_CategorySelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A17197AD7C600CF556F /* spnTableViewController_CategorySelect.m */; };
 		3B771A1C197B61EF00CF556F /* EasySpendTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3B771A1A197B61EF00CF556F /* EasySpendTracker.xcdatamodeld */; };
-		3B91CE561A617C03000D4909 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B91CE551A617C03000D4909 /* iAd.framework */; };
 		3B93B1A119A13E5F00A16006 /* spnTableViewController_PieChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B93B1A019A13E5F00A16006 /* spnTableViewController_PieChart.m */; };
 		3B94A55419641F24004EB00B /* spnTableViewController_RecurSelect.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B94A55319641F24004EB00B /* spnTableViewController_RecurSelect.m */; };
 		3BCB7F8719F6F000005D927F /* spnBarPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BCB7F8619F6F000005D927F /* spnBarPlot.m */; };
@@ -323,8 +321,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3B70C7481A65F22C00355412 /* StoreKit.framework in Frameworks */,
-				3B91CE561A617C03000D4909 /* iAd.framework in Frameworks */,
 				3BD4130F1A0D23C10088EA61 /* libKal.a in Frameworks */,
 				3B1D7BD71991C7B300A8B533 /* QuartzCore.framework in Frameworks */,
 				3B61711517EDED6800FBF39F /* CoreGraphics.framework in Frameworks */,
@@ -814,7 +810,8 @@
 				ORGANIZATIONNAME = "Christopher Spinner";
 				TargetAttributes = {
 					3B61710E17EDED6800FBF39F = {
-						DevelopmentTeam = U3MRJ5KY5T;
+						DevelopmentTeam = 26Y67MWRQQ;
+						ProvisioningStyle = Automatic;
 					};
 					3B61712E17EDED6800FBF39F = {
 						TestTargetID = 3B61710E17EDED6800FBF39F;
@@ -1077,7 +1074,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = U3MRJ5KY5T;
+				DEVELOPMENT_TEAM = 26Y67MWRQQ;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
@@ -1111,7 +1108,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = U3MRJ5KY5T;
+				DEVELOPMENT_TEAM = 26Y67MWRQQ;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasySpendTracker/EasySpendTracker-Prefix.pch";
